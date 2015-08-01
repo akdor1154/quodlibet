@@ -127,7 +127,7 @@ def get_thumbnail(path, boundary):
     thumb_path, thumb_size = get_cache_info(path, boundary)
     cache_dir = os.path.dirname(thumb_path)
     try:
-        mkdir(cache_dir, 0700)
+        mkdir(cache_dir, 0o700)
     except OSError:
         return new_from_file_at_size(path, width, height)
 
@@ -167,9 +167,9 @@ def get_thumbnail(path, boundary):
         "tEXt::Software": "QuodLibet"
     }
 
-    thumb_pb.savev(thumb_path, "png", options.keys(), options.values())
+    thumb_pb.savev(thumb_path, "png", list(options.keys()), list(options.values()))
     try:
-        os.chmod(thumb_path, 0600)
+        os.chmod(thumb_path, 0o600)
     except OSError:
         pass
 

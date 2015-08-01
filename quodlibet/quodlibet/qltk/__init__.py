@@ -37,7 +37,7 @@ def selection_set_songs(selection_data, songs):
 
     filenames = []
     for filename in (song["~filename"] for song in songs):
-        if isinstance(filename, unicode):
+        if isinstance(filename, str):
             # win32
             filename = filename.encode("utf-8")
         filenames.append(filename)
@@ -226,6 +226,8 @@ def add_css(widget, css):
     Can raise GLib.GError in case the css is invalid
     """
 
+    if isinstance(css, str):
+        css = css.encode()
     provider = Gtk.CssProvider()
     provider.load_from_data(css)
     context = widget.get_style_context()
@@ -308,7 +310,7 @@ def add_signal_watch(signal_action):
                  wakeup_notify)
 
     # set a python handler for each signal, used before the mainloop
-    for signum, name in signals.items():
+    for signum, name in list(signals.items()):
         # Before the mainloop starts we catch signals in python
         # directly and idle_add the app.quit
         def idle_handler(signum, frame):
@@ -332,7 +334,7 @@ def add_signal_watch(signal_action):
         print_d("Can't install GLib signal handler, too old gi or wrong OS")
         return
 
-    for signum, name in signals.items():
+    for signum, name in list(signals.items()):
 
         def handler(signum):
             print_d("GLib signal handler activated: %s" % signals[signum])

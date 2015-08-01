@@ -13,6 +13,6 @@ PY3 = not PY2
 
 
 if PY2:
-    text_type = unicode
+    text_type = str
 else:
     text_type = str

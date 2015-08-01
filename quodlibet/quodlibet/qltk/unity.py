@@ -66,7 +66,7 @@ def init(desktop_id, player):
     main.child_append(next_)
 
     def next_cb(item, timestamp):
-        player.next()
+        next(player)
 
     next_.connect("item-activated", next_cb)
 

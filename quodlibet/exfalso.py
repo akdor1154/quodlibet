@@ -29,7 +29,7 @@ def main(argv):
         _("an audio tag editor"), "[%s]" % _("directory"))
 
     # FIXME: support unicode on Windows, sys.argv isn't good enough
-    argv.append(os.path.abspath(fsnative(u".")))
+    argv.append(os.path.abspath(fsnative(".")))
     opts, args = opts.parse(argv[1:])
     args[0] = os.path.realpath(args[0])
 

@@ -71,16 +71,16 @@ class TImageUtils(TestCase):
 
     def test_scale(s):
         nw = scale(s.wide, (50, 30))
-        s.failUnlessEqual((nw.get_width(), nw.get_height()), (50, 3))
+        s.assertEqual((nw.get_width(), nw.get_height()), (50, 3))
 
         nh = scale(s.high, (100, 20))
-        s.failUnlessEqual((nh.get_width(), nh.get_height()), (2, 20))
+        s.assertEqual((nh.get_width(), nh.get_height()), (2, 20))
 
         ns = scale(s.small, (500, 300))
-        s.failUnlessEqual((ns.get_width(), ns.get_height()), (150, 300))
+        s.assertEqual((ns.get_width(), ns.get_height()), (150, 300))
 
         ns = scale(s.small, (500, 300), scale_up=False)
-        s.failUnlessEqual((ns.get_width(), ns.get_height()), (10, 20))
+        s.assertEqual((ns.get_width(), ns.get_height()), (10, 20))
 
     def test_calc_scale_size(self):
         self.assertRaises(ValueError,

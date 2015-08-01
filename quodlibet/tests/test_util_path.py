@@ -20,8 +20,8 @@ class Tpathname2url(TestCase):
             r"\\server\share\foo": "//server/share/foo",
             }
         p2u = pathname2url_win32
-        for inp, should in cases.iteritems():
-            self.failUnlessEqual(p2u(inp), should)
+        for inp, should in cases.items():
+            self.assertEqual(p2u(inp), should)
 
 
 class Tget_x_dir(TestCase):
@@ -35,24 +35,24 @@ class Tlimit_path(TestCase):
 
     def test_main(self):
         if os.name == "nt":
-            path = u'C:\\foobar\\ä%s\\%s' % ("x" * 300, "x" * 300)
+            path = 'C:\\foobar\\ä%s\\%s' % ("x" * 300, "x" * 300)
             path = limit_path(path)
-            self.failUnlessEqual(len(path), 3 + 6 + 1 + 255 + 1 + 255)
+            self.assertEqual(len(path), 3 + 6 + 1 + 255 + 1 + 255)
         else:
             path = '/foobar/ä%s/%s' % ("x" * 300, "x" * 300)
             path = limit_path(path)
-            self.failUnlessEqual(len(path), 1 + 6 + 1 + 255 + 1 + 255)
+            self.assertEqual(len(path), 1 + 6 + 1 + 255 + 1 + 255)
 
-        path = fsnative(u"foo%s.ext" % (u"x" * 300))
+        path = fsnative("foo%s.ext" % ("x" * 300))
         new = limit_path(path, ellipsis=False)
         self.assertTrue(is_fsnative(new))
         self.assertEqual(len(new), 255)
-        self.assertTrue(new.endswith(fsnative(u"xx.ext")))
+        self.assertTrue(new.endswith(fsnative("xx.ext")))
 
         new = limit_path(path)
         self.assertTrue(is_fsnative(new))
         self.assertEqual(len(new), 255)
-        self.assertTrue(new.endswith(fsnative(u"...ext")))
+        self.assertTrue(new.endswith(fsnative("...ext")))
 
         self.assertTrue(is_fsnative(limit_path(fsnative())))
         self.assertEqual(limit_path(fsnative()), fsnative())
@@ -62,16 +62,16 @@ class Tiscommand(TestCase):
 
     @unittest.skipIf(is_win, "Unix only")
     def test_unix(self):
-        self.failUnless(iscommand("ls"))
-        self.failUnless(iscommand("/bin/ls"))
-        self.failUnless(iscommand("pidof"))
+        self.assertTrue(iscommand("ls"))
+        self.assertTrue(iscommand("/bin/ls"))
+        self.assertTrue(iscommand("pidof"))
 
     def test_both(self):
-        self.failIf(iscommand("zzzzzzzzz"))
-        self.failIf(iscommand("/bin/zzzzzzzzz"))
-        self.failIf(iscommand(""))
-        self.failIf(iscommand("/bin"))
-        self.failIf(iscommand("X11"))
+        self.assertFalse(iscommand("zzzzzzzzz"))
+        self.assertFalse(iscommand("/bin/zzzzzzzzz"))
+        self.assertFalse(iscommand(""))
+        self.assertFalse(iscommand("/bin"))
+        self.assertFalse(iscommand("X11"))
 
     @unittest.skipUnless(path_set, "Can only test with a valid $PATH")
     def test_looks_in_path(self):
@@ -82,5 +82,5 @@ class Tiscommand(TestCase):
                 for file_path in os.listdir(d):
                     if os.access(os.path.join(d, file_path), os.X_OK):
                         print_d("Testing %s" % file_path)
-                        self.failUnless(iscommand(file_path))
+                        self.assertTrue(iscommand(file_path))
                         return

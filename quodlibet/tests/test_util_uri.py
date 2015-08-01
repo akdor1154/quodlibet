@@ -18,7 +18,7 @@ class TURI(TestCase):
             return
 
         self.assertEqual(
-            URI.frompath(u"\\\\server\\share\\path"),
+            URI.frompath("\\\\server\\share\\path"),
             r"file:////server/share/path")
 
     def test_leading_slashes(self):
@@ -42,7 +42,7 @@ class TURI(TestCase):
         if os.name != "nt":
             return
 
-        win_path = u"C:\\SomeDir\xe4"
+        win_path = "C:\\SomeDir\xe4"
         uri = URI.frompath(win_path)
         self.assertEqual(uri, "file:///C:/SomeDir%C3%A4")
         self.assertTrue(uri.is_filename)
@@ -50,58 +50,58 @@ class TURI(TestCase):
         self.assertEqual(uri.filename, win_path)
 
     def test_raise_windows_path(self):
-        self.assertRaises(ValueError, URI, u"C:\\Some\\path")
+        self.assertRaises(ValueError, URI, "C:\\Some\\path")
 
     def test_type(s):
-        s.failUnless(isinstance(s.http_uri, URI))
-        s.failUnless(isinstance(s.http_uri, basestring))
+        s.assertTrue(isinstance(s.http_uri, URI))
+        s.assertTrue(isinstance(s.http_uri, str))
 
     # bad constructor tests
     def test_empty(s):
-        s.failUnlessRaises(ValueError, URI, "")
+        s.assertRaises(ValueError, URI, "")
 
     def test_no_scheme(s):
-        s.failUnlessRaises(ValueError, URI, "foobar/?quux")
+        s.assertRaises(ValueError, URI, "foobar/?quux")
 
     def test_no_loc_or_path(s):
-        s.failUnlessRaises(ValueError, URI, "http://")
+        s.assertRaises(ValueError, URI, "http://")
 
     # good constructor tests
     def test_scheme(s):
-        s.failUnlessEqual(s.http_uri.scheme, "http")
+        s.assertEqual(s.http_uri.scheme, "http")
 
     def test_netlocl(s):
-        s.failUnlessEqual(s.http_uri.netloc, "www.example.com")
+        s.assertEqual(s.http_uri.netloc, "www.example.com")
 
     def test_path(s):
-        s.failUnlessEqual(s.http_uri.path, "/~piman")
+        s.assertEqual(s.http_uri.path, "/~piman")
 
     def test_params(s):
-        s.failUnless(s.http_uri.params, "woo")
+        s.assertTrue(s.http_uri.params, "woo")
 
     def test_query(s):
-        s.failUnlessEqual(s.http_uri.query, "bar=quux")
+        s.assertEqual(s.http_uri.query, "bar=quux")
 
     def test_fragment(s):
-        s.failUnlessEqual(s.http_uri.fragment, "whee")
+        s.assertEqual(s.http_uri.fragment, "whee")
 
     # unescaping
     def test_unescaped(s):
-        s.failUnlessEqual(s.file_uri.unescaped, "file:///home/piman/cr!azy")
-        s.failUnlessEqual(s.http_uri.unescaped, s.http_uri)
+        s.assertEqual(s.file_uri.unescaped, "file:///home/piman/cr!azy")
+        s.assertEqual(s.http_uri.unescaped, s.http_uri)
 
     # local file handling
     def test_frompath(s):
-        s.failUnlessEqual(s.file_uri, "file:///home/piman/cr%21azy")
+        s.assertEqual(s.file_uri, "file:///home/piman/cr%21azy")
         expected = os.path.sep + os.path.join("home", "piman", "cr!azy")
-        s.failUnlessEqual(s.file_uri.filename, expected)
+        s.assertEqual(s.file_uri.filename, expected)
         s.assertTrue(is_fsnative(s.file_uri.filename))
 
     def test_bad_files(s):
-        s.failUnlessRaises(ValueError, lambda: s.http_uri.filename)
-        s.failUnlessRaises(ValueError, lambda: s.http_uri.filename)
+        s.assertRaises(ValueError, lambda: s.http_uri.filename)
+        s.assertRaises(ValueError, lambda: s.http_uri.filename)
 
     def test_is_filename(s):
-        s.failUnless(s.file_uri.is_filename)
-        s.failIf(s.rfile_uri.is_filename)
-        s.failIf(s.http_uri.is_filename)
+        s.assertTrue(s.file_uri.is_filename)
+        s.assertFalse(s.rfile_uri.is_filename)
+        s.assertFalse(s.http_uri.is_filename)

@@ -140,7 +140,7 @@ class Preferences(qltk.UniqueWindow):
             text = _("Invalid pattern")
             edit.apply.set_sensitive(False)
         try:
-            Pango.parse_markup(text, -1, u"\u0000")
+            Pango.parse_markup(text, -1, "\u0000")
         except GLib.GError:
             text = _("Invalid pattern")
             edit.apply.set_sensitive(False)

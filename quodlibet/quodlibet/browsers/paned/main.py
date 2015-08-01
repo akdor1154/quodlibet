@@ -149,13 +149,13 @@ class PanedBrowser(Browser, util.InstanceTracker):
         self._panes[-1].get_selection().emit('changed')
 
     def __added(self, library, songs):
-        songs = filter(self._filter, songs)
+        songs = list(filter(self._filter, songs))
         for pane in self._panes:
             pane.add(songs)
-            songs = filter(pane.matches, songs)
+            songs = list(filter(pane.matches, songs))
 
     def __removed(self, library, songs, remove_if_empty=True):
-        songs = filter(self._filter, songs)
+        songs = list(filter(self._filter, songs))
         for pane in self._panes:
             pane.remove(songs, remove_if_empty)
 
@@ -181,11 +181,11 @@ class PanedBrowser(Browser, util.InstanceTracker):
         if Query.is_parsable(text):
             star = dict.fromkeys(SongList.star)
             star.update(self.__star)
-            self._filter = Query(text, star.keys()).search
-            songs = filter(self._filter, self._library)
+            self._filter = Query(text, list(star.keys())).search
+            songs = list(filter(self._filter, self._library))
             bg = background_filter()
             if bg:
-                songs = filter(bg, songs)
+                songs = list(filter(bg, songs))
             self._panes[0].fill(songs)
 
     def scroll(self, song):
@@ -284,7 +284,7 @@ class PanedBrowser(Browser, util.InstanceTracker):
         for pane in self._panes:
             selected.append(pane.get_restore_string())
 
-        to_save = u"\n".join(selected).encode("utf-8")
+        to_save = "\n".join(selected).encode("utf-8")
         config.set("browsers", "pane_selection", to_save)
 
     def restore(self):
@@ -304,7 +304,7 @@ class PanedBrowser(Browser, util.InstanceTracker):
         except UnicodeDecodeError:
             return
 
-        for pane, string in zip(self._panes, selected.split(u"\n")):
+        for pane, string in zip(self._panes, selected.split("\n")):
             pane.parse_restore_string(string)
 
     def finalize(self, restored):

@@ -72,9 +72,9 @@ class TIRFile(TestCase):
         self.assertEqual(self.s("~~people~foo"), "artist")
 
     def testcan_write(self):
-        self.failUnless(self.s.can_change("title"))
+        self.assertTrue(self.s.can_change("title"))
         self.s.streamsong = True
-        self.failIf(self.s.can_change("title"))
+        self.assertFalse(self.s.can_change("title"))
 
     def test_dump_to_file(self):
         self.s["title"] = "artist - title"

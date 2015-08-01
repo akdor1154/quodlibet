@@ -17,9 +17,9 @@ import time
 import threading
 import gzip
 
-import urllib
-import urllib2
-from cStringIO import StringIO
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
+from io import StringIO
 from xml.dom import minidom
 
 from gi.repository import Gtk, Pango, GLib, Gdk, GdkPixbuf
@@ -48,29 +48,29 @@ CONFIG_ENG_PREFIX = 'engine_'
 
 def get_encoding_from_socket(socket):
     content_type = socket.headers.get("Content-Type", "")
-    p = map(str.strip, map(str.lower, content_type.split(";")))
+    p = list(map(str.strip, list(map(str.lower, content_type.split(";")))))
     enc = [t.split("=")[-1].strip() for t in p if t.startswith("charset")]
     return (enc and enc[0]) or "utf-8"
 
 
 def get_url(url, post={}, get={}):
-    post_params = urllib.urlencode(post)
-    get_params = urllib.urlencode(get)
+    post_params = urllib.parse.urlencode(post)
+    get_params = urllib.parse.urlencode(get)
     if get:
         get_params = '?' + get_params
 
     # add post, get data and headers
     url = '%s%s' % (url, get_params)
     if post_params:
-        request = urllib2.Request(url, post_params)
+        request = urllib.request.Request(url, post_params)
     else:
-        request = urllib2.Request(url)
+        request = urllib.request.Request(url)
 
     # for discogs
     request.add_header('Accept-Encoding', 'gzip')
     request.add_header('User-Agent', USER_AGENT)
 
-    url_sock = urllib2.urlopen(request)
+    url_sock = urllib.request.urlopen(request)
     enc = get_encoding_from_socket(url_sock)
 
     # unzip the response if needed
@@ -83,10 +83,10 @@ def get_url(url, post={}, get={}):
 
 
 def get_encoding(url):
-    request = urllib2.Request(url)
+    request = urllib.request.Request(url)
     request.add_header('Accept-Encoding', 'gzip')
     request.add_header('User-Agent', USER_AGENT)
-    url_sock = urllib2.urlopen(request)
+    url_sock = urllib.request.urlopen(request)
     return get_encoding_from_socket(url_sock)
 
 
@@ -192,7 +192,7 @@ class AmazonParser(object):
         self.__parse_page(1, query)
 
         if len(self.covers) < limit:
-            for page in xrange(2, self.page_count + 1):
+            for page in range(2, self.page_count + 1):
                 self.__parse_page(page, query)
                 if len(self.covers) >= limit:
                     break
@@ -262,8 +262,8 @@ class CoverArea(Gtk.VBox, PluginConfigMixin):
             else:
                 fn_list.append("<artist> - <album>.jpg")
         else:
-            print_w(u"No album for \"%s\". Could be difficult "
-                    u"finding art…" % song("~filename"))
+            print_w("No album for \"%s\". Could be difficult "
+                    "finding art…" % song("~filename"))
             title = song("title")
             if title and artist:
                 fn_list.append("<artist> - <title>.jpg")
@@ -447,10 +447,10 @@ class CoverArea(Gtk.VBox, PluginConfigMixin):
             data_store = StringIO()
 
             try:
-                request = urllib2.Request(url)
+                request = urllib.request.Request(url)
                 request.add_header('User-Agent', USER_AGENT)
-                url_sock = urllib2.urlopen(request)
-            except urllib2.HTTPError:
+                url_sock = urllib.request.urlopen(request)
+            except urllib.error.HTTPError:
                 print_w(_("[albumart] HTTP Error: %s") % url)
             else:
                 while not self.stop_loading:
@@ -641,7 +641,7 @@ class AlbumArtWindow(qltk.Window, PluginConfigMixin):
         self.search_button.set_sensitive(False)
 
         self.progress.set_fraction(0)
-        self.progress.set_text(_(u'Searching…'))
+        self.progress.set_text(_('Searching…'))
         self.progress.show()
 
         self.liststore.clear()
@@ -793,10 +793,10 @@ class CoverSearch(object):
 
 #------------------------------------------------------------------------------
 def get_size_of_url(url):
-    request = urllib2.Request(url)
+    request = urllib.request.Request(url)
     request.add_header('Accept-Encoding', 'gzip')
     request.add_header('User-Agent', USER_AGENT)
-    url_sock = urllib2.urlopen(request)
+    url_sock = urllib.request.urlopen(request)
     size = url_sock.headers.get('content-length')
     url_sock.close()
     return format_size(int(size)) if size else ''

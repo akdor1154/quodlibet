@@ -44,7 +44,7 @@ def build_tree(tags, albums, cache=None):
             values = [MultiNode]
         for value in values or [UnknownNode]:
             tree.setdefault(value, []).append(album)
-    for key, value in tree.iteritems():
+    for key, value in tree.items():
         tree[key] = build_tree(tags[1:], value, cache)
     return tree
 
@@ -98,7 +98,7 @@ class CollectionModelMixin(object):
         if isinstance(obj, Album):
             return PAT % obj
 
-        if isinstance(obj, basestring):
+        if isinstance(obj, str):
             markup = util.escape(obj)
         else:
             tag = util.tag(tags[len(self.get_path(iter_).get_indices()) - 1])
@@ -156,7 +156,7 @@ class CollectionTreeStore(ObjectTreeStore, CollectionModelMixin):
                 child = self.iter_next(child)
 
             # add missing ones
-            for key, value in tree.iteritems():
+            for key, value in tree.items():
                 _add(value, self.append(parent=iter_, row=[key]))
 
         _add(build_tree(self.__tags, albums))
@@ -225,7 +225,7 @@ class CollectionTreeStore(ObjectTreeStore, CollectionModelMixin):
                 if isinstance(sub, list):
                     found.update(sub)
                     return found
-                for v in sub.itervalues():
+                for v in sub.values():
                     _get_all(v, found)
                 return found
             not_found.update(_get_all(tree))

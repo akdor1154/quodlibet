@@ -16,27 +16,27 @@ from quodlibet.library import SongLibrary, SongLibrarian
 SONGS = [AudioFile({
                 "title": "one",
                 "artist": "piman",
-                "~filename": fsnative(u"/dev/null")}),
+                "~filename": fsnative("/dev/null")}),
          AudioFile({
                 "title": "two",
                 "artist": "mu",
-                "~filename": fsnative(u"/dev/zero")}),
+                "~filename": fsnative("/dev/zero")}),
          AudioFile({
                 "title": "three",
                 "artist": "boris",
-                "~filename": fsnative(u"/bin/ls")}),
+                "~filename": fsnative("/bin/ls")}),
          AudioFile({
                 "title": "four",
                 "artist": "random",
                 "album": "don't stop",
                 "labelid": "65432-1",
-                "~filename": fsnative(u"/dev/random")}),
+                "~filename": fsnative("/dev/random")}),
          AudioFile({
                 "title": "five",
                 "artist": "shell",
                 "album": "don't stop",
                 "labelid": "12345-6",
-                "~filename": fsnative(u"/dev/sh")})]
+                "~filename": fsnative("/dev/sh")})]
 
 
 class TEmptyBar(TestCase):
@@ -55,17 +55,17 @@ class TEmptyBar(TestCase):
     def _expected(self, bar, songs, sort):
         songs.sort()
         if self.expected:
-            self.failUnlessEqual(self.expected, songs)
+            self.assertEqual(self.expected, songs)
             self.expected = None
 
     def _do(self):
         while Gtk.events_pending():
             Gtk.main_iteration()
-        self.failUnless(self.expected is None)
+        self.assertTrue(self.expected is None)
 
     def test_can_filter(self):
         for key in ["foo", "title", "fake~key", "~woobar", "~#huh"]:
-            self.failUnless(self.bar.can_filter(key))
+            self.assertTrue(self.bar.can_filter(key))
 
     def test_empty_is_all(self):
         self.bar.filter_text("")

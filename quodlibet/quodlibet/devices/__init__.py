@@ -7,7 +7,7 @@
 # published by the Free Software Foundation
 
 import os
-import ConfigParser
+import configparser
 from os.path import dirname, basename
 from quodlibet.util.dprint import print_d, print_w
 
@@ -43,13 +43,13 @@ def init_devices():
         except AttributeError:
             print_w("%r doesn't contain any devices." % mod.__name__)
 
-    devices.sort()
+    devices.sort(key=lambda d: d.__name__)
 
 init_devices()
 
 DEVICES = os.path.join(quodlibet.get_user_dir(), "devices")
 
-config = ConfigParser.RawConfigParser()
+config = configparser.RawConfigParser()
 config.read(DEVICES)
 
 
@@ -277,7 +277,7 @@ class UDisks2Manager(DeviceManager):
 
         device_id = drive["Id"]
 
-        dev = self.create_device(object_path, unicode(device_id), protocols)
+        dev = self.create_device(object_path, str(device_id), protocols)
         icon_name = block["HintIconName"]
         if icon_name:
             dev.icon = icon_name
@@ -285,7 +285,7 @@ class UDisks2Manager(DeviceManager):
 
     def discover(self):
         objects = self._interface.GetManagedObjects()
-        for object_path, interfaces_and_properties in objects.iteritems():
+        for object_path, interfaces_and_properties in objects.items():
             self._update_interfaces(object_path, interfaces_and_properties)
         self._check_interfaces()
 
@@ -363,7 +363,7 @@ class UDisks2Manager(DeviceManager):
         if self.FS_IFACE in interfaces or self.BLOCK_IFACE in interfaces:
             # if any of our needed interfaces goes away, remove the device
             if object_path in self._devices:
-                self.emit("removed", unicode(object_path))
+                self.emit("removed", str(object_path))
                 dev = self._devices[object_path]
                 dev.close()
                 del self._devices[object_path]
@@ -414,11 +414,11 @@ def get_media_player_protocols(media_player_id):
         return []
 
     file_path = os.path.join(mpi_path, media_player_id + ".mpi")
-    parser = ConfigParser.SafeConfigParser()
+    parser = configparser.SafeConfigParser()
     if parser.read(file_path):
         try:
             prots = parser.get("Device", "AccessProtocol")
-        except ConfigParser.Error:
+        except configparser.Error:
             return []
         else:
             return prots.split(";")

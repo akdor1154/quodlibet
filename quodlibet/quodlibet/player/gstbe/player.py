@@ -10,7 +10,7 @@ import gi
 try:
     gi.require_version("Gst", "1.0")
     gi.require_version("GstPbutils", "1.0")
-except ValueError, e:
+except ValueError as e:
     raise ImportError(e)
 
 from gi.repository import Gst, GLib, GstPbutils
@@ -437,7 +437,7 @@ class GStreamerPlayer(BasePlayer, GStreamerPluginHandler):
             self.__tag(message.parse_tag(), librarian)
         elif message.type == Gst.MessageType.ERROR:
             gerror, debug_info = message.parse_error()
-            message = u""
+            message = ""
             if gerror:
                 message = gerror.message.decode("utf-8").rstrip(".")
             details = None
@@ -502,8 +502,8 @@ class GStreamerPlayer(BasePlayer, GStreamerPluginHandler):
         self.stop()
 
         format_desc = get_description(message)
-        title = _(u"No GStreamer element found to handle media format")
-        error_details = _(u"Media format: %(format-description)s") % {
+        title = _("No GStreamer element found to handle media format")
+        error_details = _("Media format: %(format-description)s") % {
             "format-description": format_desc.decode("utf-8")}
 
         def install_done_cb(plugins_return, *args):
@@ -688,7 +688,7 @@ class GStreamerPlayer(BasePlayer, GStreamerPluginHandler):
         self.error = True
         self.paused = True
 
-        print_w(unicode(player_error))
+        print_w(str(player_error))
         self.emit('error', self.song, player_error)
         self._active_error = False
 
@@ -793,12 +793,12 @@ class GStreamerPlayer(BasePlayer, GStreamerPluginHandler):
         tags = TagListWrapper(tags, merge=True)
         tags = parse_gstreamer_taglist(tags)
 
-        for key, value in sanitize_tags(tags, stream=False).iteritems():
+        for key, value in sanitize_tags(tags, stream=False).items():
             if self.song.get(key) != value:
                 changed = True
                 self.song[key] = value
 
-        for key, value in sanitize_tags(tags, stream=True).iteritems():
+        for key, value in sanitize_tags(tags, stream=True).items():
             if new_info.get(key) != value:
                 info_changed = True
                 new_info[key] = value

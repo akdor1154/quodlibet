@@ -82,7 +82,7 @@ def interp_bands(src_band, target_band, src_gain):
 
 def get_config():
     try:
-        return map(float, config.get('plugins', 'equalizer_levels').split(','))
+        return list(map(float, config.get('plugins', 'equalizer_levels').split(',')))
     except (config.Error, ValueError):
         return []
 
@@ -167,7 +167,7 @@ class Equalizer(EventPlugin):
         def clicked_cb(button):
             [adj.set_value(0) for adj in adjustments]
 
-        sorted_presets = sorted(PRESETS.iteritems())
+        sorted_presets = sorted(PRESETS.items())
 
         def combo_changed(combo):
             # custom, skip

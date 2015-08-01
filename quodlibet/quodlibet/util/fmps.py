@@ -9,16 +9,16 @@
 # http://freedesktop.org/wiki/Specifications/free-media-player-specs
 
 
-FMPS_NOTHING = u"FMPS_NOTHING"
+FMPS_NOTHING = "FMPS_NOTHING"
 
-LIST_SEPERATOR = u";;"
-ENTRY_SEPERATOR = u"::"
+LIST_SEPERATOR = ";;"
+ENTRY_SEPERATOR = "::"
 
 
 def _split_left(val, sep):
     """Split a string by a delimiter which can be escaped by \\"""
     result = []
-    temp = u""
+    temp = ""
     escaped = False
     index = 0
     left = True
@@ -29,7 +29,7 @@ def _split_left(val, sep):
             index += 1
         else:
             index = 0
-            if c == u"\\":
+            if c == "\\":
                 escaped ^= True
             else:
                 escaped = False
@@ -37,7 +37,7 @@ def _split_left(val, sep):
             left = True
             index = 0
             result.append(temp[:-len(sep)])
-            temp = u""
+            temp = ""
     if temp or left:
         result.append(temp)
     return result
@@ -73,17 +73,17 @@ def _split(val, sep):
 
 def _unescape(val):
     return val.replace(
-        ur"\;", u";").replace(ur"\:", u":").replace(ur"\\", u"\\")
+        r"\;", ";").replace(r"\:", ":").replace(r"\\", "\\")
 
 
 def _escape(val):
     return val.replace(
-        u"\\", ur"\\").replace(u";", ur"\;").replace(u":", ur"\:")
+        "\\", r"\\").replace(";", r"\;").replace(":", r"\:")
 
 
 def _escape_inval(val):
     if val.startswith(";"):
-        return u"\\" + val
+        return "\\" + val
     return val
 
 
@@ -97,7 +97,7 @@ class FmpsValue(object):
         return self._data
 
     def __unicode__(self):
-        return unicode(self._data)
+        return str(self._data)
 
     def __str__(self):
         return str(self._data)
@@ -105,11 +105,11 @@ class FmpsValue(object):
 
 class FmpsFloat(FmpsValue):
     def __init__(self, data):
-        if not isinstance(data, basestring):
+        if not isinstance(data, str):
             self._validate(data)
-            self._data = unicode(round(float(data), 6))
+            self._data = str(round(float(data), 6))
         else:
-            data = unicode(data)
+            data = str(data)
             self._validate(data)
             self._data = data
 
@@ -123,7 +123,7 @@ class FmpsFloat(FmpsValue):
 class FmpsPositiveFloat(FmpsFloat):
     def _validate(self, data):
         num = super(FmpsPositiveFloat, self)._validate(data)
-        if num < 0 or (not isinstance(data, basestring)
+        if num < 0 or (not isinstance(data, str)
                        and num > 4294967294.999999):
             raise ValueError("Value not in range.")
         return num
@@ -150,7 +150,7 @@ class FmpsPositiveIntegerFloat(FmpsPositiveFloat):
 
 class FmpsText(FmpsValue):
     def __init__(self, data):
-        self._data = unicode(data)
+        self._data = str(data)
 
 
 class FmpsInvalidValue(FmpsText):
@@ -169,18 +169,18 @@ class FmpsDict(object):
     def __load(self, data):
         if not isinstance(data, (list, tuple)):
             data = [data]
-        data = map(unicode, data)
+        data = list(map(str, data))
         vals = []
         for seg in data:
             i, v = _split(seg, LIST_SEPERATOR)
             vals.extend(v)
-            self.__invalid.extend(map(_escape_inval, i))
+            self.__invalid.extend(list(map(_escape_inval, i)))
         for val in vals:
             inval, fields = _split(val, ENTRY_SEPERATOR)
             if len(fields) != 2 or inval:
                 self.__invalid.append(_escape_inval(val))
                 continue
-            key, value = map(_unescape, fields)
+            key, value = list(map(_unescape, fields))
             try:
                 value = self._kind(value)
             except ValueError:
@@ -192,15 +192,15 @@ class FmpsDict(object):
                 self.__dict[key] = [value]
 
     def iterkeys(self):
-        return self.__dict.iterkeys()
-    keys = lambda self: list(self.iterkeys())
+        return iter(self.__dict.keys())
+    keys = lambda self: list(self.keys())
 
     def iteritems(self):
-        for key, values in self.__dict.iteritems():
+        for key, values in self.__dict.items():
             for value in values:
                 if not isinstance(value, FmpsInvalidValue):
                     yield(key, value.native())
-    items = lambda s: list(s.iteritems())
+    items = lambda s: list(s.items())
 
     def get_all(self, key):
         if key in self.__dict:
@@ -213,10 +213,10 @@ class FmpsDict(object):
             del self.__dict[key]
 
     def set_all(self, key, value):
-        key = unicode(key)
+        key = str(key)
         if not isinstance(value, (list, tuple)):
             value = [value]
-        value = map(self._kind, value)
+        value = list(map(self._kind, value))
         self.remove_all(key)
         if key in self.__dict:
             self.__dict[key].extend(value)
@@ -227,8 +227,8 @@ class FmpsDict(object):
         self.extend(key, [value])
 
     def extend(self, key, values):
-        key = unicode(key)
-        values = map(self._kind, values)
+        key = str(key)
+        values = list(map(self._kind, values))
         if key in self.__dict:
             self.__dict[key].extend(values)
         else:
@@ -236,12 +236,12 @@ class FmpsDict(object):
 
     def to_data(self):
         fields = []
-        for key, values in self.__dict.iteritems():
-            values = map(_escape, map(unicode, values))
+        for key, values in self.__dict.items():
+            values = list(map(_escape, list(map(str, values))))
             key = _escape(key)
             for val in values:
                 fields.append(ENTRY_SEPERATOR.join([key, val]))
-        return LIST_SEPERATOR.join(fields + filter(None, self.__invalid))
+        return LIST_SEPERATOR.join(fields + [_f for _f in self.__invalid if _f])
 
     def __repr__(self):
         return "%s(%s, invalid=%s)" % (
@@ -260,12 +260,12 @@ class FmpsNamespaceDict(object):
     def __load(self, data):
         if not isinstance(data, (list, tuple)):
             data = [data]
-        data = map(unicode, data)
+        data = list(map(str, data))
         vals = []
         for seg in data:
             i, v = _split(seg, LIST_SEPERATOR)
             vals.extend(v)
-            self.__invalid.extend(map(_escape_inval, i))
+            self.__invalid.extend(list(map(_escape_inval, i)))
         for val in vals:
             inval, fields = _split(val, ENTRY_SEPERATOR)
             if len(fields) != 3 or inval:
@@ -275,7 +275,7 @@ class FmpsNamespaceDict(object):
             if not namespace or not key:
                 self.__invalid.append(val)
                 continue
-            namespace, key, value = map(_unescape, (namespace, key, value))
+            namespace, key, value = list(map(_unescape, (namespace, key, value)))
             try:
                 value = self._kind(value)
             except ValueError:
@@ -300,7 +300,7 @@ class FmpsNamespaceDict(object):
                     return []
             else:
                 new_dict = {}
-                for key, values in self.__dict[namespace].iteritems():
+                for key, values in self.__dict[namespace].items():
                     new_dict[key] = [f.native() for f in values
                                      if not isinstance(f, FmpsInvalidValue)]
                 return new_dict
@@ -329,21 +329,21 @@ class FmpsNamespaceDict(object):
         if key is not None and isinstance(value, dict):
             raise ValueError("You can only pass a dict in case key is None.")
 
-        namespace = unicode(namespace)
-        key = key is not None and unicode(key)
+        namespace = str(namespace)
+        key = key is not None and str(key)
 
         if isinstance(value, dict):
             value = dict(value)
-            for key in value.iterkeys():
+            for key in value.keys():
                 if not isinstance(value[key], (list, tuple)):
                     value[key] = [value[key]]
-                value[key] = map(self._kind, value[key])
+                value[key] = list(map(self._kind, value[key]))
             self.__dict[namespace] = dict(value)
             return
 
         if not isinstance(value, (list, tuple)):
             value = [value]
-        value = map(self._kind, value)
+        value = list(map(self._kind, value))
 
         if namespace in self.__dict:
             if key in self.__dict[namespace]:
@@ -358,10 +358,10 @@ class FmpsNamespaceDict(object):
         if not namespace or not key:
             raise ValueError("No empty namespace/key allowed.")
 
-        namespace = unicode(namespace)
-        key = unicode(key)
+        namespace = str(namespace)
+        key = str(key)
 
-        values = map(self._kind, values)
+        values = list(map(self._kind, values))
         if namespace in self.__dict:
             if key in self.__dict[namespace]:
                 self.__dict[namespace][key].extend(values)
@@ -371,26 +371,26 @@ class FmpsNamespaceDict(object):
             self.__dict[namespace] = {key: values}
 
     def iterkeys(self):
-        return self.__dict.iterkeys()
-    keys = lambda self: list(self.iterkeys())
+        return iter(self.__dict.keys())
+    keys = lambda self: list(self.keys())
 
     def iteritems(self):
-        for namespace, sub in self.__dict.iteritems():
-            for key, values in sub.iteritems():
+        for namespace, sub in self.__dict.items():
+            for key, values in sub.items():
                 for val in values:
                     yield (namespace, key, val.native())
-    items = lambda self: list(self.iteritems())
+    items = lambda self: list(self.items())
 
     def to_data(self):
         fields = []
-        for namespace, sub in self.__dict.iteritems():
+        for namespace, sub in self.__dict.items():
             namespace = _escape(namespace)
-            for key, values in sub.iteritems():
+            for key, values in sub.items():
                 key = _escape(key)
-                values = map(_escape, map(unicode, values))
+                values = list(map(_escape, list(map(str, values))))
                 for val in values:
                     fields.append(ENTRY_SEPERATOR.join([namespace, key, val]))
-        return LIST_SEPERATOR.join(fields + filter(None, self.__invalid))
+        return LIST_SEPERATOR.join(fields + [_f for _f in self.__invalid if _f])
 
     def __repr__(self):
         return "%s(%s, invalid=%s)" % (

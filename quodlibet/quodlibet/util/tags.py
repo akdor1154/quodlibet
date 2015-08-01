@@ -151,7 +151,7 @@ def _get_sort_map(tags):
     """See TAG_TO_SORT"""
 
     tts = {}
-    for name, tag in tags.iteritems():
+    for name, tag in tags.items():
         if tag.has_sort:
             if tag.user:
                 tts[name] = "%ssort" % name
@@ -162,7 +162,7 @@ def _get_sort_map(tags):
 
 def _get_standard_tags(tags, machine=False):
     stags = []
-    for name, tag in tags.iteritems():
+    for name, tag in tags.items():
         if tag.user and tag.machine == machine:
             stags.append(name)
             if tag.has_sort:
@@ -183,7 +183,7 @@ USER_TAGS = _get_standard_tags(_TAGS, machine=False)
 e.g. album
 """
 
-TAG_ROLES = dict([(n, t.role) for (n, t) in _TAGS.iteritems() if t.role])
+TAG_ROLES = dict([(n, t.role) for (n, t) in _TAGS.items() if t.role])
 """A mapping from tags to their translated role description.
 e.g. conductor -> conducting
 """

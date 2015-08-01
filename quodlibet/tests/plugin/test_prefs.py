@@ -23,7 +23,7 @@ class TPrefs(PluginTestCase):
     def test_all(self):
         tested_any = False
 
-        for id_, plugin in self.plugins.iteritems():
+        for id_, plugin in self.plugins.items():
             plugin = plugin.cls
             if hasattr(plugin, "PLUGIN_INSTANCE"):
                 plugin = plugin()

@@ -131,7 +131,7 @@ class FilterMenu(object):
             self._make_query("#(added < 7 days ago)")
         elif name == "TopRated":
             bg = background_filter()
-            songs = (bg and filter(bg, self._library)) or self._library
+            songs = (bg and list(filter(bg, self._library))) or self._library
             songs = [song.get("~#playcount", 0) for song in songs]
             if len(songs) == 0:
                 return
@@ -170,7 +170,7 @@ class FilterMenu(object):
             ],
         }
 
-        for key, widgets in menus.items():
+        for key, widgets in list(menus.items()):
             if self._browser:
                 can_filter = self._browser.can_filter(key)
             else:
@@ -303,13 +303,13 @@ class LibraryBrowser(Window, util.InstanceTracker, PersistentWindowMixin):
         if browser.background:
             bg = background_filter()
             if bg:
-                songs = filter(bg, songs)
+                songs = list(filter(bg, songs))
         self.songlist.set_songs(songs, sorted)
 
     def __enqueue(self, view, path, column, player):
         app.window.playlist.enqueue([view.get_model()[path][0]])
         if player.song is None:
-            player.next()
+            next(player)
 
     def __drag_data_recv(self, view, *args):
         if self.browser.can_reorder:

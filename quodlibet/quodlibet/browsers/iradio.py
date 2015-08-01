@@ -8,8 +8,8 @@
 import os
 import sys
 import bz2
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import itertools
 
 from gi.repository import Gtk, GLib, Pango
@@ -37,6 +37,7 @@ from quodlibet.qltk.completion import LibraryTagCompletion
 from quodlibet.qltk.x import MenuItem, Align, ScrolledWindow
 from quodlibet.qltk.x import SymbolicIconImage
 from quodlibet.qltk.menubutton import MenuButton
+from functools import reduce
 
 STATION_LIST_URL = \
     "http://bitbucket.org/lazka/quodlibet/downloads/radiolist.bz2"
@@ -200,12 +201,12 @@ def add_station(uri):
     """Fetches the URI content and extracts IRFiles"""
 
     irfs = []
-    if isinstance(uri, unicode):
+    if isinstance(uri, str):
         uri = uri.encode('utf-8')
 
     if uri.lower().endswith(".pls") or uri.lower().endswith(".m3u"):
         try:
-            sock = urllib.urlopen(uri)
+            sock = urllib.request.urlopen(uri)
         except EnvironmentError as e:
             encoding = util.get_locale_encoding()
             try:
@@ -224,7 +225,7 @@ def add_station(uri):
     else:
         try:
             irfs = [IRFile(uri)]
-        except ValueError, err:
+        except ValueError as err:
             qltk.ErrorMessage(None, _("Unable to add station"), err).run()
 
     return irfs
@@ -241,8 +242,8 @@ def download_taglist(callback, cofuncid, step=1024 * 10):
             task.copool(cofuncid)
 
         try:
-            response = urllib2.urlopen(STATION_LIST_URL)
-        except urllib2.URLError:
+            response = urllib.request.urlopen(STATION_LIST_URL)
+        except urllib.error.URLError:
             GLib.idle_add(callback, None)
             return
 
@@ -307,7 +308,7 @@ def parse_taglist(data):
             continue
 
         value = decode(value)
-        san = sanitize_tags({key: value}, stream=True).items()
+        san = list(sanitize_tags({key: value}, stream=True).items())
         if not san:
             continue
 
@@ -400,7 +401,7 @@ class GenreFilter(object):
     __CACHE = {}
 
     def keys(self):
-        return self.GENRES.keys()
+        return list(self.GENRES.keys())
 
     def query(self, key):
         if key not in self.__CACHE:
@@ -487,8 +488,8 @@ class InternetRadio(Browser, util.InstanceTracker):
     headers = "title artist ~people grouping genre website ~format " \
         "channel-mode".split()
 
-    TYPE, ICON_NAME, KEY, NAME = range(4)
-    TYPE_FILTER, TYPE_ALL, TYPE_FAV, TYPE_SEP, TYPE_NOCAT = range(5)
+    TYPE, ICON_NAME, KEY, NAME = list(range(4))
+    TYPE_FILTER, TYPE_ALL, TYPE_FAV, TYPE_SEP, TYPE_NOCAT = list(range(5))
     STAR = ["artist", "title", "website", "genre", "comment"]
 
     @classmethod
@@ -546,7 +547,7 @@ class InternetRadio(Browser, util.InstanceTracker):
         search.connect('query-changed', self.__filter_changed)
 
         menu = Gtk.Menu()
-        new_item = MenuItem(_(u"_New Station…"), Icons.LIST_ADD)
+        new_item = MenuItem(_("_New Station…"), Icons.LIST_ADD)
         new_item.connect('activate', self.__add)
         menu.append(new_item)
         update_item = MenuItem(_("_Update Stations"), Icons.VIEW_REFRESH)
@@ -584,7 +585,7 @@ class InternetRadio(Browser, util.InstanceTracker):
         model.append(row=[self.TYPE_SEP, Icons.FOLDER, "", ""])
 
         filters = self.filters
-        for text, k in sorted([(filters.text(k), k) for k in filters.keys()]):
+        for text, k in sorted([(filters.text(k), k) for k in list(filters.keys())]):
             model.append(row=[self.TYPE_FILTER, Icons.EDIT_FIND, k, text])
 
         model.append(row=[self.TYPE_NOCAT, Icons.FOLDER,
@@ -683,7 +684,7 @@ class InternetRadio(Browser, util.InstanceTracker):
             if (aac and bitrate < 40) or (not aac and bitrate < 60):
                 return False
             return True
-        stations = filter(filter_stations, stations)
+        stations = list(filter(filter_stations, stations))
 
         # group them based on the title
         groups = {}
@@ -693,15 +694,15 @@ class InternetRadio(Browser, util.InstanceTracker):
 
         # keep at most 2 URLs for each group
         stations = []
-        for key, sub in groups.iteritems():
+        for key, sub in groups.items():
             sub.sort(key=lambda s: s.get("~#listenerpeak", 0), reverse=True)
             stations.extend(sub[:2])
 
         # only keep the ones in at least one category
-        all_ = [self.filters.query(k) for k in self.filters.keys()]
+        all_ = [self.filters.query(k) for k in list(self.filters.keys())]
         assert all_
         anycat_filter = reduce(lambda x, y: x | y, all_)
-        stations = filter(anycat_filter.search, stations)
+        stations = list(filter(anycat_filter.search, stations))
 
         # remove listenerpeak
         for s in stations:
@@ -710,11 +711,11 @@ class InternetRadio(Browser, util.InstanceTracker):
         # update the libraries
         stations = dict(((s.key, s) for s in stations))
         # don't add ones that are in the fav list
-        for fav in self.__fav_stations.iterkeys():
+        for fav in self.__fav_stations.keys():
             stations.pop(fav, None)
 
         # separate
-        o, n = set(self.__stations.iterkeys()), set(stations)
+        o, n = set(self.__stations.keys()), set(stations)
         to_add, to_change, to_remove = n - o, o & n, o - n
         del o, n
 
@@ -725,7 +726,7 @@ class InternetRadio(Browser, util.InstanceTracker):
             # clear everything except stats
             AudioFile.reload(old)
             # add new metadata except stats
-            for k in (x for x in new.iterkeys() if x not in MIGRATE):
+            for k in (x for x in new.keys() if x not in MIGRATE):
                 old[k] = new[k]
 
         to_add = [stations.pop(k) for k in to_add]
@@ -774,7 +775,7 @@ class InternetRadio(Browser, util.InstanceTracker):
                         filter_ = current_filter
             elif type_ == self.TYPE_NOCAT:
                 # if notcat is selected, combine all filters, negate and merge
-                all_ = [self.filters.query(k) for k in self.filters.keys()]
+                all_ = [self.filters.query(k) for k in list(self.filters.keys())]
                 nocat_filter = all_ and -reduce(lambda x, y: x | y, all_)
                 if nocat_filter:
                     if filter_:
@@ -813,7 +814,7 @@ class InternetRadio(Browser, util.InstanceTracker):
                 util.escape(uri)).run()
             return
 
-        irfs = filter(lambda station: station not in self.__fav_stations, irfs)
+        irfs = [station for station in irfs if station not in self.__fav_stations]
         if not irfs:
             qltk.WarningMessage(
                 None, _("Unable to add station"),
@@ -916,7 +917,7 @@ class InternetRadio(Browser, util.InstanceTracker):
 
         selection = self.view.get_selection()
         model, rows = selection.get_selected_rows()
-        names = filter(None, [model[row][self.KEY] for row in rows])
+        names = [_f for _f in [model[row][self.KEY] for row in rows] if _f]
         config.set("browsers", "radio", "\n".join(names))
 
     def scroll(self, song):

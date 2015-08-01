@@ -58,7 +58,7 @@ class WMAFile(AudioFile):
         "WM/AuthorURL": "website",
         "Description": "comment"
     }
-    __rtranslate = dict([(v, k) for k, v in __translate.iteritems()])
+    __rtranslate = dict([(v, k) for k, v in __translate.items()])
 
     # http://msdn.microsoft.com/en-us/library/dd743065.aspx
     # note: not all names here are used by QL
@@ -83,28 +83,28 @@ class WMAFile(AudioFile):
     }
 
     __multi_value_keys = set()
-    for k, v in __translate.iteritems():
+    for k, v in __translate.items():
         if k in __multi_value_attr:
             __multi_value_keys.add(v)
 
     def __init__(self, filename, audio=None):
         if audio is None:
-            audio = mutagen.asf.ASF(filename)
+            audio = mutagenx.asf.ASF(filename)
         self["~#length"] = audio.info.length
         self["~#bitrate"] = int(audio.info.bitrate / 1000)
-        for name, values in audio.tags.items():
+        for name, values in list(audio.tags.items()):
             if name == "WM/Picture":
                 self.has_images = True
             try:
                 name = self.__translate[name]
             except KeyError:
                 continue
-            self[name] = "\n".join(map(unicode, values))
+            self[name] = "\n".join(map(str, values))
         self.sanitize(filename)
 
     def write(self):
         audio = mutagen.asf.ASF(self["~filename"])
-        for key in self.__translate.keys():
+        for key in list(self.__translate.keys()):
             try:
                 del(audio[key])
             except KeyError:
@@ -125,7 +125,7 @@ class WMAFile(AudioFile):
         return key in self.__multi_value_keys
 
     def can_change(self, key=None):
-        OK = self.__rtranslate.keys()
+        OK = list(self.__rtranslate.keys())
         if key is None:
             return OK
         else:
@@ -196,7 +196,7 @@ class WMAFile(AudioFile):
             return
 
         # thumbnail gets used in WMP..
-        data = pack_image(image.mime_type, u"thumbnail",
+        data = pack_image(image.mime_type, "thumbnail",
                           imagedata, APICType.COVER_FRONT)
 
         value = mutagen.asf.ASFValue(data, mutagen.asf.BYTEARRAY)

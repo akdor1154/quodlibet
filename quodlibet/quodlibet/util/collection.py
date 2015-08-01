@@ -7,7 +7,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-from __future__ import absolute_import
+
 
 import os
 import random
@@ -28,7 +28,7 @@ PEOPLE.remove("albumartist")
 PEOPLE.insert(0, "albumartist")
 
 ELPOEP = list(reversed(PEOPLE))
-PEOPLE_SCORE = [100 ** i for i in xrange(len(PEOPLE))]
+PEOPLE_SCORE = [100 ** i for i in range(len(PEOPLE))]
 
 
 def avg(nums):
@@ -92,23 +92,23 @@ class Collection(object):
         self.__default.clear()
         self.__used = []
 
-    def get(self, key, default=u"", connector=u" - "):
+    def get(self, key, default="", connector=" - "):
         if not self.songs:
             return default
         if key[:1] == "~" and "~" in key[1:]:
-            if not isinstance(default, basestring):
+            if not isinstance(default, str):
                 return default
             keys = util.tagsplit(key)
-            v = map(self.__get_cached_value, keys)
+            v = list(map(self.__get_cached_value, keys))
 
             def default_funct(x):
                 if x is None:
                     return default
                 return x
-            v = map(default_funct, v)
-            v = map(lambda x: (isinstance(x, float) and "%.2f" % x) or x, v)
-            v = map(lambda x: isinstance(x, basestring) and x or str(x), v)
-            return connector.join(filter(None, v)) or default
+            v = list(map(default_funct, v))
+            v = [(isinstance(x, float) and "%.2f" % x) or x for x in v]
+            v = [isinstance(x, str) and x or str(x) for x in v]
+            return connector.join([_f for _f in v if _f]) or default
         else:
             value = self.__get_cached_value(key)
             if value is None:
@@ -119,11 +119,11 @@ class Collection(object):
 
     def comma(self, key):
         value = self.get(key)
-        return (value if isinstance(value, (int, float, long))
+        return (value if isinstance(value, (int, float))
                 else value.replace("\n", ", "))
 
     def list(self, key):
-        v = self.get(key, connector=u"\n") if "~" in key[1:] else self.get(key)
+        v = self.get(key, connector="\n") if "~" in key[1:] else self.get(key)
         return [] if v == "" else v.split("\n")
 
     def __get_cached_value(self, key):
@@ -207,9 +207,9 @@ class Collection(object):
                             peoplesort[person] = (peoplesort.get(person, 0) -
                                                   PEOPLE_SCORE[w])
                 # It's cheaper to get people and peoplesort in one go
-                keys["people"] = sorted(people.keys(),
+                keys["people"] = sorted(list(people.keys()),
                                         key=people.__getitem__)[:100]
-                keys["peoplesort"] = sorted(peoplesort.keys(),
+                keys["peoplesort"] = sorted(list(peoplesort.keys()),
                                             key=peoplesort.__getitem__)[:100]
 
                 ret = keys.pop(key)
@@ -262,8 +262,7 @@ class Collection(object):
             for value in song.list(key):
                 result[value] = result.get(value, 0) - 1
 
-        values = map(lambda x: x[0],
-                     sorted(result.items(), key=lambda x: x[1]))
+        values = [x[0] for x in sorted(list(result.items()), key=lambda x: x[1])]
         return "\n".join(values) if values else None
 
 
@@ -423,13 +422,13 @@ class Playlist(Collection, Iterable):
 
     @property
     def songs(self):
-        return [s for s in self._list if not isinstance(s, basestring)]
+        return [s for s in self._list if not isinstance(s, str)]
 
     def __init__(self, dir, name, library=None):
         super(Playlist, self).__init__()
         self.__instances.append(self)
 
-        if isinstance(name, unicode) and os.name != "nt":
+        if isinstance(name, str) and os.name != "nt":
             name = name.encode('utf-8')
 
         self.name = name
@@ -459,7 +458,7 @@ class Playlist(Collection, Iterable):
         return os.path.join(self.dir, basename)
 
     def rename(self, newname):
-        if isinstance(newname, unicode):
+        if isinstance(newname, str):
             newname = newname.encode('utf-8')
 
         if newname == self.name:
@@ -478,7 +477,7 @@ class Playlist(Collection, Iterable):
     def add_songs(self, filenames, library):
         changed = False
         for i in range(len(self)):
-            if isinstance(self[i], basestring) and self._list[i] in filenames:
+            if isinstance(self[i], str) and self._list[i] in filenames:
                 self._list[i] = library[self._list[i]]
                 changed = True
         return changed
@@ -533,7 +532,7 @@ class Playlist(Collection, Iterable):
     def write(self):
         with open(self.filename, "wb") as f:
             for song in self._list:
-                if isinstance(song, basestring):
+                if isinstance(song, str):
                     f.write(fsnative2bytes(song) + "\n")
                 else:
                     f.write(fsnative2bytes(song("~filename")) + "\n")

@@ -23,13 +23,13 @@ class TGetStringDialog(TestCase):
 
     def test_getstring(self):
         ret = self.gsd1.run(text="foobar", test=True)
-        self.failUnlessEqual(ret, "foobar")
+        self.assertEqual(ret, "foobar")
 
     def test_clipboard(self):
         clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         clipboard.set_text("42", -1)
         ret = self.gsd2.run(text="24", clipboard=True, test=True)
-        self.failUnlessEqual(ret, "42")
+        self.assertEqual(ret, "42")
         clipboard.clear()
 
     def tearDown(self):

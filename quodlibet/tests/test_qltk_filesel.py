@@ -14,7 +14,7 @@ import quodlibet.config
 class TDirectoryTree(TestCase):
 
     if os.name == "nt":
-        ROOTS = [get_home_dir(), u"C:\\"]
+        ROOTS = [get_home_dir(), "C:\\"]
     else:
         ROOTS = [get_home_dir(), "/"]
 
@@ -27,14 +27,14 @@ class TDirectoryTree(TestCase):
     def test_initial(self):
         paths = ["/", get_home_dir(), "/usr/bin"]
         if os.name == "nt":
-            paths = [u"C:\\", get_home_dir()]
+            paths = ["C:\\", get_home_dir()]
 
         for path in paths:
             dirlist = DirectoryTree(path, folders=self.ROOTS)
             model, rows = dirlist.get_selection().get_selected_rows()
             selected = [model[row][0] for row in rows]
             dirlist.destroy()
-            self.failUnlessEqual([path], selected)
+            self.assertEqual([path], selected)
 
     def test_bad_initial(self):
         invalid = os.path.join("bin", "file", "does", "not", "exist")
@@ -48,15 +48,15 @@ class TDirectoryTree(TestCase):
             self.assertTrue(selected[0].startswith(path))
 
     def test_bad_go_to(self):
-        newpath = fsnative(u"/woooooo/bar/fun/broken")
-        dirlist = DirectoryTree(fsnative(u"/"), folders=self.ROOTS)
+        newpath = fsnative("/woooooo/bar/fun/broken")
+        dirlist = DirectoryTree(fsnative("/"), folders=self.ROOTS)
         dirlist.go_to(newpath)
         dirlist.destroy()
 
     def test_main(self):
         folders = ["/"]
         if os.name == "nt":
-            folders = [u"C:\\"]
+            folders = ["C:\\"]
         main = MainDirectoryTree(folders=folders)
         self.assertTrue(len(main.get_model()))
 

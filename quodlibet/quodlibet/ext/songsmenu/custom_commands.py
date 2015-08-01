@@ -190,7 +190,7 @@ class CustomCommands(SongsMenuPlugin, PluginConfigMixin):
         if not coms:
             print_d("No commands found in %s. Using defaults." % filename)
             coms = dict([(c.name, c) for c in cls.DEFAULT_COMS])
-        print_d("Loaded commands: %s" % coms.keys())
+        print_d("Loaded commands: %s" % list(coms.keys()))
         return coms
 
     def __init__(self, *args, **kwargs):
@@ -200,7 +200,7 @@ class CustomCommands(SongsMenuPlugin, PluginConfigMixin):
         self.commands = {}
         submenu = Gtk.Menu()
         self.commands = self._get_saved_searches()
-        for (name, c) in self.commands.items():
+        for (name, c) in list(self.commands.items()):
             item = Gtk.MenuItem(label=name)
             connect_obj(item, 'activate', self.__set_pat, name)
             submenu.append(item)
@@ -227,7 +227,7 @@ class CustomCommands(SongsMenuPlugin, PluginConfigMixin):
             print_d("Running %s" % com)
             try:
                 com.run(songs)
-            except Exception, err:
+            except Exception as err:
                 print_e("Couldn't run command %s: %s %s at"
                         % (com.name, type(err), err))
                 ErrorMessage(

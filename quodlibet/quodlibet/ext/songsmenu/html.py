@@ -51,7 +51,7 @@ def to_html(songs):
             col = {"~#rating": "~rating", "~#length": "~length"}.get(
                 col, col)
             s += '\n<td>%s</td>' % (
-                escape(unicode(song.comma(col))) or '&nbsp;')
+                escape(str(song.comma(col))) or '&nbsp;')
         s += '</tr>'
         songs_s += s
 

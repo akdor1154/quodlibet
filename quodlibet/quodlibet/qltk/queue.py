@@ -258,20 +258,20 @@ class PlayQueue(SongList):
 
     def __fill(self, library):
         try:
-            filenames = file(QUEUE, "rU").readlines()
+            filenames = open(QUEUE, "rU").readlines()
         except EnvironmentError:
             pass
         else:
-            filenames = map(str.strip, filenames)
+            filenames = list(map(str.strip, filenames))
             if library.librarian:
                 library = library.librarian
-            songs = filter(None, map(library.get, filenames))
+            songs = [_f for _f in map(library.get, filenames) if _f]
             for song in songs:
                 self.model.append([song])
 
     def __write(self, model):
         filenames = "\n".join([row[0]["~filename"] for row in model])
-        f = file(QUEUE, "w")
+        f = open(QUEUE, "w")
         f.write(filenames)
         f.close()
 

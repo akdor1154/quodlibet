@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tests import TestCase
-from helper import realized
+from .helper import realized
 
 from gi.repository import Gtk
 
@@ -23,18 +23,18 @@ from quodlibet.library import SongLibrary, SongLibrarian
 SONGS = [
     AudioFile({
         "title": "three", "artist": "boris", "genre": "Rock",
-        "~filename": fsnative(u"/bin/ls"), "foo": "bar"}),
+        "~filename": fsnative("/bin/ls"), "foo": "bar"}),
     AudioFile({
         "title": "two", "artist": "mu", "genre": "Rock",
-        "~filename": fsnative(u"/dev/zero"), "foo": "bar"}),
+        "~filename": fsnative("/dev/zero"), "foo": "bar"}),
     AudioFile({
         "title": "four", "artist": "piman", "genre": "J-Pop",
-        "~filename": fsnative(u"/dev/null"), "foo": "bar\nquux"}),
+        "~filename": fsnative("/dev/null"), "foo": "bar\nquux"}),
     AudioFile({
         "title": "one", "artist": "piman", "genre": "J-Pop",
-        "~filename": fsnative(u"/bin/foo"), "foo": "bar\nnope"}),
+        "~filename": fsnative("/bin/foo"), "foo": "bar\nnope"}),
     AudioFile({
-        "title": "xxx", "~filename": fsnative(u"/bin/bar"), "foo": "bar"}),
+        "title": "xxx", "~filename": fsnative("/bin/bar"), "foo": "bar"}),
 ]
 SONGS.sort()
 
@@ -82,42 +82,42 @@ class TPanedBrowser(TestCase):
 
     def test_can_filter(self):
         for key in ["foo", "title", "fake~key", "~woobar", "~#huh"]:
-            self.failIf(self.bar.can_filter_tag(key))
-        self.failUnless(self.bar.can_filter("artist"))
-        self.failUnless(self.bar.can_filter_text())
+            self.assertFalse(self.bar.can_filter_tag(key))
+        self.assertTrue(self.bar.can_filter("artist"))
+        self.assertTrue(self.bar.can_filter_text())
 
     def test_filter_text(self):
         self.bar.finalize(False)
 
         self.bar.filter_text("artist=nope")
         self._wait()
-        self.failUnlessEqual(set(self.last), set())
+        self.assertEqual(set(self.last), set())
 
         self.bar.filter_text("artist=!boris")
         self._wait()
-        self.failUnlessEqual(set(self.last), set(SONGS[1:]))
+        self.assertEqual(set(self.last), set(SONGS[1:]))
 
     def test_filter_value(self):
         self.bar.finalize(False)
         expected = [SONGS[0]]
         self.bar.filter("artist", ["boris"])
         self._wait()
-        self.failUnlessEqual(self.last, expected)
+        self.assertEqual(self.last, expected)
 
     def test_filter_notvalue(self):
         self.bar.finalize(False)
         expected = SONGS[1:4]
         self.bar.filter("artist", ["notvalue", "mu", "piman"])
         self._wait()
-        self.failUnlessEqual(set(self.last), set(expected))
+        self.assertEqual(set(self.last), set(expected))
 
     def test_restore(self):
         config.set("browsers", "query_text", "foo")
         self.bar.restore()
-        self.failUnlessEqual(self.bar._get_text(), "foo")
+        self.assertEqual(self.bar._get_text(), "foo")
         self.bar.finalize(True)
         self._wait()
-        self.failUnlessEqual(self.emit_count, 0)
+        self.assertEqual(self.emit_count, 0)
 
     def test_numeric_config_search(self):
         config.set("browsers", "panes", "~#track")
@@ -129,20 +129,20 @@ class TPanedBrowser(TestCase):
         self.bar.save()
         self.bar._set_text("nope")
         self.bar.restore()
-        self.failUnlessEqual(self.bar._get_text(), "foobar")
+        self.assertEqual(self.bar._get_text(), "foobar")
         self._wait()
-        self.failUnlessEqual(self.emit_count, 1)
+        self.assertEqual(self.emit_count, 1)
 
     def test_restore_selection(self):
         self.bar.finalize(False)
-        self.bar.filter("artist", [u"piman"])
+        self.bar.filter("artist", ["piman"])
         self.bar.save()
         self.bar.unfilter()
         self.bar.restore()
         self.bar.activate()
         self._wait()
         for song in self.last:
-            self.assertTrue(u"piman" in song.list("artist"))
+            self.assertTrue("piman" in song.list("artist"))
 
     def test_set_all_panes(self):
         self.bar.finalize(False)
@@ -160,52 +160,52 @@ class TPanedBrowser(TestCase):
 class TPaneConfig(TestCase):
     def test_tag(self):
         p = PaneConfig("title")
-        self.failUnlessEqual(p.title, "Title")
-        self.failUnlessEqual(p.tags, {"title"})
+        self.assertEqual(p.title, "Title")
+        self.assertEqual(p.tags, {"title"})
 
-        self.failUnlessEqual(p.format(SONGS[0]), ["three"])
-        self.failUnless(str(len(ALBUM.songs)) in p.format_display(ALBUM))
-        self.failIf(p.has_markup)
+        self.assertEqual(p.format(SONGS[0]), ["three"])
+        self.assertTrue(str(len(ALBUM.songs)) in p.format_display(ALBUM))
+        self.assertFalse(p.has_markup)
 
     def test_numeric(self):
         p = PaneConfig("~#lastplayed")
-        self.failUnlessEqual(p.title, "Last Played")
-        self.failUnlessEqual(p.tags, {"~#lastplayed"})
+        self.assertEqual(p.title, "Last Played")
+        self.assertEqual(p.tags, {"~#lastplayed"})
 
-        self.failUnlessEqual(p.format(SONGS[0]), ["0"])
-        self.failIf(p.has_markup)
+        self.assertEqual(p.format(SONGS[0]), ["0"])
+        self.assertFalse(p.has_markup)
 
     def test_tied(self):
         p = PaneConfig("~title~artist")
-        self.failUnlessEqual(p.title, "Title / Artist")
-        self.failUnlessEqual(p.tags, {"title", "artist"})
+        self.assertEqual(p.title, "Title / Artist")
+        self.assertEqual(p.tags, {"title", "artist"})
 
-        self.failUnlessEqual(p.format(SONGS[0]), ["three - boris"])
-        self.failIf(p.has_markup)
+        self.assertEqual(p.format(SONGS[0]), ["three - boris"])
+        self.assertFalse(p.has_markup)
 
     def test_pattern(self):
         p = PaneConfig("<foo>")
-        self.failUnlessEqual(p.title, "Foo")
-        self.failUnlessEqual(p.tags, {"foo"})
-        self.failUnless(p.has_markup)
+        self.assertEqual(p.title, "Foo")
+        self.assertEqual(p.tags, {"foo"})
+        self.assertTrue(p.has_markup)
 
     def test_condition(self):
         p = PaneConfig("<foo|a <bar>|quux>")
-        self.failUnlessEqual(p.title, "a Bar")
-        self.failUnlessEqual(p.tags, {"bar"})
-        self.failUnless(p.has_markup)
+        self.assertEqual(p.title, "a Bar")
+        self.assertEqual(p.tags, {"bar"})
+        self.assertTrue(p.has_markup)
 
     def test_group(self):
         p = PaneConfig("a\:b:<title>")
-        self.failUnlessEqual(p.title, "A:B")
-        self.failUnlessEqual(set(p.format_display(ALBUM).split(", ")),
+        self.assertEqual(p.title, "A:B")
+        self.assertEqual(set(p.format_display(ALBUM).split(", ")),
                              {"one", "two", "three", "four", "xxx"})
 
         p = PaneConfig("foo:~#lastplayed")
-        self.failUnlessEqual(p.format_display(ALBUM), "0")
+        self.assertEqual(p.format_display(ALBUM), "0")
 
         p = PaneConfig("foo:title")
-        self.failUnlessEqual(set(p.format_display(ALBUM).split(", ")),
+        self.assertEqual(set(p.format_display(ALBUM).split(", ")),
                              {"one", "two", "three", "four", "xxx"})
 
 
@@ -395,7 +395,7 @@ class TPaneModel(TestCase):
             self._verify_model(m)
 
         self.assertEqual(len(m), len(m2))
-        for e1, e2 in zip(m.itervalues(), m2.itervalues()):
+        for e1, e2 in zip(iter(m.values()), iter(m2.values())):
             self.assertEqual(e1.key, e2.key)
 
         m3 = PaneModel(conf)
@@ -404,7 +404,7 @@ class TPaneModel(TestCase):
             self._verify_model(m)
 
         self.assertEqual(len(m), len(m3))
-        for e1, e2 in zip(m.itervalues(), m3.itervalues()):
+        for e1, e2 in zip(iter(m.values()), iter(m3.values())):
             self.assertEqual(e1.key, e2.key)
 
     def test_add_unknown_first(self):

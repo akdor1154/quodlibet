@@ -122,5 +122,5 @@ def __parse_playlist(name, plfilename, files, library):
         if win.step():
             break
     win.destroy()
-    playlist.extend(filter(None, songs))
+    playlist.extend([_f for _f in songs if _f])
     return playlist

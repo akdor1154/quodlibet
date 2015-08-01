@@ -7,8 +7,8 @@
 
 import os
 import shelve
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import time
 from datetime import date
 from threading import Thread
@@ -42,9 +42,9 @@ def apicall(method, **kwargs):
             }
     real_args.update(kwargs)
     url = ''.join(["http://ws.audioscrobbler.com/2.0/?",
-                   urllib.urlencode(real_args)])
+                   urllib.parse.urlencode(real_args)])
     log(url)
-    uobj = urllib2.urlopen(url)
+    uobj = urllib.request.urlopen(url)
     resp = json.load(uobj)
     if 'error' in resp:
         errmsg = 'Last.fm API error: %s' % resp.get('message', '')
@@ -90,15 +90,15 @@ class LastFMSyncCache(object):
                 for chart in charts:
                     # Charts keys are 2-tuple (from_timestamp, to_timestamp);
                     # values are whether we still need to fetch the chart
-                    fro, to = map(lambda s: int(chart[s]), ('from', 'to'))
+                    fro, to = [int(chart[s]) for s in ('from', 'to')]
                     self.charts.setdefault((fro, to), True)
                 self.lastupdated = now
-            elif not filter(None, self.charts.values()):
+            elif not [_f for _f in list(self.charts.values()) if _f]:
                 # No charts to fetch, no update scheduled.
                 prog(_("Already up-to-date."), 1.)
                 return False
 
-            new_charts = filter(lambda k: self.charts[k], self.charts.keys())
+            new_charts = [k for k in list(self.charts.keys()) if self.charts[k]]
 
             for idx, (fro, to) in enumerate(sorted(new_charts)):
                 chart_week = date.fromtimestamp(fro).isoformat()
@@ -107,7 +107,7 @@ class LastFMSyncCache(object):
                 args = {'user': self.username, 'from': fro, 'to': to}
                 try:
                     resp = apicall('user.getweeklytrackchart', **args)
-                except urllib2.HTTPError, err:
+                except urllib.error.HTTPError as err:
                     msg = "HTTP error %d, retrying in %d seconds."
                     log(msg % (err.code, 15))
                     for i in range(15, 0, -1):
@@ -147,13 +147,13 @@ class LastFMSyncCache(object):
             if artist:
                 keys.append((artist.lower(), track['name'].lower()))
 
-        stats = filter(None, map(self.songs.get, keys))
+        stats = [_f for _f in map(self.songs.get, keys) if _f]
         if stats:
             # Not sure if last.fm ever changes their tag values, but this
             # should map all changed values to the same object correctly
-            plays = max(map(lambda d: d.get('playcount', 0), stats))
-            last = max(map(lambda d: d.get('lastplayed', 0), stats))
-            added = max(map(lambda d: d.get('added', chart_to), stats))
+            plays = max([d.get('playcount', 0) for d in stats])
+            last = max([d.get('lastplayed', 0) for d in stats])
+            added = max([d.get('added', chart_to) for d in stats])
             stats = stats[0]
             stats.update(
                     {'playcount': plays, 'lastplayed': last, 'added': added})
@@ -178,7 +178,7 @@ class LastFMSyncCache(object):
                             song.get('title', '').lower()))
             keys.append((song.get('artist', '').lower(),
                          song.get('title', '').lower()))
-            stats = filter(None, map(self.songs.get, keys))
+            stats = [_f for _f in map(self.songs.get, keys) if _f]
             if not stats:
                 continue
             stats = stats[0]

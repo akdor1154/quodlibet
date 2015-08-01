@@ -23,19 +23,19 @@ class TSPCFile(TestCase):
             "dumper": "Datschge",
         }
 
-        for k, v in tags.items():
-            self.failUnlessEqual(self.song[k], v)
+        for k, v in list(tags.items()):
+            self.assertEqual(self.song[k], v)
 
     def test_length(self):
-        self.failUnlessEqual(self.song("~#length"), 25)
+        self.assertEqual(self.song("~#length"), 25)
 
     def test_write(self):
         self.song.write()
 
     def test_can_change(self):
-        self.failUnless(self.song.can_change("title"))
+        self.assertTrue(self.song.can_change("title"))
 
     def test_invalid(self):
         path = os.path.join(DATA_DIR, 'empty.xm')
-        self.failUnless(os.path.exists(path))
-        self.failUnlessRaises(Exception, SPCFile, path)
+        self.assertTrue(os.path.exists(path))
+        self.assertRaises(Exception, SPCFile, path)

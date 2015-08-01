@@ -66,7 +66,7 @@ class GStreamerPluginHandler(PluginHandler):
         for plugin in self.__plugins:
             self.__get_plugin_element(plugin)
 
-        items = sorted(self.__elements.items(),
+        items = sorted(list(self.__elements.items()),
                        key=lambda x: x[0].priority,
                        reverse=True)
         return [p[1] for p in items]

@@ -6,7 +6,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from gi.repository import Gtk, GLib, Pango, Gdk
 from tempfile import NamedTemporaryFile
 from quodlibet.plugins.playlist import PLAYLIST_HANDLER
@@ -29,7 +29,7 @@ from quodlibet.qltk import Icons
 from .util import *
 
 
-DND_QL, DND_URI_LIST, DND_MOZ_URL = range(3)
+DND_QL, DND_URI_LIST, DND_MOZ_URL = list(range(3))
 
 
 class PlaylistsBrowser(Browser):
@@ -127,7 +127,7 @@ class PlaylistsBrowser(Browser):
 
     def __get_selected_songs(self, songlist):
         model, rows = songlist.get_selection().get_selected_rows()
-        iters = map(model.get_iter, rows)
+        iters = list(map(model.get_iter, rows))
         return model, iters
 
     __lists = ObjectModelSort(model=ObjectStore())
@@ -303,7 +303,7 @@ class PlaylistsBrowser(Browser):
         model = view.get_model()
         if tid == DND_QL:
             filenames = qltk.selection_get_filenames(sel)
-            songs = filter(None, map(library.get, filenames))
+            songs = [_f for _f in map(library.get, filenames) if _f]
             if not songs:
                 Gtk.drag_finish(ctx, False, False, etime)
                 return
@@ -330,7 +330,7 @@ class PlaylistsBrowser(Browser):
             name = name or os.path.basename(uri) or _("New Playlist")
             uri = uri.encode('utf-8')
             try:
-                sock = urllib.urlopen(uri)
+                sock = urllib.request.urlopen(uri)
                 f = NamedTemporaryFile()
                 f.write(sock.read())
                 f.flush()
@@ -356,7 +356,7 @@ class PlaylistsBrowser(Browser):
     def __drag_data_get(self, view, ctx, sel, tid, etime):
         model, iters = self.__view.get_selection().get_selected_rows()
         songs = []
-        for iter in filter(lambda i: i, iters):
+        for iter in [i for i in iters if i]:
             songs += list(model[iter][0])
         if tid == 0:
             qltk.selection_set_songs(sel, songs)
@@ -375,7 +375,7 @@ class PlaylistsBrowser(Browser):
         if itr is None:
             return
         songs = list(model[itr][0])
-        songs = filter(lambda s: isinstance(s, AudioFile), songs)
+        songs = [s for s in songs if isinstance(s, AudioFile)]
         menu = SongsMenu(library, songs,
                          playlists=False, remove=False,
                          ratings=False)
@@ -432,7 +432,7 @@ class PlaylistsBrowser(Browser):
     def _get_playlist_songs(self):
         model, iter = self.__view.get_selection().get_selected()
         songs = iter and list(model[iter][0]) or []
-        songs = filter(lambda s: isinstance(s, AudioFile), songs)
+        songs = [s for s in songs if isinstance(s, AudioFile)]
         return songs
 
     def can_filter_text(self):
@@ -477,7 +477,7 @@ class PlaylistsBrowser(Browser):
     def __edited(self, render, path, newname):
         try:
             self.__lists[path][0].rename(newname)
-        except ValueError, s:
+        except ValueError as s:
             qltk.ErrorMessage(
                 None, _("Unable to rename playlist"), s).run()
         else:

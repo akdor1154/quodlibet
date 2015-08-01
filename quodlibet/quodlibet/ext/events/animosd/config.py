@@ -15,7 +15,7 @@ from quodlibet.plugins import PluginConfig
 def str_to_tuple(s):
     """Raises ValueError"""
 
-    lst = map(float, s.split())
+    lst = list(map(float, s.split()))
     while len(lst) < 4:
         lst.append(0.0)
     return tuple(lst)

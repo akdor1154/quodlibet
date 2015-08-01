@@ -53,7 +53,7 @@ types = [MidiFile]
 extensions = [".mid"]
 
 
-TEMPO, MIDI = range(2)
+TEMPO, MIDI = list(range(2))
 
 
 def var_int(string):
@@ -144,7 +144,7 @@ def read_midi_length(fileobj):
     # get a list of events and tempo changes for each track
     tracks = []
     first_tempos = None
-    for tracknum in xrange(ntracks):
+    for tracknum in range(ntracks):
         identifier, chunk = read_chunk(fileobj)
         if identifier != "MTrk":
             break

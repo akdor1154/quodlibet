@@ -7,7 +7,7 @@
 
 import os
 import shutil
-import StringIO
+import io
 
 from mutagen import asf
 
@@ -34,17 +34,17 @@ class TWMAFile(TestCase):
         os.unlink(self.f2)
 
     def test_basic(self):
-        self.song["title"] = u"SomeTestValue"
+        self.song["title"] = "SomeTestValue"
         self.song.write()
         self.song.reload()
-        self.assertEqual(self.song("title"), u"SomeTestValue")
+        self.assertEqual(self.song("title"), "SomeTestValue")
 
     def test_multi(self):
-        self.song["genre"] = u"Rock\nPop"
+        self.song["genre"] = "Rock\nPop"
         self.song.write()
         self.song.reload()
         # XXX: mutagen doesn't preserve order.. fix it!
-        self.assertEqual(set(self.song.list("genre")), {u"Rock", u"Pop"})
+        self.assertEqual(set(self.song.list("genre")), {"Rock", "Pop"})
 
     def test_length(self):
         self.assertAlmostEqual(self.song("~#length"), 3.7120, 3)
@@ -97,8 +97,8 @@ class TWMAFile(TestCase):
     def test_unpack_image_min(self):
         data = "\x03" + "\x00" * 4 + "\x00" * 4
         mime, desc, data, type_ = unpack_image(data)
-        self.assertEqual(mime, u"")
-        self.assertEqual(desc, u"")
+        self.assertEqual(mime, "")
+        self.assertEqual(desc, "")
         self.assertEqual(data, "")
         self.assertEqual(type_, 3)
 
@@ -110,10 +110,10 @@ class TWMAFile(TestCase):
 
     def test_pack_image(self):
         d = pack_image(
-            u"image/jpeg", u"Description", "foo", APICType.COVER_FRONT)
+            "image/jpeg", "Description", "foo", APICType.COVER_FRONT)
         mime, desc, data, type_ = unpack_image(d)
-        self.assertEqual(mime, u"image/jpeg")
-        self.assertEqual(desc, u"Description")
+        self.assertEqual(mime, "image/jpeg")
+        self.assertEqual(desc, "Description")
         self.assertEqual(data, "foo")
         self.assertEqual(type_, APICType.COVER_FRONT)
 
@@ -131,7 +131,7 @@ class TWMAFile(TestCase):
         self.song.clear_images()
 
     def test_set_image(self):
-        fileobj = StringIO.StringIO("foo")
+        fileobj = io.StringIO("foo")
         image = EmbeddedImage(fileobj, "image/jpeg", 10, 10, 8)
         self.assertFalse(self.song.has_images)
         self.song.set_image(image)

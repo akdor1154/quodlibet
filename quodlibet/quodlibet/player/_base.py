@@ -205,7 +205,7 @@ class BasePlayer(GObject.GObject, Equalizer):
         """Make sure the song isn't played anymore"""
 
         if song and self.song is song:
-            self._source.next()
+            next(self._source)
             self._end(True)
 
     def stop(self):
@@ -225,10 +225,10 @@ class BasePlayer(GObject.GObject, Equalizer):
             if self.song:
                 self.paused = False
 
-    def next(self):
+    def __next__(self):
         """Move to the next song"""
 
-        self._source.next()
+        next(self._source)
         self._end(True)
         if self.song:
             self.paused = False

@@ -44,7 +44,7 @@ class MutagenVCFile(AudioFile):
         except AttributeError:
             pass
         # mutagen keys are lower cased
-        for key, value in (audio.tags or {}).items():
+        for key, value in list((audio.tags or {}).items()):
             self[key] = "\n".join(value)
         self.__post_read()
         self.sanitize(filename)
@@ -84,7 +84,7 @@ class MutagenVCFile(AudioFile):
     def __post_read(self):
         email = config.get("editing", "save_email").strip()
         maps = {"rating": float, "playcount": int}
-        for keyed_key, func in maps.items():
+        for keyed_key, func in list(maps.items()):
             for subkey in ["", ":" + const.EMAIL, ":" + email]:
                 key = keyed_key + subkey
                 if key in self:
@@ -243,7 +243,7 @@ class MutagenVCFile(AudioFile):
 
     def __prep_write(self, comments):
         email = config.get("editing", "save_email").strip()
-        for key in comments.keys():
+        for key in list(comments.keys()):
             if key.startswith("rating:") or key.startswith("playcount:"):
                 if key.split(":", 1)[1] in [const.EMAIL, email]:
                     del(comments[key])
@@ -460,7 +460,7 @@ class FLACFile(MutagenVCFile):
         super(FLACFile, self).write()
 
 types = []
-for var in globals().values():
+for var in list(globals().values()):
     if getattr(var, 'MutagenType', None):
         types.append(var)
 
@@ -479,7 +479,7 @@ def info(filename):
     if audio is None:
         raise IOError("file type could not be determined")
     Kind = type(audio)
-    for klass in globals().values():
+    for klass in list(globals().values()):
         if Kind is getattr(klass, 'MutagenType', None):
             return klass(filename, audio)
     raise IOError("file type could not be determined")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tests import TestCase
-from helper import visible
+from .helper import visible
 
 from gi.repository import Gtk
 
@@ -14,7 +14,7 @@ class Notebook(TestCase):
         n = x.Notebook()
         c = Gtk.VBox()
         n.append_page(c, "A Test")
-        self.failUnlessEqual("A Test", n.get_tab_label(c).get_text())
+        self.assertEqual("A Test", n.get_tab_label(c).get_text())
         n.destroy()
 
     def test_widget_label(self):
@@ -22,31 +22,31 @@ class Notebook(TestCase):
         n = x.Notebook()
         c = Gtk.VBox()
         n.append_page(c, l)
-        self.failUnless(l is n.get_tab_label(c))
+        self.assertTrue(l is n.get_tab_label(c))
         c.destroy()
 
     def test_widget_error(self):
         n = x.Notebook()
         w = Gtk.VBox()
-        self.failUnlessRaises(TypeError, n.append_page, w)
+        self.assertRaises(TypeError, n.append_page, w)
         w.destroy()
         n.destroy()
 
 
 class Frame(TestCase):
     def test_label(self):
-        self.failUnlessEqual(
+        self.assertEqual(
             x.Frame("foo").get_label_widget().get_text(), "foo")
 
 
 class MenuItem(TestCase):
     def test_ctr(self):
-        self.failUnless(x.MenuItem("foo", Icons.EDIT_FIND))
+        self.assertTrue(x.MenuItem("foo", Icons.EDIT_FIND))
 
 
 class Button(TestCase):
     def test_ctr(self):
-        self.failUnless(x.Button("foo", Icons.EDIT_FIND))
+        self.assertTrue(x.Button("foo", Icons.EDIT_FIND))
 
 
 class RPaned(object):
@@ -58,7 +58,7 @@ class RPaned(object):
     def test_pre_alloc(self):
         p = self.Kind()
         p.set_relative(0.25)
-        self.failUnlessEqual(p.get_relative(), 0.25)
+        self.assertEqual(p.get_relative(), 0.25)
 
     def test_visible_no_setup(self):
         p = self.Kind()
@@ -70,16 +70,16 @@ class RPaned(object):
         p.pack1(Gtk.Button())
         p.pack2(Gtk.Button())
         p.set_relative(0.75)
-        self.failUnlessEqual(p.get_relative(), 0.75)
+        self.assertEqual(p.get_relative(), 0.75)
         with visible(p, width=200, height=200) as p:
-            self.failUnlessAlmostEqual(p.get_relative(), 0.75, 2)
+            self.assertAlmostEqual(p.get_relative(), 0.75, 2)
 
     def test_visible_pre_setup_empty(self):
         p = self.Kind()
         p.set_relative(0.75)
-        self.failUnlessEqual(p.get_relative(), 0.75)
+        self.assertEqual(p.get_relative(), 0.75)
         with visible(p) as p:
-            self.failUnlessEqual(p.get_relative(), 0.75)
+            self.assertEqual(p.get_relative(), 0.75)
 
 
 class RHPaned(TestCase, RPaned):
@@ -98,19 +98,19 @@ class TConfigRPaned(TestCase):
         config.quit()
 
     def test_basic(self):
-        self.failUnless(config.get("memory", "foobar", None) is None)
+        self.assertTrue(config.get("memory", "foobar", None) is None)
 
         p = x.ConfigRVPaned("memory", "foobar", 0.75)
         p.pack1(Gtk.Button())
         p.pack2(Gtk.Button())
 
         with visible(p, width=200, height=200) as p:
-            self.failUnlessAlmostEqual(p.get_relative(), 0.75, 2)
+            self.assertAlmostEqual(p.get_relative(), 0.75, 2)
             p.props.position = 20
-            self.failUnlessAlmostEqual(p.get_relative(), 0.10, 2)
+            self.assertAlmostEqual(p.get_relative(), 0.10, 2)
 
         config_value = config.getfloat("memory", "foobar")
-        self.failUnlessAlmostEqual(config_value, 0.10, 2)
+        self.assertAlmostEqual(config_value, 0.10, 2)
 
 
 class TAlign(TestCase):
@@ -121,7 +121,7 @@ class TAlign(TestCase):
         self.assertEqual(a.get_margin_bottom(), 0)
         self.assertEqual(a.get_margin_left(), 4)
         self.assertEqual(a.get_margin_right(), 6)
-        self.failUnless(a.get_child() is button)
+        self.assertTrue(a.get_child() is button)
         a.destroy()
 
 

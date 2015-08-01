@@ -19,9 +19,9 @@ from quodlibet.qltk.controls import Volume
 
 
 FILES = [
-    AudioFile({"~filename": fsnative(u"/foo/bar1"), "title": "1"}),
-    AudioFile({"~filename": fsnative(u"/foo/bar2"), "title": "2"}),
-    AudioFile({"~filename": fsnative(u"/foo/bar3"), "title": "3"}),
+    AudioFile({"~filename": fsnative("/foo/bar1"), "title": "1"}),
+    AudioFile({"~filename": fsnative("/foo/bar2"), "title": "2"}),
+    AudioFile({"~filename": fsnative("/foo/bar3"), "title": "3"}),
 ]
 for file_ in FILES:
     file_.sanitize()
@@ -107,16 +107,16 @@ class TPlayer(AbstractTestCase):
 
     def test_next(self):
         self.assertFalse(self.player.song)
-        self.player.next()
+        next(self.player)
         self.assertEqual(self.player.song, FILES[0])
-        self.player.next()
+        next(self.player)
         self.assertEqual(self.player.song, FILES[1])
-        self.player.next()
+        next(self.player)
         self.assertFalse(self.player.song)
 
     def test_previous(self):
-        self.player.next()
-        self.player.next()
+        next(self.player)
+        next(self.player)
         self.assertEqual(self.player.song, FILES[1])
         self.player.previous()
         self.assertEqual(self.player.song, FILES[0])
@@ -141,7 +141,7 @@ class TPlayer(AbstractTestCase):
         self.player.go_to(None)
         self.player.reset()
         self.assertEqual(self.player.song, FILES[0])
-        self.player.next()
+        next(self.player)
         self.player.reset()
         self.assertEqual(self.player.song, FILES[0])
 
@@ -149,20 +149,20 @@ class TPlayer(AbstractTestCase):
         self.player.eq_bands
         self.player.eq_values
         self.player.eq_values = [1, 2, 3, 4]
-        self.player.next()
+        next(self.player)
 
     def test_unpause_while_no_song(self):
         self.assertTrue(self.player.paused)
         self.player.go_to(None)
         self.player.paused = False
-        self.player.next()
+        next(self.player)
         self.assertTrue(self.signals, ["unpaused"])
         self.player.go_to(None)
         self.assertTrue(self.signals, ["unpaused", "paused"])
 
     def test_replaygain(self):
         self.player.replaygain_profiles[0] = "track"
-        self.player.next()
+        next(self.player)
         config.set("player", "replaygain", True)
         self.assertEqual(self.player.calc_replaygain_volume(1.0), 1.0)
         config.set("player", "fallback_gain", -5.0)
@@ -173,7 +173,7 @@ class TPlayer(AbstractTestCase):
 
     def test_seekable(self):
         self.assertFalse(self.player.seekable)
-        self.player.next()
+        next(self.player)
         self.assertTrue(self.player.seekable)
 
         calls = []
@@ -191,8 +191,8 @@ class TNullPlayer(TPlayer):
     NAME = "nullbe"
 
     def test_previous_seek(self):
-        self.player.next()
-        self.player.next()
+        next(self.player)
+        next(self.player)
         self.assertEqual(self.player.song, FILES[1])
         self.player.seek(10000)
         self.assertEqual(self.player.get_position(), 10000)
@@ -201,8 +201,8 @@ class TNullPlayer(TPlayer):
         self.assertEqual(self.player.song, FILES[1])
 
     def test_previous_force(self):
-        self.player.next()
-        self.player.next()
+        next(self.player)
+        next(self.player)
         self.assertEqual(self.player.song, FILES[1])
         self.player.seek(10000)
         self.assertEqual(self.player.get_position(), 10000)
@@ -211,8 +211,8 @@ class TNullPlayer(TPlayer):
         self.assertEqual(self.player.song, FILES[0])
 
     def test_previous_skip(self):
-        self.player.next()
-        self.player.next()
+        next(self.player)
+        next(self.player)
         self.assertEqual(self.player.song, FILES[1])
         self.player.seek(10)
         self.assertEqual(self.player.get_position(), 10)
@@ -221,7 +221,7 @@ class TNullPlayer(TPlayer):
         self.assertEqual(self.player.song, FILES[0])
 
     def test_stop(self):
-        self.player.next()
+        next(self.player)
         self.player.seek(10000)
         self.assertEqual(self.player.get_position(), 10000)
         self.player.stop()
@@ -275,27 +275,27 @@ class TVolume(TestCase):
     def test_setget(self):
         for i in [0.0, 1.2, 0.24, 1.0, 0.9]:
             self.v.set_value(i)
-            self.failUnlessAlmostEqual(self.p.volume, self.v.get_value() ** 3)
+            self.assertAlmostEqual(self.p.volume, self.v.get_value() ** 3)
 
     def test_add(self):
         self.v.set_value(0.5)
         self.v += 0.1
-        self.failUnlessAlmostEqual(self.p.volume, 0.6 ** 3)
+        self.assertAlmostEqual(self.p.volume, 0.6 ** 3)
 
     def test_sub(self):
         self.v.set_value(0.5)
         self.v -= 0.1
-        self.failUnlessAlmostEqual(self.p.volume, 0.4 ** 3)
+        self.assertAlmostEqual(self.p.volume, 0.4 ** 3)
 
     def test_add_boundry(self):
         self.v.set_value(0.95)
         self.v += 0.1
-        self.failUnlessAlmostEqual(self.p.volume, 1.0)
+        self.assertAlmostEqual(self.p.volume, 1.0)
 
     def test_sub_boundry(self):
         self.v.set_value(0.05)
         self.v -= 0.1
-        self.failUnlessAlmostEqual(self.p.volume, 0.0)
+        self.assertAlmostEqual(self.p.volume, 0.0)
 
     def tearDown(self):
         self.p.destroy()

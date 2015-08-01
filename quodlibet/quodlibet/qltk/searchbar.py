@@ -47,7 +47,7 @@ class SearchBarBox(Gtk.HBox):
 
         combo = ComboBoxEntrySave(filename, count=8,
                 validator=QueryValidator, title=_("Saved Searches"),
-                edit_title=_(u"Edit saved searches…"))
+                edit_title=_("Edit saved searches…"))
 
         self.__deferred_changed = DeferredSignal(
             self.__filter_changed, timeout=self.timeout, owner=self)
@@ -95,7 +95,7 @@ class SearchBarBox(Gtk.HBox):
     def get_text(self):
         """Get the active text as unicode"""
 
-        return self.__entry.get_text().decode("utf-8")
+        return self.__entry.get_text()
 
     def changed(self):
         """Triggers a filter-changed signal if the current text

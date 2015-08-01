@@ -279,7 +279,7 @@ class PersistentWindowMixin(object):
             return
 
         try:
-            x, y = map(int, pos.split())
+            x, y = list(map(int, pos.split()))
         except ValueError:
             return
 
@@ -298,7 +298,7 @@ class PersistentWindowMixin(object):
             return
 
         try:
-            x, y = map(int, value.split())
+            x, y = list(map(int, value.split()))
         except ValueError:
             return
 
@@ -373,7 +373,7 @@ class _Unique(object):
             return super(_Unique, klass).__new__(klass, *args, **kwargs)
         #Look for widgets in the args, if there is one and it has
         #a new top level window, reparent and reposition the window.
-        widgets = filter(lambda x: isinstance(x, Gtk.Widget), args)
+        widgets = [x for x in args if isinstance(x, Gtk.Widget)]
         if widgets:
             parent = window.get_transient_for()
             new_parent = get_top_parent(widgets[0])

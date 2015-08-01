@@ -462,7 +462,7 @@ class RGDialog(Dialog):
 
     def create_pipelines(self):
         # create as many pipelines as threads
-        self.pipes = [ReplayGainPipeline() for _ in xrange(get_num_threads())]
+        self.pipes = [ReplayGainPipeline() for _ in range(get_num_threads())]
 
     def __fill_view(self, view, albums):
         self._todo = [RGAlbum.from_songs(a, self.process_mode) for a in albums]

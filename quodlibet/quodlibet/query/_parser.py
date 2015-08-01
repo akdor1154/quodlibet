@@ -19,7 +19,7 @@ from quodlibet.util import re_escape
 
 # Token types.
 (NEGATION, INTERSECT, UNION, OPENP, CLOSEP, EQUALS, OPENRE,
- CLOSERE, REMODS, COMMA, TAG, RE, RELOP, NUMCMP, EOF) = range(15)
+ CLOSERE, REMODS, COMMA, TAG, RE, RELOP, NUMCMP, EOF) = list(range(15))
 
 
 class LexerError(error):
@@ -43,7 +43,7 @@ class QueryLexer(Scanner):
         return QueryLexeme(RE, string[1:-1])
 
     def str_to_re(self, scanner, string):
-        if isinstance(string, unicode):
+        if isinstance(string, str):
             string = string.encode('utf-8')
         string = string[1:-1].decode('string_escape')
         string = string.decode('utf-8')
@@ -92,7 +92,7 @@ class QueryParser(object):
 
     def __init__(self, tokens):
         self.tokens = iter(tokens)
-        self.lookahead = self.tokens.next()
+        self.lookahead = next(self.tokens)
 
     def _match_parened(self, expect, ReturnType, InternalType):
         self.match(expect)
@@ -202,7 +202,7 @@ class QueryParser(object):
 
     def QueryPart(self):
         names = [s.lower() for s in self._match_list(self._match_string)]
-        if filter(lambda k: k.encode("ascii", "replace") != k, names):
+        if [k for k in names if k.encode("ascii", "replace") != k]:
             raise ParseError("Expected ascii key")
         self.match(EQUALS)
         res = self.RegexpSet()
@@ -280,7 +280,7 @@ class QueryParser(object):
                              "tokens were expected.")
         try:
             if self.lookahead.type in tokens:
-                self.lookahead = self.tokens.next()
+                self.lookahead = next(self.tokens)
             else:
                 raise ParseError("The token '%s' is not the type exected." % (
                     self.lookahead.lexeme))

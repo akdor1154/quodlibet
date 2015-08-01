@@ -35,9 +35,9 @@ class DBusHandler(dbus.service.Object):
 
     def __dict(self, song):
         dict = {}
-        for key, value in (song or {}).items():
-            if not isinstance(value, basestring):
-                value = unicode(value)
+        for key, value in list((song or {}).items()):
+            if not isinstance(value, str):
+                value = str(value)
             elif isinstance(value, str):
                 value = fsdecode(value)
             dict[key] = dbusutils.dbus_unicode_validate(value)
@@ -85,7 +85,7 @@ class DBusHandler(dbus.service.Object):
 
     @dbus.service.method('net.sacredchao.QuodLibet')
     def Next(self):
-        self._player.next()
+        next(self._player)
 
     @dbus.service.method('net.sacredchao.QuodLibet')
     def Previous(self):
@@ -118,6 +118,6 @@ class DBusHandler(dbus.service.Object):
             except Query.error:
                 pass
             else:
-                return [self.__dict(s) for s in self.library.itervalues()
+                return [self.__dict(s) for s in self.library.values()
                         if results(s)]
         return None

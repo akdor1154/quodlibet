@@ -33,24 +33,24 @@ class TWaitLoadWindow(TestCase):
         wlw.destroy()
 
     def test_connect(self):
-        self.failUnlessEqual(2, self.parent.count)
+        self.assertEqual(2, self.parent.count)
         self.wlw.destroy()
-        self.failUnlessEqual(0, self.parent.count)
+        self.assertEqual(0, self.parent.count)
 
     def test_start(self):
-        self.failUnlessEqual(0, self.wlw.current)
-        self.failUnlessEqual(5, self.wlw.count)
+        self.assertEqual(0, self.wlw.current)
+        self.assertEqual(5, self.wlw.count)
 
     def test_step(self):
-        self.failIf(self.wlw.step())
-        self.failUnlessEqual(1, self.wlw.current)
-        self.failIf(self.wlw.step())
-        self.failIf(self.wlw.step())
-        self.failUnlessEqual(3, self.wlw.current)
+        self.assertFalse(self.wlw.step())
+        self.assertEqual(1, self.wlw.current)
+        self.assertFalse(self.wlw.step())
+        self.assertFalse(self.wlw.step())
+        self.assertEqual(3, self.wlw.current)
 
     def test_destroy(self):
         self.wlw.destroy()
-        self.failUnlessEqual(0, self.parent.count)
+        self.assertEqual(0, self.parent.count)
 
     def tearDown(self):
         self.wlw.destroy()

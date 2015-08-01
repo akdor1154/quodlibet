@@ -471,10 +471,11 @@ class OneArtist(qltk.Notebook):
             else:
                 noalbum += 1
         albums = [(song.get("date"), song, album) for
-                  album, song in albums.items()]
+                  album, song in list(albums.items())]
         albums.sort()
 
-        def format((date, song, album)):
+        def format(xxx_todo_changeme):
+            (date, song, album) = xxx_todo_changeme
             if date:
                 return "%s (%s)" % (album, date[:4])
             else:
@@ -482,7 +483,7 @@ class OneArtist(qltk.Notebook):
 
         get_cover = app.cover_manager.get_cover
         covers = [(a, get_cover(s), s) for d, s, a in albums]
-        albums = map(format, albums)
+        albums = list(map(format, albums))
         if noalbum:
             albums.append(ngettext("%d song with no album",
                 "%d songs with no album", noalbum) % noalbum)
@@ -612,7 +613,7 @@ class Information(Window, PersistentWindowMixin):
     def __check_removed(self, library, songs):
         gone = set(songs)
         old = len(self.__songs)
-        self.__songs = filter(lambda s: s not in gone, self.__songs)
+        self.__songs = [s for s in self.__songs if s not in gone]
         if len(self.__songs) != old:
             self.__update(library)
 
@@ -627,7 +628,7 @@ class Information(Window, PersistentWindowMixin):
             self.add(OneSong(library, songs[0]))
         else:
             tags = [(s.get("artist"), s.get("album")) for s in songs]
-            artists, albums = zip(*tags)
+            artists, albums = list(zip(*tags))
             if min(albums) == max(albums) and albums[0]:
                 self.add(OneAlbum(songs))
             elif min(artists) == max(artists) and artists[0]:

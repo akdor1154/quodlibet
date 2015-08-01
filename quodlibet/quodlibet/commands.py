@@ -8,7 +8,7 @@
 # published by the Free Software Foundation
 
 import os
-from cStringIO import StringIO
+from io import StringIO
 
 from quodlibet import browsers
 
@@ -97,7 +97,7 @@ def _force_previous(app):
 
 @registry.register("next")
 def _next(app):
-    app.player.next()
+    next(app.player)
 
 
 @registry.register("pause")
@@ -309,7 +309,7 @@ def _properties(app, value=None):
             songs = library.query(value)
     else:
         songs = [player.song]
-    songs = filter(None, songs)
+    songs = [_f for _f in songs if _f]
 
     if songs:
         window = SongProperties(library, songs, parent=window)
@@ -461,7 +461,7 @@ def _print_playing(app, fstring="<artist~album~tracknumber~title>"):
 
     song = app.player.song
     if song is None:
-        song = AudioFile({"~filename": fsnative(u"/")})
+        song = AudioFile({"~filename": fsnative("/")})
         song.sanitize()
 
     return Pattern(fstring).format(song) + "\n"

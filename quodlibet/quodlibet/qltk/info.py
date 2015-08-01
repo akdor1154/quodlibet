@@ -28,7 +28,7 @@ class SongInfo(Gtk.EventBox):
     song information and a song context menu.
     """
 
-    _pattern = (u"""\
+    _pattern = ("""\
 [span weight='bold' size='large']<title>[/span]\
 <~length| (<~length>)><version|
 [small][b]<version>[/b][/small]><~people|
@@ -103,7 +103,7 @@ class SongInfo(Gtk.EventBox):
             menu.append(sub)
 
     def _get_menu(self, player, library):
-        item = qltk.MenuItem(_(u"_Edit Display…"), Icons.EDIT)
+        item = qltk.MenuItem(_("_Edit Display…"), Icons.EDIT)
         item.connect('activate', self._on_edit_display, player)
 
         songs = [player.song] if player.song else []

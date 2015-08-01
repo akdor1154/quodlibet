@@ -59,7 +59,7 @@ class Query(Node):
         if star is None:
             star = self.STAR
 
-        if not isinstance(string, unicode):
+        if not isinstance(string, str):
             string = string.decode('utf-8')
 
         self.star = list(star)

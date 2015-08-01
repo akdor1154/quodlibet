@@ -21,6 +21,7 @@ from quodlibet.qltk import get_top_parent, get_menu_item_top_parent, Icons
 from quodlibet.plugins import PluginManager, PluginHandler
 from quodlibet.plugins.songsmenu import SongsMenuPlugin
 from quodlibet.util.songwrapper import ListWrapper, check_wrapper_changed
+import collections
 
 
 class ConfirmMultiSongInvoke(WarningMessage):
@@ -115,7 +116,7 @@ class SongsMenuPluginHandler(PluginHandler):
         kinds = self.__plugins
         kinds.sort(key=lambda plugin: plugin.PLUGIN_ID)
         for Kind in kinds:
-            usable = max([callable(getattr(Kind, s)) for s in attrs])
+            usable = max([isinstance(getattr(Kind, s), collections.Callable) for s in attrs])
             if usable:
                 try:
                     items.append(Kind(songs, library))
@@ -123,7 +124,7 @@ class SongsMenuPluginHandler(PluginHandler):
                     print_e("Couldn't initialise song plugin %s. Stack trace:"
                             % Kind)
                     print_exc()
-        items = filter(lambda i: i.initialized, items)
+        items = [i for i in items if i.initialized]
 
         if items:
             menu = Gtk.Menu()
@@ -154,7 +155,7 @@ class SongsMenuPluginHandler(PluginHandler):
                 albums[key] = []
             albums[key].append(song)
 
-        albums = albums.values()
+        albums = list(albums.values())
         for album in albums:
             album.sort()
         return albums
@@ -184,7 +185,7 @@ class SongsMenuPluginHandler(PluginHandler):
             return
 
         try:
-            if len(songs) == 1 and callable(plugin.plugin_single_song):
+            if len(songs) == 1 and isinstance(plugin.plugin_single_song, collections.Callable):
                 try:
                     ret = plugin.plugin_single_song(songs[0])
                 except Exception:
@@ -192,7 +193,7 @@ class SongsMenuPluginHandler(PluginHandler):
                 else:
                     if ret:
                         return
-            if callable(plugin.plugin_song):
+            if isinstance(plugin.plugin_song, collections.Callable):
                 total = len(songs)
                 if total > plugin.MAX_INVOCATIONS:
                     if not self._confirm_multiple_songs(
@@ -200,13 +201,13 @@ class SongsMenuPluginHandler(PluginHandler):
                         return
 
                 try:
-                    ret = map(plugin.plugin_song, songs)
+                    ret = list(map(plugin.plugin_song, songs))
                 except Exception:
                     print_exc()
                 else:
                     if max(ret):
                         return
-            if callable(plugin.plugin_songs):
+            if isinstance(plugin.plugin_songs, collections.Callable):
                 try:
                     ret = plugin.plugin_songs(songs)
                 except Exception:
@@ -223,7 +224,7 @@ class SongsMenuPluginHandler(PluginHandler):
                             parent, plugin.PLUGIN_NAME, total):
                         return
 
-            if callable(plugin.plugin_single_album) and len(albums) == 1:
+            if isinstance(plugin.plugin_single_album, collections.Callable) and len(albums) == 1:
                 try:
                     ret = plugin.plugin_single_album(albums[0])
                 except Exception:
@@ -231,15 +232,15 @@ class SongsMenuPluginHandler(PluginHandler):
                 else:
                     if ret:
                         return
-            if callable(plugin.plugin_album):
+            if isinstance(plugin.plugin_album, collections.Callable):
                 try:
-                    ret = map(plugin.plugin_album, albums)
+                    ret = list(map(plugin.plugin_album, albums))
                 except Exception:
                     print_exc()
                 else:
                     if max(ret):
                         return
-            if callable(plugin.plugin_albums):
+            if isinstance(plugin.plugin_albums, collections.Callable):
                 try:
                     ret = plugin.plugin_albums(albums)
                 except Exception:
@@ -249,7 +250,7 @@ class SongsMenuPluginHandler(PluginHandler):
                         return
 
         finally:
-            check_wrapper_changed(library, parent, filter(None, songs))
+            check_wrapper_changed(library, parent, [_f for _f in songs if _f])
 
     def plugin_handle(self, plugin):
         return issubclass(plugin.cls, SongsMenuPlugin)
@@ -331,7 +332,7 @@ class SongsMenu(Gtk.Menu):
             b = qltk.MenuItem(_("Add to _Queue"), Icons.LIST_ADD)
 
             def enqueue_cb(item, songs):
-                songs = filter(lambda s: s.can_add, songs)
+                songs = [s for s in songs if s.can_add]
                 if songs:
                     from quodlibet import app
                     app.window.playlist.enqueue(songs)
@@ -362,7 +363,7 @@ class SongsMenu(Gtk.Menu):
 
         if remove:
             b = qltk.MenuItem(_("_Remove from library"), Icons.LIST_REMOVE)
-            if callable(remove):
+            if isinstance(remove, collections.Callable):
                 b.connect('activate', lambda item: remove(songs))
             else:
                 def remove_cb(item, songs, library):
@@ -373,7 +374,7 @@ class SongsMenu(Gtk.Menu):
             self.append(b)
 
         if delete:
-            if callable(delete):
+            if isinstance(delete, collections.Callable):
                 b = qltk.MenuItem(_("_Delete"), Icons.EDIT_DELETE)
                 b.connect('activate', lambda item: delete(songs))
             else:

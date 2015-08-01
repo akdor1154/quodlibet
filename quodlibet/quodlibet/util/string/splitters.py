@@ -19,7 +19,7 @@ def split_value(s, splitters=["/", "&", ","]):
     values = s.split("\n")
     for spl in splitters:
         spl = re.compile(r"\b\s*%s\s*\b" % re_escape(spl), re.UNICODE)
-        if not filter(spl.search, values):
+        if not list(filter(spl.search, values)):
             continue
         new_values = []
         for v in values:
@@ -31,7 +31,7 @@ def split_value(s, splitters=["/", "&", ","]):
 def find_subtitle(title):
     if isinstance(title, str):
         title = title.decode('utf-8', 'replace')
-    for pair in [u"[]", u"()", u"~~", u"--", u"\u301c\u301c", u'\uff08\uff09']:
+    for pair in ["[]", "()", "~~", "--", "\u301c\u301c", '\uff08\uff09']:
         if pair[0] in title[:-1] and title.endswith(pair[1]):
             r = len(pair[1])
             l = title[0:-r].rindex(pair[0])

@@ -34,9 +34,9 @@ class MinExceptionDialog(ErrorMessage):
             get_top_parent(parent),
             title, description)
 
-        assert isinstance(title, unicode)
-        assert isinstance(description, unicode)
-        assert isinstance(traceback, unicode)
+        assert isinstance(title, str)
+        assert isinstance(description, str)
+        assert isinstance(traceback, str)
 
         exp = Gtk.Expander(label=_("Error Details"))
         lab = Gtk.Label(label=traceback)

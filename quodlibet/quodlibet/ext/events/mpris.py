@@ -248,7 +248,7 @@ class MPRIS1Player(MPRISObject):
             "mb album artist sort name": "albumartistsort",
             }
 
-        for key, tag in strings.iteritems():
+        for key, tag in strings.items():
             val = song.comma(tag)
             if val:
                 metadata[key] = unival(val)
@@ -300,7 +300,7 @@ class MPRIS1Player(MPRISObject):
 
     @dbus.service.method(IFACE)
     def Next(self):
-        app.player.next()
+        next(app.player)
 
     @dbus.service.method(IFACE)
     def Prev(self):
@@ -508,7 +508,7 @@ value="false"/>
     def Next(self):
         player = app.player
         paused = player.paused
-        player.next()
+        next(player)
         player.paused = paused
 
     @dbus.service.method(PLAYER_IFACE)
@@ -596,14 +596,14 @@ value="false"/>
         list_val = {"artist": "artist", "albumArtist": "albumartist",
             "comment": "comment", "composer": "composer", "genre": "genre",
             "lyricist": "lyricist"}
-        for xesam, tag in list_val.iteritems():
+        for xesam, tag in list_val.items():
             vals = song.list(tag)
             if vals:
-                metadata["xesam:" + xesam] = map(unival, vals)
+                metadata["xesam:" + xesam] = list(map(unival, vals))
 
         # All single values
         sing_val = {"album": "album", "title": "title", "asText": "~lyrics"}
-        for xesam, tag in sing_val.iteritems():
+        for xesam, tag in sing_val.items():
             vals = song.comma(tag)
             if vals:
                 metadata["xesam:" + xesam] = unival(vals)
@@ -615,7 +615,7 @@ value="false"/>
         num_val = {"audioBPM": "bpm", "discNumber": "disc",
                    "trackNumber": "track", "useCount": "playcount"}
 
-        for xesam, tag in num_val.iteritems():
+        for xesam, tag in num_val.items():
             val = song("~#" + tag, None)
             if val is not None:
                 metadata["xesam:" + xesam] = int(val)
@@ -684,7 +684,7 @@ value="false"/>
                 can = lambda s: False
                 #can = lambda s: app.player.can_play_uri("%s://fake" % s)
                 schemes = ["http", "https", "ftp", "file", "mms"]
-                return filter(can, schemes)
+                return list(filter(can, schemes))
             elif name == "SupportedMimeTypes":
                 from quodlibet import formats
                 return formats.mimes

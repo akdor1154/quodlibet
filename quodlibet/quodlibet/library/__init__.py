@@ -48,7 +48,7 @@ def save(save_period=None):
     print_d("Saving all libraries...")
 
     librarian = SongFileLibrary.librarian
-    for lib in librarian.libraries.values():
+    for lib in list(librarian.libraries.values()):
         filename = lib.filename
         if not filename or not lib.dirty:
             continue

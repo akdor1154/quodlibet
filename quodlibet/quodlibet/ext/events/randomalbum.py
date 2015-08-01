@@ -155,7 +155,7 @@ class RandomAlbum(EventPlugin):
                 rank = ranked[tag].index(album)
                 scores[album] += rank * self.weights[tag]
 
-        return [(score, name) for name, score in scores.items()]
+        return [(score, name) for name, score in list(scores.items())]
 
     def plugin_on_song_started(self, song):
         if (song is None and config.get("memory", "order") != "onesong" and
@@ -206,7 +206,7 @@ class RandomAlbum(EventPlugin):
                     yield True
                 task.finish()
                 yield False
-            GLib.timeout_add(100, countdown().next)
+            GLib.timeout_add(100, countdown().__next__)
         else:
             self.change_album(album)
 
@@ -227,6 +227,6 @@ class RandomAlbum(EventPlugin):
         # previous current song wasn't found, we'll get this condition
         # as well, so just leave the player paused if that's the case.
         try:
-            app.player.next()
+            next(app.player)
         except AttributeError:
             app.player.paused = True

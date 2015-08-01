@@ -120,7 +120,7 @@ class CollectionBrowser(Browser, util.InstanceTracker):
 
     @classmethod
     def set_hierarchy(klass):
-        klass.__model.set_albums(get_headers(), klass.__albums.values())
+        klass.__model.set_albums(get_headers(), list(klass.__albums.values()))
         for inst in klass.instances():
             inst._refilter()
 
@@ -347,7 +347,7 @@ class CollectionBrowser(Browser, util.InstanceTracker):
         return True
 
     def filter_albums(self, album_keys):
-        albums = filter(None, [self.__albums.get(k) for k in album_keys])
+        albums = [_f for _f in [self.__albums.get(k) for k in album_keys] if _f]
         if albums:
             self.view.select_album(albums[0], unselect=True)
         for album in albums[1:]:

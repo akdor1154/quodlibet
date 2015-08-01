@@ -216,12 +216,12 @@ class ExFalsoWindow(Window, PersistentWindowMixin):
                 if file("~#mtime") + 1. < mtime(filename):
                     try:
                         file.reload()
-                    except StandardError:
+                    except Exception:
                         pass
                 files.append(file)
             else:
                 files.append(formats.MusicFile(filename))
-        files = filter(None, files)
+        files = [_f for _f in files if _f]
         if len(files) == 0:
             self.set_title("Ex Falso")
         elif len(files) == 1:

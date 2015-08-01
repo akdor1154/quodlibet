@@ -133,7 +133,7 @@ class MPDServerPlugin(EventPlugin):
 
         clients = Gtk.Label()
         clients.set_padding(6, 6)
-        clients.set_markup(u"""\
+        clients.set_markup("""\
 \u2022 <a href="https://play.google.com/store/apps/details?id=com.\
 namelessdev.mpdroid">MPDroid 1.06</a> (Android)<small>
 

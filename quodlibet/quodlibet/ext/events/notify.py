@@ -62,7 +62,7 @@ get_conf_int = lambda name: get_conf_value(name, "getint")
 
 
 def set_conf_value(name, value):
-    config.set("plugins", "notify_%s" % name, unicode(value))
+    config.set("plugins", "notify_%s" % name, str(value))
 
 
 class PreferencesWidget(Gtk.VBox):
@@ -313,9 +313,9 @@ class Notify(EventPlugin):
         interface = dbus.Interface(obj, self.DBUS_IFACE)
 
         name, vendor, version, spec_version = \
-            map(str, interface.GetServerInformation())
-        spec_version = map(int, spec_version.split("."))
-        caps = map(str, interface.GetCapabilities())
+            list(map(str, interface.GetServerInformation()))
+        spec_version = list(map(int, spec_version.split(".")))
+        caps = list(map(str, interface.GetCapabilities()))
 
         return interface, caps, spec_version
 
@@ -348,7 +348,7 @@ class Notify(EventPlugin):
         if fileobj:
             image_path = fileobj.name
             return URI.frompath(image_path).decode("utf-8")
-        return u""
+        return ""
 
     def show_notification(self, song):
         """Returns True if showing the notification was successful"""
@@ -435,7 +435,7 @@ class Notify(EventPlugin):
         if notify_id == self.__last_id and key == "next":
             # Always show a new notification if the next button got clicked
             self.__force_notification = True
-            app.player.next()
+            next(app.player)
 
     def on_song_change(self, song, typ):
         if not song:

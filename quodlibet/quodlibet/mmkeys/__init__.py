@@ -86,7 +86,7 @@ class MMKeysHandler(object):
         if action == MMKeysAction.PREV:
             player.previous()
         elif action == MMKeysAction.NEXT:
-            player.next()
+            next(player)
         elif action == MMKeysAction.STOP:
             player.stop()
         elif action == MMKeysAction.PLAY:

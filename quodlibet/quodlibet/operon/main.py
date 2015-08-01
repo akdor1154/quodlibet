@@ -103,11 +103,11 @@ def main(argv):
             try:
                 cmd.execute(argv[offset + 1:])
             except CommandError as e:
-                print_(u"%s: %s" % (command.NAME, e), sys.stderr)
+                print_("%s: %s" % (command.NAME, e), sys.stderr)
                 return 1
             break
     else:
-        print_(u"Unknown command '%s'. See '%s help'." % (arg, main_cmd),
+        print_("Unknown command '%s'. See '%s help'." % (arg, main_cmd),
                sys.stderr)
         return 1
 

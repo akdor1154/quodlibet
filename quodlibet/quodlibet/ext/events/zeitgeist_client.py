@@ -15,17 +15,16 @@ if os.name == "nt" or sys.platform == "darwin":
 import time
 
 try:
-    import __builtin__
+    import builtins
     # zeitgeist overrides our gettext functions
-    old_builtin = __builtin__.__dict__.copy()
+    old_builtin = builtins.__dict__.copy()
     from zeitgeist.client import ZeitgeistClient
     from zeitgeist.datamodel import Event, Subject
     from zeitgeist.datamodel import Interpretation, Manifestation
-    __builtin__.__dict__.update(old_builtin)
+    builtins.__dict__.update(old_builtin)
 except ImportError as e:
     from quodlibet import plugins
-    raise (plugins.MissingModulePluginException("zeitgeist") if
-           hasattr(plugins, "MissingModulePluginException") else e)
+    raise plugins.MissingModulePluginException("zeitgeist")
 
 from quodlibet.qltk import Icons
 from quodlibet.plugins.events import EventPlugin

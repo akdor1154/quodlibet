@@ -30,20 +30,20 @@ class TInformation(TestCase):
         Information(self.library, []).destroy()
 
     def test_one(self):
-        f = AF({"~filename": fsnative(u"/dev/null")})
+        f = AF({"~filename": fsnative("/dev/null")})
         Information(self.library, [f]).destroy()
 
     def test_two(self):
-        f = AF({"~filename": fsnative(u"/dev/null")})
-        f2 = AF({"~filename": fsnative(u"/dev/null2")})
+        f = AF({"~filename": fsnative("/dev/null")})
+        f2 = AF({"~filename": fsnative("/dev/null2")})
         Information(self.library, [f, f2]).destroy()
 
     def test_album(self):
-        f = AF({"~filename": fsnative(u"/dev/null"), "album": "woo"})
-        f2 = AF({"~filename": fsnative(u"/dev/null2"), "album": "woo"})
+        f = AF({"~filename": fsnative("/dev/null"), "album": "woo"})
+        f2 = AF({"~filename": fsnative("/dev/null2"), "album": "woo"})
         Information(self.library, [f, f2]).destroy()
 
     def test_artist(self):
-        f = AF({"~filename": fsnative(u"/dev/null"), "artist": "woo"})
-        f2 = AF({"~filename": fsnative(u"/dev/null2"), "artist": "woo"})
+        f = AF({"~filename": fsnative("/dev/null"), "artist": "woo"})
+        f2 = AF({"~filename": fsnative("/dev/null2"), "artist": "woo"})
         Information(self.library, [f, f2]).destroy()

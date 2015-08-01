@@ -39,7 +39,7 @@ def iter_to_list(func):
 
     iter_ = func()
     while 1:
-        status, value = iter_.next()
+        status, value = next(iter_)
         if status == Gst.IteratorResult.OK:
             objects.append(value)
         else:
@@ -116,7 +116,7 @@ class TagListWrapper(collections.Mapping):
         return self._list.n_tags()
 
     def __iter__(self):
-        for i in xrange(len(self)):
+        for i in range(len(self)):
             yield self._list.nth_tag_name(i)
 
     def __getitem__(self, key):
@@ -149,7 +149,7 @@ def parse_gstreamer_taglist(tags):
     numeric and unicode values and str keys."""
 
     merged = {}
-    for key in tags.keys():
+    for key in list(tags.keys()):
         value = tags[key]
         # extended-comment sometimes containes a single vorbiscomment or
         # a list of them ["key=value", "key=value"]
@@ -157,14 +157,14 @@ def parse_gstreamer_taglist(tags):
             if not isinstance(value, list):
                 value = [value]
             for val in value:
-                if not isinstance(val, unicode):
+                if not isinstance(val, str):
                     continue
                 split = val.split("=", 1)
                 sub_key = decode(split[0])
                 val = split[-1]
                 if sub_key in merged:
                     sub_val = merged[sub_key]
-                    if not isinstance(sub_val, unicode):
+                    if not isinstance(sub_val, str):
                         continue
                     if val not in sub_val.split("\n"):
                         merged[sub_key] += "\n" + val
@@ -174,15 +174,15 @@ def parse_gstreamer_taglist(tags):
             value = value.to_iso8601_string()
             merged[key] = value
         else:
-            if isinstance(value, (int, long, float)):
+            if isinstance(value, (int, float)):
                 merged[key] = value
                 continue
 
             if isinstance(value, str):
                 value = decode(value)
 
-            if not isinstance(value, unicode):
-                value = unicode(value)
+            if not isinstance(value, str):
+                value = str(value)
 
             if key in merged:
                 merged[key] += "\n" + value

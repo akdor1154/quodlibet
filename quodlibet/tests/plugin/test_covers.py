@@ -14,7 +14,7 @@ from quodlibet.util.path import is_fsnative
 class TCovers(PluginTestCase):
 
     def test_cover_path(self):
-        song = AudioFile({"musicbrainz_albumid": u"foobar"})
+        song = AudioFile({"musicbrainz_albumid": "foobar"})
         song2 = AudioFile()
 
         # missing Soup

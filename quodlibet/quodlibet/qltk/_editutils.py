@@ -107,7 +107,7 @@ class FilterCheckButton(ConfigCheckButton):
         raise NotImplementedError
 
     def filter_list(self, origs, names):
-        return map(self.filter, origs, names)
+        return list(map(self.filter, origs, names))
 
     def __lt__(self, other):
         return (self._order, type(self).__name__) < \
@@ -139,7 +139,7 @@ class FilterPluginBox(Gtk.VBox):
         # plugins
         self.__plugins = []
         hb = Gtk.HBox()
-        expander = Gtk.Expander(label=_(u"_More options…"))
+        expander = Gtk.Expander(label=_("_More options…"))
         expander.set_use_underline(True)
         hb.pack_start(expander, True, True, 0)
         self.pack_start(hb, False, True, 0)

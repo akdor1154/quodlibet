@@ -38,7 +38,7 @@ class TPluginStyle(PluginTestCase):
             'This is a test')
         fails = []
 
-        for pid, plugin in self.plugins.iteritems():
+        for pid, plugin in self.plugins.items():
             if not hasattr(plugin.cls, 'PLUGIN_NAME'):
                 fails.append((plugin, None, REASON_ABSENT))
                 continue
@@ -57,7 +57,7 @@ class TPluginStyle(PluginTestCase):
         skip_plugins = L('pickle_test')
         fails = []
 
-        for pid, plugin in self.plugins.iteritems():
+        for pid, plugin in self.plugins.items():
             if pid in skip_plugins:
                 continue
             if not hasattr(plugin.cls, 'PLUGIN_DESC'):

@@ -69,27 +69,27 @@ class IPodSong(AudioFile):
                 self['~#' + key] = value
 
         try:
-            self["date"] = unicode(track.year)
+            self["date"] = str(track.year)
         except AttributeError:
             pass
 
         if track.cds:
-            self["discnumber"] = u"%d/%d" % (track.cd_nr, track.cds)
+            self["discnumber"] = "%d/%d" % (track.cd_nr, track.cds)
         elif track.cd_nr:
-            self["discnumber"] = u"%d" % track.cd_nr
+            self["discnumber"] = "%d" % track.cd_nr
 
         if track.tracks:
-            self['tracknumber'] = u"%d/%d" % (track.track_nr, track.tracks)
+            self['tracknumber'] = "%d/%d" % (track.track_nr, track.tracks)
         elif track.track_nr:
-            self['tracknumber'] = u"%d" % track.track_nr
+            self['tracknumber'] = "%d" % track.track_nr
 
-        for key, value in {
+        for key, value in list({
             '~#rating': min(1.0, track.rating / 100.0),
             '~#length': track.tracklen / 1000.0,
-        }.items():
+        }.items()):
             if value != 0:
                 self[key] = value
-        self['~format'] = u"iPod: %s" % track.filetype
+        self['~format'] = "iPod: %s" % track.filetype
 
     # Disable all tag editing
     def can_change(self, k=None):
@@ -248,7 +248,7 @@ class IPodDevice(Device):
             except ValueError:
                 continue
         # Numeric keys where the names differ
-        for key, value in {
+        for key, value in list({
             'cd_nr': song('~#disc'),
             'cds': song('~#discs'),
             'rating': min(100, song('~#rating') * 100),
@@ -259,7 +259,7 @@ class IPodDevice(Device):
             'tracks': song('~#tracks'),
             'size': filesize(song('~filename')),
             'soundcheck': self.__soundcheck(song),
-        }.items():
+        }.items()):
             try:
                 setattr(track, key, int(value))
             except ValueError:
@@ -307,7 +307,7 @@ class IPodDevice(Device):
 
     def cleanup(self, wlb, action):
         try:
-            wlb.set_text("<b>%s</b>" % _(u"Saving iPod database…"))
+            wlb.set_text("<b>%s</b>" % _("Saving iPod database…"))
 
             if not self.__save_db():
                 wlb.set_text(_("Unable to save iPod database"))

@@ -9,7 +9,7 @@
 
 import shutil
 
-import const
+from . import const
 from quodlibet.util.config import Config, Error
 
 # Some plugins can be enabled on first install
@@ -185,9 +185,9 @@ def init_defaults():
     """Fills in the defaults, so they are guaranteed to be available"""
 
     _config.defaults.clear()
-    for section, values in INITIAL.iteritems():
+    for section, values in INITIAL.items():
         _config.defaults.add_section(section)
-        for key, value in values.iteritems():
+        for key, value in values.items():
             _config.defaults.set(section, key, value)
 
 
@@ -317,8 +317,8 @@ class RatingsPrefs(object):
 class HardCodedRatingsPrefs(RatingsPrefs):
     number = int(INITIAL["settings"]["ratings"])
     default = float(INITIAL["settings"]["default_rating"])
-    blank_symbol = INITIAL["settings"]["rating_symbol_blank"].decode("utf-8")
-    full_symbol = INITIAL["settings"]["rating_symbol_full"].decode("utf-8")
+    blank_symbol = INITIAL["settings"]["rating_symbol_blank"]
+    full_symbol = INITIAL["settings"]["rating_symbol_full"]
 
 # Need an instance just for imports to work
 RATINGS = RatingsPrefs()

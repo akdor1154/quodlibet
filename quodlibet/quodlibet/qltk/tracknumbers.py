@@ -147,7 +147,7 @@ class TrackNumbers(Gtk.VBox):
         win = WritingWindow(parent, len(model))
         was_changed = set()
         all_done = False
-        for entry in model.itervalues():
+        for entry in model.values():
             song, track = entry.song, entry.tracknumber
             if song.get("tracknumber") == track:
                 win.step()
@@ -183,9 +183,9 @@ class TrackNumbers(Gtk.VBox):
         total = total.get_value_as_int()
         for row in model:
             if total:
-                s = u"%d/%d" % (row.path.get_indices()[0] + start, total)
+                s = "%d/%d" % (row.path.get_indices()[0] + start, total)
             else:
-                s = unicode(row.path.get_indices()[0] + start)
+                s = str(row.path.get_indices()[0] + start)
             entry = row[0]
             entry.tracknumber = s
             model.row_changed(row.path, row.iter)
@@ -195,7 +195,7 @@ class TrackNumbers(Gtk.VBox):
 
     def __update(self, songs, total, model, save, revert):
         if songs is None:
-            songs = [e.song for e in model.itervalues()]
+            songs = [e.song for e in model.values()]
         else:
             songs = list(songs)
 

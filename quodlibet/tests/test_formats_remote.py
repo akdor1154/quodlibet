@@ -22,5 +22,5 @@ class TRemoteFile(TestCase):
         f = RemoteFile("http://example.com")
         f["~filename"] = b"foo"
         self.assertTrue(is_fsnative(f["~filename"]))
-        f["~filename"] = u"foo"
+        f["~filename"] = "foo"
         self.assertTrue(is_fsnative(f["~filename"]))

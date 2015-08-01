@@ -5,7 +5,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-from __future__ import absolute_import
+
 
 import json
 from collections import namedtuple
@@ -47,7 +47,7 @@ class JSONObject(object):
                     for k in self.FIELDS]
         else:
             print_d("No order specified for class %s" % type(self).__name__)
-            return dict([(k, v) for k, v in self.__dict__.items()
+            return dict([(k, v) for k, v in list(self.__dict__.items())
                          if self._should_store(k)])
 
     def field(self, name):
@@ -88,7 +88,7 @@ class JSONObjectDict(dict):
         except ValueError:
             print_w("Broken JSON: %s" % json_str)
         else:
-            for name, blob in data.items():
+            for name, blob in list(data.items()):
                 try:
                     new[name] = ItemKind(**blob)
                 except TypeError as e:
@@ -125,7 +125,7 @@ class JSONObjectDict(dict):
         """
         print_d("Saving %d %s(s) to JSON.." % (len(self), self.Item.__name__))
         try:
-            obj_dict = dict([(o.name, dict(o.data)) for o in self.values()])
+            obj_dict = dict([(o.name, dict(o.data)) for o in list(self.values())])
         except AttributeError:
             raise
         json_str = json.dumps(obj_dict, indent=4)

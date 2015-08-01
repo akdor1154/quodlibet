@@ -63,7 +63,7 @@ class clean(distutils_clean, Command):
                 try:
                     os.unlink(os.path.join(pathname, filename))
                 except EnvironmentError as err:
-                    print(str(err))
+                    print((str(err)))
 
         # setup.py byproducts
         for base in ["coverage", "build", "dist"]:

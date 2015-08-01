@@ -88,7 +88,7 @@ def validate_markup_pattern(text, alternative_markup=True, links=False):
         ValueError: In case the pattern isn't valid
     """
 
-    assert isinstance(text, unicode)
+    assert isinstance(text, str)
 
     f = AudioFile({"~filename": "dummy"})
 
@@ -102,7 +102,7 @@ def validate_markup_pattern(text, alternative_markup=True, links=False):
         return ValueError(e)
 
     try:
-        Pango.parse_markup(text, -1, u"\u0000")
+        Pango.parse_markup(text, -1, "\u0000")
     except GLib.GError as e:
         if not links:
             raise ValueError(e)

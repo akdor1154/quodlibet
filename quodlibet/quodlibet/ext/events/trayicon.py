@@ -417,7 +417,7 @@ class TrayIcon(EventPlugin):
             if event.direction in [DIR.UP, DIR.LEFT]:
                 player.previous()
             elif event.direction in [DIR.DOWN, DIR.RIGHT]:
-                player.next()
+                next(player)
         else:
             if event.direction in [DIR.UP, DIR.LEFT]:
                 player.volume += 0.05
@@ -465,7 +465,7 @@ class TrayIcon(EventPlugin):
         previous.connect('activate', lambda *args: player.previous())
 
         next = MenuItem(_("_Next"), Icons.MEDIA_SKIP_FORWARD)
-        next.connect('activate', lambda *args: player.next())
+        next.connect('activate', lambda *args: next(player))
 
         orders = Gtk.MenuItem(label=_("Play _Order"), use_underline=True)
 

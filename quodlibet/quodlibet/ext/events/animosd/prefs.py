@@ -51,15 +51,15 @@ class AnimOsdPrefs(Gtk.VBox):
 
         def set_text(button):
             color = button.get_color()
-            color = map(__coltofloat,
-                        (color.red, color.green, color.blue, 0.0))
+            color = list(map(__coltofloat,
+                        (color.red, color.green, color.blue, 0.0)))
             self.Conf.text = tuple(color)
             show_preview()
 
         def set_fill(button):
             color = button.get_color()
-            color = map(__coltofloat, (color.red, color.green, color.blue,
-                button.get_alpha()))
+            color = list(map(__coltofloat, (color.red, color.green, color.blue,
+                button.get_alpha())))
             self.Conf.fill = tuple(color)
             show_preview()
 
@@ -210,14 +210,14 @@ class AnimOsdPrefs(Gtk.VBox):
             t.set_col_spacings(6)
             t.set_row_spacings(3)
             b = Gtk.ColorButton(
-                rgba=Gdk.RGBA(*map(__floattocol, self.Conf.text)))
+                rgba=Gdk.RGBA(*list(map(__floattocol, self.Conf.text))))
             l = ConfigLabel(_("_Text:"), b)
 
             t.attach(l, 0, 1, 0, 1, xoptions=Gtk.AttachOptions.FILL)
             t.attach(b, 1, 2, 0, 1)
             b.connect('color-set', set_text)
-            b = Gtk.ColorButton(color=Gdk.Color(*map(__floattocol,
-                                self.Conf.fill[0:3])))
+            b = Gtk.ColorButton(color=Gdk.Color(*list(map(__floattocol,
+                                self.Conf.fill[0:3]))))
             b.set_use_alpha(True)
             b.set_alpha(__floattocol(self.Conf.fill[3]))
             b.connect('color-set', set_fill)
@@ -264,7 +264,7 @@ class AnimOsdPrefs(Gtk.VBox):
 
         def build_buttons_widget():
             hb = Gtk.HBox(spacing=6)
-            edit_button = qltk.Button(_(u"Ed_it Display Pattern…"),
+            edit_button = qltk.Button(_("Ed_it Display Pattern…"),
                                       Icons.EDIT)
             edit_button.connect('clicked', edit_pattern)
             hb.pack_start(edit_button, False, True, 0)

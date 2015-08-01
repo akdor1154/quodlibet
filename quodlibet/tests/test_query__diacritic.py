@@ -21,33 +21,33 @@ class TDiacritics(TestCase):
         self.assertEqual(sorted(cache.items()), sorted(new.items()))
 
     def test_re_replace(self):
-        r = re_add_variants(u"aa")
-        self.assertTrue(u"[" in r and u"]" in r and r.count(u"ä") == 2)
+        r = re_add_variants("aa")
+        self.assertTrue("[" in r and "]" in r and r.count("ä") == 2)
 
     def test_re_replace_escape(self):
-        r = re_add_variants(u"n\\n")
-        self.assertEqual(r, u"[nñńņňǹṅṇṉṋ]\n")
+        r = re_add_variants("n\\n")
+        self.assertEqual(r, "[nñńņňǹṅṇṉṋ]\n")
 
     def test_construct_regexp(self):
         res = [
-            (u"^a\aa[ha-z]k{1,3}h*h+h?(x|yy)(a+b|cd)$", None),
-            (u"(?=Asimov)", None),
-            (u"(?!Asimov)", None),
-            (u"(?<=abc)def", None),
-            (u"(?<!foo)", None),
-            (u"(?:foo)", None),
-            (u"(?#foo)", u""),
-            (u"(.+) \1", None),
-            (u"\\A\\b\\B\\d\\D\\s\\S\\w\\W\\Z\a",
-             u"\\A\\b\\B[\\d][\\D][\\s][\\S][\\w][\\W]\\Z\a"),
-            (u"a{3,5}?a+?a*?a??", None),
-            (u"^foo$", None),
-            (u"[-+]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?",
-             u"[\\-\\+]?([\\d]+(\\.[\\d]*)?|\\.[\\d]+)([eE][\\-\\+]?[\\d]+)?"),
-            (u"(\$\d*)", u"(\\$[\\d]*)"),
-            (u"\\$\\.\\^\\[\\]\\:\\-\\+\\?\\\\", None),
-            (u"[^a][^ab]", None),
-            (u"[ab][abc]", None),
+            ("^a\aa[ha-z]k{1,3}h*h+h?(x|yy)(a+b|cd)$", None),
+            ("(?=Asimov)", None),
+            ("(?!Asimov)", None),
+            ("(?<=abc)def", None),
+            ("(?<!foo)", None),
+            ("(?:foo)", None),
+            ("(?#foo)", ""),
+            ("(.+) \1", None),
+            ("\\A\\b\\B\\d\\D\\s\\S\\w\\W\\Z\a",
+             "\\A\\b\\B[\\d][\\D][\\s][\\S][\\w][\\W]\\Z\a"),
+            ("a{3,5}?a+?a*?a??", None),
+            ("^foo$", None),
+            ("[-+]?(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?",
+             "[\\-\\+]?([\\d]+(\\.[\\d]*)?|\\.[\\d]+)([eE][\\-\\+]?[\\d]+)?"),
+            ("(\$\d*)", "(\\$[\\d]*)"),
+            ("\\$\\.\\^\\[\\]\\:\\-\\+\\?\\\\", None),
+            ("[^a][^ab]", None),
+            ("[ab][abc]", None),
         ]
 
         for r, o in res:
@@ -56,17 +56,17 @@ class TDiacritics(TestCase):
             self.assertEqual(re_replace_literals(r, {}), o)
 
     def test_construct_regexp_broken(self):
-        self.assertRaises(re.error, re_replace_literals, u"[", {})
+        self.assertRaises(re.error, re_replace_literals, "[", {})
         self.assertRaises(NotImplementedError,
                           re_replace_literals,
-                          u"(?P<quote>['\"]).*?(?P=quote)", {})
+                          "(?P<quote>['\"]).*?(?P=quote)", {})
 
     def test_seq(self):
-        self.assertEqual(re_add_variants(u"[x-y]"), u"[ẋẍýÿŷȳẏẙỳỵỷỹx-y]")
-        self.assertEqual(re_add_variants(u"[f-gm]"), u"[ḟꝼĝğġģǧǵḡᵹf-gmḿṁṃ]")
+        self.assertEqual(re_add_variants("[x-y]"), "[ẋẍýÿŷȳẏẙỳỵỷỹx-y]")
+        self.assertEqual(re_add_variants("[f-gm]"), "[ḟꝼĝğġģǧǵḡᵹf-gmḿṁṃ]")
 
     def test_literal(self):
-        self.assertEqual(re_add_variants(u"f"), u"[fḟꝼ]")
-        self.assertTrue(u"ø" in re_add_variants(u"o"))
-        self.assertTrue(u"Ø" in re_add_variants(u"O"))
-        self.assertEqual(re_add_variants(u"[^f]"), u"[^fḟꝼ]")
+        self.assertEqual(re_add_variants("f"), "[fḟꝼ]")
+        self.assertTrue("ø" in re_add_variants("o"))
+        self.assertTrue("Ø" in re_add_variants("O"))
+        self.assertEqual(re_add_variants("[^f]"), "[^fḟꝼ]")

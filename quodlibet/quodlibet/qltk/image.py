@@ -21,8 +21,7 @@ To test HiDPI start QL with GDK_SCALE=2.
 
 import math
 
-from gi.repository import GdkPixbuf, Gtk, Gdk, GLib
-import cairo
+from gi.repository import GdkPixbuf, Gtk, Gdk, GLib, cairo
 
 
 def get_scale_factor(widget):

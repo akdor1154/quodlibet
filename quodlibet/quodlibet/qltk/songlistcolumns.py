@@ -204,7 +204,7 @@ class FSColumn(WideTextColumn):
 
     def _cdf(self, column, cell, model, iter_, user_data):
         values = model.get_value(iter_).list(self.header_name)
-        value = values[0] if values else fsnative(u"")
+        value = values[0] if values else fsnative("")
         if not self._needs_update(value):
             return
         cell.set_property('text', fsdecode(unexpand(value)))
@@ -263,9 +263,9 @@ class NumericColumn(TextColumn):
             return
 
         if isinstance(value, float):
-            text = u"%.2f" % round(value, 2)
+            text = "%.2f" % round(value, 2)
         else:
-            text = unicode(value)
+            text = str(value)
 
         cell.set_property('text', text)
         self._recalc_width(model.get_path(iter_), text)
@@ -285,15 +285,15 @@ class NumericColumn(TextColumn):
         end = end[0]
 
         # compute the cell width for all drawn cells in range +/- 3
-        for key, value in self._texts.items():
+        for key, value in list(self._texts.items()):
             if not (start - 3) <= key <= (end + 3):
                 del self._texts[key]
-            elif isinstance(value, basestring):
+            elif isinstance(value, str):
                 self._texts[key] = self._cell_width(value)
 
         # resize if too small or way too big and above the minimum
         width = self.get_width()
-        needed_width = max([self.__min_width] + self._texts.values())
+        needed_width = max([self.__min_width] + list(self._texts.values()))
         if width < needed_width:
             self.set_fixed_width(needed_width)
             self.set_min_width(needed_width)

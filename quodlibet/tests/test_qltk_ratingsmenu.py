@@ -24,7 +24,7 @@ class TRatingsMenuItem(TestCase):
     def test_menuitem(self):
         library = SongLibrary()
         library.librarian = SongLibrarian()
-        a = AudioFile({"~filename": fsnative(u"/foo")})
+        a = AudioFile({"~filename": fsnative("/foo")})
         a.sanitize()
         x = RatingsMenuItem([a], library)
         x.set_rating(0, [a], library)

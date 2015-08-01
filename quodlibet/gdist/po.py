@@ -58,11 +58,11 @@ class po_stats(Command):
             stats.append((po, trans, fuzzy, untrans))
 
         stats.sort(key=lambda x: x[1], reverse=True)
-        print "#" * 30
+        print("#" * 30)
         for po, trans, fuzzy, untrans in stats:
             all_ = float(trans + fuzzy + untrans) / 100
-            print ("%5s: %3d%% (+%2d%% fuzzy)" %
-                   (po, trans / all_, fuzzy / all_))
+            print(("%5s: %3d%% (+%2d%% fuzzy)" %
+                   (po, trans / all_, fuzzy / all_)))
 
 
 class update_po(Command):
@@ -116,7 +116,7 @@ class update_po(Command):
                 self._update_pot()
                 break
         else:
-            print "not pot update"
+            print("not pot update")
 
         # if the pot file is newer than any of the po files, update that po
         for po in self.po_files:
@@ -153,7 +153,7 @@ class create_po(Command):
         path = gettextutil.create_po(
             self.po_directory, self.po_package, self.lang)
         gettextutil.update_po(self.po_directory, self.po_package, self.lang)
-        print "Created %r" % os.path.abspath(path)
+        print("Created %r" % os.path.abspath(path))
 
 
 def strip_pot_date(path):

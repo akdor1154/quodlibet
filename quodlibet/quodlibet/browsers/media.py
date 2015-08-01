@@ -520,7 +520,7 @@ class MediaDevices(Browser, util.InstanceTracker):
                 self.__refresh_space(device)
             else:
                 msg = _("%s could not be copied.") % util.bold(label)
-                if type(status) == unicode:
+                if type(status) == str:
                     msg += "\n\n" + util.escape(status)
                 qltk.WarningMessage(self, _("Unable to copy song"), msg).run()
 
@@ -569,7 +569,7 @@ class MediaDevices(Browser, util.InstanceTracker):
                 self.__refresh_space(device)
             else:
                 msg = _("%s could not be deleted.") % util.bold(label)
-                if type(status) == unicode:
+                if type(status) == str:
                     msg += "\n\n%s" % status
                 qltk.WarningMessage(
                     self, _("Unable to delete song"), msg).run()

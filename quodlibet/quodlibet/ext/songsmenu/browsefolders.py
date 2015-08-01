@@ -62,7 +62,7 @@ def browse_folders_fdo(songs):
         bus_iface = dbus.Interface(bus_object, dbus_interface=FDO_IFACE)
 
         # open each folder and select the first file we have selected
-        for dirname, sub_songs in group_songs(songs).items():
+        for dirname, sub_songs in list(group_songs(songs).items()):
             bus_iface.ShowItems([sub_songs[0]("~uri")], get_startup_id())
     except dbus.DBusException as e:
         raise BrowseError(e)
@@ -83,7 +83,7 @@ def browse_folders_thunar(songs, display=""):
         bus_iface = dbus.Interface(bus_object, dbus_interface=XFCE_IFACE)
 
         # open each folder and select the first file we have selected
-        for dirname, sub_songs in group_songs(songs).items():
+        for dirname, sub_songs in list(group_songs(songs).items()):
             bus_iface.DisplayFolderAndSelect(
                 URI.frompath(dirname),
                 sub_songs[0]("~basename"),
@@ -95,7 +95,7 @@ def browse_folders_thunar(songs, display=""):
 
 def browse_folders_gnome_open(songs):
     try:
-        for dir_ in group_songs(songs).keys():
+        for dir_ in list(group_songs(songs).keys()):
             if subprocess.call(["gnome-open", dir_]) != 0:
                 raise EnvironmentError("gnome-open error return status")
     except EnvironmentError as e:
@@ -104,7 +104,7 @@ def browse_folders_gnome_open(songs):
 
 def browse_folders_xdg_open(songs):
     try:
-        for dir_ in group_songs(songs).keys():
+        for dir_ in list(group_songs(songs).keys()):
             if subprocess.call(["xdg-open", dir_]) != 0:
                 raise EnvironmentError("xdg-open error return status")
     except EnvironmentError as e:
@@ -126,7 +126,7 @@ def show_files_win32(path, files):
     assert is_fsnative(path)
     assert all(is_fsnative(f) for f in files)
 
-    normalized_files = map(normalize_path, files)
+    normalized_files = list(map(normalize_path, files))
 
     try:
         folder_pidl = shell.SHILCreateFromPath(path, 0)[0]
@@ -149,7 +149,7 @@ def browse_folders_win_explorer(songs):
     if os.name != "nt":
         raise BrowseError("windows only")
 
-    for path, sub_songs in group_songs(songs).items():
+    for path, sub_songs in list(group_songs(songs).items()):
         if not show_files_win32(path, [s("~basename") for s in sub_songs]):
             raise BrowseError
 
@@ -159,7 +159,7 @@ def browse_folders_finder(songs):
         raise BrowseError("OS X only")
 
     try:
-        for dir_ in group_songs(songs).keys():
+        for dir_ in list(group_songs(songs).keys()):
             if subprocess.call(["open", "-R", dir_]) != 0:
                 raise EnvironmentError("open error return status")
     except EnvironmentError as e:

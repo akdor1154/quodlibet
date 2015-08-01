@@ -5,7 +5,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-from urllib import quote
+from urllib.parse import quote
 
 from gi.repository import Gtk
 
@@ -52,7 +52,7 @@ class WikiSearch(object):
         return hb
 
     def plugin_songs(self, songs):
-        l = dict.fromkeys([song(self.k) for song in songs]).keys()
+        l = list(dict.fromkeys([song(self.k) for song in songs]).keys())
         for a in l:
             a = quote(str(a).title().replace(' ', '_'))
             website(WIKI_URL % get_lang() + a)

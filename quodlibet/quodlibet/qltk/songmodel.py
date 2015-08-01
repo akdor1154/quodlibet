@@ -54,13 +54,13 @@ class PlaylistMux(object):
             self.q.sourced = False
             self.pl.sourced = True
 
-    def next(self):
+    def __next__(self):
         """Switch to the next song"""
 
         if self.q.is_empty():
-            self.pl.next()
+            next(self.pl)
         else:
-            self.q.next()
+            next(self.q)
         self._check_sourced()
 
     def next_ended(self):
@@ -136,7 +136,7 @@ class TrackCurrentModel(ObjectStore):
         print_d("Setting %d songs." % len(songs))
 
         oldsong = self.last_current
-        for iter_, song in itertools.izip(self.iter_append_many(songs), songs):
+        for iter_, song in zip(self.iter_append_many(songs), songs):
             if song is oldsong:
                 self.__iter = iter_
 
@@ -145,7 +145,7 @@ class TrackCurrentModel(ObjectStore):
     def get(self):
         """A list of all contained songs"""
 
-        return list(self.itervalues())
+        return list(self.values())
 
     @property
     def current(self):
@@ -171,7 +171,7 @@ class TrackCurrentModel(ObjectStore):
             return
         # emit a row-changed for the previous and the new iter after it is set
         # so that the currentcolumn icon gets updated on song changes
-        for it in filter(None, (self.__iter, iter_)):
+        for it in [_f for _f in (self.__iter, iter_) if _f]:
             self.row_changed(self.get_path(it), it)
         self.__iter = iter_
         self.last_current = self.current
@@ -240,7 +240,7 @@ class PlaylistModel(TrackCurrentModel):
             s = self.connect(sig, lambda pl, *x: self.order.reset(pl))
             self.__sigs.append(s)
 
-    def next(self):
+    def __next__(self):
         """Switch to the next song"""
 
         iter_ = self.current_iter
@@ -304,4 +304,4 @@ class PlaylistModel(TrackCurrentModel):
         self.go_to(None)
         self.order.reset(self)
         if not self.is_empty():
-            self.next()
+            next(self)

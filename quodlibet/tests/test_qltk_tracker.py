@@ -44,31 +44,31 @@ class TSongTracker(TestCase):
         self.p.emit('song-ended', self.s1, False)
         self.do()
         t = time.time()
-        self.assertEquals(self.s1["~#playcount"], 1)
-        self.assertEquals(self.s1["~#skipcount"], 0)
-        self.failUnless(t - self.s1["~#lastplayed"] <= 1)
+        self.assertEqual(self.s1["~#playcount"], 1)
+        self.assertEqual(self.s1["~#skipcount"], 0)
+        self.assertTrue(t - self.s1["~#lastplayed"] <= 1)
 
     def test_skip(self):
         self.p.emit('song-ended', self.s1, True)
         self.do()
-        self.assertEquals(self.s1["~#playcount"], 0)
-        self.assertEquals(self.s1["~#skipcount"], 1)
-        self.failUnless(self.s1["~#lastplayed"], 10)
+        self.assertEqual(self.s1["~#playcount"], 0)
+        self.assertEqual(self.s1["~#skipcount"], 1)
+        self.assertTrue(self.s1["~#lastplayed"], 10)
 
     def test_error(self):
         self.current = self.p.song = self.s1
         self.p._error('Test error')
         self.do()
-        self.assertEquals(self.s1["~#playcount"], 0)
-        self.assertEquals(self.s1["~#skipcount"], 0)
-        self.failUnless(self.s1["~#lastplayed"], 10)
+        self.assertEqual(self.s1["~#playcount"], 0)
+        self.assertEqual(self.s1["~#skipcount"], 0)
+        self.assertTrue(self.s1["~#lastplayed"], 10)
 
     def test_restart(self):
         self.current = self.s1
         self.p.emit('song-ended', self.s1, True)
         self.do()
-        self.assertEquals(self.s1["~#playcount"], 0)
-        self.assertEquals(self.s1["~#skipcount"], 0)
+        self.assertEqual(self.s1["~#playcount"], 0)
+        self.assertEqual(self.s1["~#skipcount"], 0)
 
     def tearDown(self):
         self.w.destroy()
@@ -92,16 +92,16 @@ class TFSInterface(TestCase):
 
     def test_init(self):
         self.do()
-        self.failIf(os.path.exists(self.filename))
+        self.assertFalse(os.path.exists(self.filename))
 
     def test_start(self):
         self.p.emit('song_started', AudioFile({"woo": "bar", "~#length": 10}))
         self.do()
-        self.failUnless("woo=bar\n" in file(self.filename).read())
+        self.assertTrue("woo=bar\n" in file(self.filename).read())
 
     def test_song_ended(self):
         self.p.emit('song-started', AudioFile({"woo": "bar", "~#length": 10}))
         self.do()
         self.p.emit('song-ended', {}, False)
         self.do()
-        self.failIf(os.path.exists(self.filename))
+        self.assertFalse(os.path.exists(self.filename))

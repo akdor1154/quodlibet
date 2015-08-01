@@ -22,7 +22,7 @@ from quodlibet.util.path import strip_win32_incompat_from_path, limit_path
 from quodlibet.formats._audio import decode_value
 
 # Token types.
-(OPEN, CLOSE, TEXT, COND, EOF) = range(5)
+(OPEN, CLOSE, TEXT, COND, EOF) = list(range(5))
 
 
 class error(ValueError):
@@ -113,7 +113,7 @@ class TagNode(object):
 class PatternParser(object):
     def __init__(self, tokens):
         self.tokens = iter(tokens)
-        self.lookahead = self.tokens.next()
+        self.lookahead = next(self.tokens)
         self.node = self.Pattern()
 
     def Pattern(self):
@@ -171,7 +171,7 @@ class PatternParser(object):
                              "tokens were expected.")
         try:
             if self.lookahead.type in tokens:
-                self.lookahead = self.tokens.next()
+                self.lookahead = next(self.tokens)
             else:
                 raise ParseError("The token '%s' is not the type exected." % (
                     self.lookahead.lexeme))
@@ -194,13 +194,13 @@ class PatternFormatter(object):
         def __call__(self, key, *args):
             if key[:2] == "~#" and "~" not in key[2:]:
                 return 0
-            return u"_"
+            return "_"
 
         def comma(self, *args):
-            return u"_"
+            return "_"
 
         def list_separate(self, *args):
-            return [u""]
+            return [""]
 
     class SongProxy(object):
         def __init__(self, realsong, formatter):
@@ -233,7 +233,7 @@ class PatternFormatter(object):
             return values
 
     def format(self, song):
-        value = u"".join(self.__func(self.SongProxy(song, self._format)))
+        value = "".join(self.__func(self.SongProxy(song, self._format)))
         if self._post:
             return self._post(value, song)
         return value
@@ -245,7 +245,7 @@ class PatternFormatter(object):
         The returned set will never be empty (e.g. for an empty pattern).
         """
 
-        vals = [u""]
+        vals = [""]
         for val in self.__list_func(self.SongProxy(song, self._format)):
             if not val:
                 continue
@@ -278,8 +278,8 @@ class PatternCompiler(object):
         content.append("  return r")
         code = "\n".join(content)
 
-        scope = dict(queries.itervalues())
-        exec compile(code, "<string>", "exec") in scope
+        scope = dict(iter(queries.values()))
+        exec(compile(code, "<string>", "exec"), scope)
         return scope["f"], tags
 
     def __get_value(self, text, scope, tag):
@@ -381,13 +381,13 @@ class _FileFromPattern(PatternFormatter):
     def _format(self, key, value):
         value = _number(key, value)
         value = value.replace(sep, "_")
-        value = value.replace(u"\uff0f", "_")
+        value = value.replace("\uff0f", "_")
         value = value.strip()
         return value
 
     def _post(self, value, song, keep_extension=True):
         if value:
-            assert isinstance(value, unicode)
+            assert isinstance(value, str)
             value = fsnative(value)
 
             if keep_extension:
@@ -398,7 +398,7 @@ class _FileFromPattern(PatternFormatter):
                     value += ext.lower()
 
             if os.name == "nt":
-                assert isinstance(value, unicode)
+                assert isinstance(value, str)
                 value = strip_win32_incompat_from_path(value)
 
             value = expanduser(value)

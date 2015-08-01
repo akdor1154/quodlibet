@@ -416,8 +416,8 @@ class SongObject(MediaItem, MediaObject, DBusProperty, DBusIntrospectable,
         dbus.service.FallbackObject.__init__(self, bus, self.PATH)
 
         self.__library = library
-        self.__map = dict((id(v), v) for v in self.__library.itervalues())
-        self.__reverse = dict((v, k) for k, v in self.__map.iteritems())
+        self.__map = dict((id(v), v) for v in self.__library.values())
+        self.__reverse = dict((v, k) for k, v in self.__map.items())
 
         self.__song = DummySongObject(self)
 
@@ -428,7 +428,7 @@ class SongObject(MediaItem, MediaObject, DBusProperty, DBusIntrospectable,
             ("removed", self.__songs_removed),
             ("added", self.__songs_added),
         ]
-        self.__sigs = map(lambda (s, f): self.__library.connect(s, f), signals)
+        self.__sigs = [self.__library.connect(s_f[0], s_f[1]) for s_f in signals]
 
     def __songs_changed(self, lib, songs):
         # We don't know what changed, so get all properties
@@ -493,15 +493,15 @@ class AlbumsObject(MediaContainer, MediaObject, DBusPropertyFilter,
         self.__library = library.albums
         self.__library.load()
 
-        self.__map = dict((id(v), v) for v in self.__library.itervalues())
-        self.__reverse = dict((v, k) for k, v in self.__map.iteritems())
+        self.__map = dict((id(v), v) for v in self.__library.values())
+        self.__reverse = dict((v, k) for k, v in self.__map.items())
 
         signals = [
             ("changed", self.__albums_changed),
             ("removed", self.__albums_removed),
             ("added", self.__albums_added),
         ]
-        self.__sigs = map(lambda (s, f): self.__library.connect(s, f), signals)
+        self.__sigs = [self.__library.connect(s_f1[0], s_f1[1]) for s_f1 in signals]
 
         self.__dummy = DummyAlbumObject(self)
 

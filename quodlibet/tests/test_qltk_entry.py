@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tests import TestCase
-from helper import visible
+from .helper import visible
 
 from quodlibet.qltk.entry import ValidatingEntry, UndoEntry, Entry, \
     QueryValidator
@@ -41,8 +41,8 @@ class TValidatingEntry(TestCase):
 
         entry = ValidatingEntry(valid)
         entry.set_text("foo")
-        self.assertEqual(x, [u"foo"])
-        self.assertTrue(isinstance(x[0], unicode))
+        self.assertEqual(x, ["foo"])
+        self.assertTrue(isinstance(x[0], str))
 
     def tearDown(self):
         self.entry.destroy()
@@ -55,7 +55,7 @@ class TUndoEntry(TestCase):
 
     def __equal(self, value):
         entry_val = self.entry.get_text().decode("utf-8")
-        self.failUnlessEqual(value, entry_val)
+        self.assertEqual(value, entry_val)
 
     def __insert(self, text, pos):
         self.entry.insert_text(text, position=pos)

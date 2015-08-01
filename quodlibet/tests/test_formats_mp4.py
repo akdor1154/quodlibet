@@ -7,7 +7,7 @@
 
 import os
 import shutil
-import StringIO
+import io
 import mutagen
 
 from tests import TestCase, DATA_DIR, mkstemp
@@ -35,10 +35,10 @@ class TMP4File(TestCase):
             self.assertEqual(self.song("~format"), "MPEG-4 AAC")
 
     def test_basic(self):
-        self.song["title"] = u"SomeTestValue"
+        self.song["title"] = "SomeTestValue"
         self.song.write()
         self.song.reload()
-        self.assertEqual(self.song("title"), u"SomeTestValue")
+        self.assertEqual(self.song("title"), "SomeTestValue")
 
     def test_length(self):
         self.assertAlmostEqual(self.song("~#length"), 3.7079, 3)
@@ -88,7 +88,7 @@ class TMP4File(TestCase):
 
     def test_set_image(self):
         self.assertTrue(self.song.has_images)
-        fileobj = StringIO.StringIO("foo")
+        fileobj = io.StringIO("foo")
         image = EmbeddedImage(fileobj, "image/jpeg", 10, 10, 8)
         self.song.set_image(image)
         image = self.song.get_primary_image()

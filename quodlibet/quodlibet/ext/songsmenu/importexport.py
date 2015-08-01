@@ -68,15 +68,15 @@ class Export(SongsMenuPlugin):
         out = open(fn, 'w')
 
         for song in songs:
-            print>>out, str(song('~basename'))
-            keys = song.keys()
+            print(str(song('~basename')), file=out)
+            keys = list(song.keys())
             keys.sort()
             for key in keys:
                 if key.startswith('~'):
                     continue
                 for val in song.list(key):
-                    print>>out, '%s=%s' % (key, val.encode('utf-8'))
-            print>>out
+                    print('%s=%s' % (key, val.encode('utf-8')), file=out)
+            print(file=out)
 
 
 class Import(SongsMenuPlugin):
@@ -150,7 +150,7 @@ class Import(SongsMenuPlugin):
             return
 
         for song, meta, name in zip(songs, metadata, names):
-            for key, values in meta.iteritems():
+            for key, values in meta.items():
                 if append and key in song:
                     values = song.list(key) + values
                 song[key] = '\n'.join(values)

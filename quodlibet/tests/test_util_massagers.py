@@ -7,15 +7,15 @@ import quodlibet.util.massagers
 class TMassagers(TestCase):
     def validate(self, key, values):
         for val in values:
-            self.failUnless(quodlibet.util.massagers.tags[key].is_valid(val))
+            self.assertTrue(quodlibet.util.massagers.tags[key].is_valid(val))
 
     def invalidate(self, key, values):
         for val in values:
-            self.failIf(quodlibet.util.massagers.tags[key].is_valid(val))
+            self.assertFalse(quodlibet.util.massagers.tags[key].is_valid(val))
 
     def equivs(self, key, equivs):
-        for value, normed in equivs.items():
-            self.failUnlessEqual(
+        for value, normed in list(equivs.items()):
+            self.assertEqual(
                 normed, quodlibet.util.massagers.tags[key].validate(value))
 
     def test_date_valid(self):
@@ -88,6 +88,6 @@ class TMassagers(TestCase):
 
         # Check completion help too
         for code in ["eng", "fra", "fre", "deu", "zho"]:
-            self.failUnless(code in mas.options,
+            self.assertTrue(code in mas.options,
                 "'%s' should be in languages options" % code)
-        self.failIf("" in mas.options)
+        self.assertFalse("" in mas.options)

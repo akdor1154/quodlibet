@@ -13,7 +13,7 @@ import errno
 import tempfile
 import codecs
 import shlex
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from quodlibet.util.string import decode
 from . import windows
 from .misc import environ, get_fs_encoding
@@ -58,7 +58,7 @@ def fsdecode(s, note=True):
     Can not fail and can't be reversed.
     """
 
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     elif note:
         return decode(s, _FSCODING)
@@ -69,7 +69,7 @@ def fsdecode(s, note=True):
 """
 There exist 3 types of paths:
 
- * Python: bytes on Linux, unicode on Windows
+ * Python: str on Linux, unicode on Windows
  * GLib: bytes on Linux, utf-8 bytes on Windows
  * Serialized for the config: same as GLib
 """
@@ -83,12 +83,12 @@ if sys.platform == "win32":
     def is_fsnative(path):
         """If path is a native path"""
 
-        return isinstance(path, unicode)
+        return isinstance(path, str)
 
-    def fsnative(path=u""):
+    def fsnative(path=""):
         """unicode -> native path"""
 
-        assert isinstance(path, unicode)
+        assert isinstance(path, str)
         return path
 
     def glib2fsnative(path):
@@ -100,7 +100,7 @@ if sys.platform == "win32":
     def fsnative2glib(path):
         """native path -> glib path"""
 
-        assert isinstance(path, unicode)
+        assert isinstance(path, str)
         return path.encode("utf-8")
 
     fsnative2bytes = fsnative2glib
@@ -117,10 +117,10 @@ if sys.platform == "win32":
     """
 else:
     def is_fsnative(path):
-        return isinstance(path, bytes)
+        return isinstance(path, str)
 
-    def fsnative(path=u""):
-        assert isinstance(path, unicode)
+    def fsnative(path=""):
+        assert isinstance(path, str)
         return path.encode(_FSCODING, 'replace')
 
     def glib2fsnative(path):
@@ -175,7 +175,7 @@ def listdir(path, hidden=False):
 
 
 if os.name == "nt":
-    getcwd = os.getcwdu
+    getcwd = os.getcwd
     sep = os.sep.decode("ascii")
     pathsep = os.pathsep.decode("ascii")
 else:
@@ -206,17 +206,17 @@ def escape_filename(s):
     Takes unicode or str and returns a fsnative path.
     """
 
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         s = s.encode("utf-8")
 
-    return fsnative(urllib.quote(s, safe="").decode("utf-8"))
+    return fsnative(urllib.parse.quote(s, safe="").decode("utf-8"))
 
 
 def unescape_filename(s):
     """Unescape a string in a manner suitable for a filename."""
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         s = s.encode("utf-8")
-    return urllib.unquote(s).decode("utf-8")
+    return urllib.parse.unquote(s).decode("utf-8")
 
 
 def expanduser(filename):
@@ -225,10 +225,10 @@ def expanduser(filename):
     """
 
     if os.name == "nt":
-        profile = windows.get_profile_dir() or u""
+        profile = windows.get_profile_dir() or ""
         if filename == "~":
             return profile
-        if filename.startswith(u"~" + os.path.sep):
+        if filename.startswith("~" + os.path.sep):
             return os.path.join(profile, filename[2:])
     return os.path.expanduser(filename)
 
@@ -256,10 +256,10 @@ def pathname2url_win32(path):
     # but it should be /.
 
     # windows paths should be unicode
-    if isinstance(path, unicode):
+    if isinstance(path, str):
         path = path.encode("utf-8")
 
-    quote = urllib.quote
+    quote = urllib.parse.quote
     if ":" not in path:
         return quote("/".join(path.split("\\")))
     drive, remain = path.split(":", 1)
@@ -268,7 +268,7 @@ def pathname2url_win32(path):
 if os.name == "nt":
     pathname2url = pathname2url_win32
 else:
-    pathname2url = urllib.pathname2url
+    pathname2url = urllib.request.pathname2url
 
 
 def xdg_get_system_data_dirs():
@@ -283,7 +283,7 @@ def xdg_get_system_data_dirs():
 
     data_dirs = os.getenv("XDG_DATA_DIRS")
     if data_dirs:
-        return map(os.path.abspath, data_dirs.split(":"))
+        return list(map(os.path.abspath, data_dirs.split(":")))
     else:
         return ("/usr/local/share/", "/usr/share/")
 
@@ -368,7 +368,7 @@ def get_temp_cover_file(data):
 
     try:
         # pass fsnative so that mkstemp() uses unicode on Windows
-        fn = tempfile.NamedTemporaryFile(prefix=fsnative(u"tmp"))
+        fn = tempfile.NamedTemporaryFile(prefix=fsnative("tmp"))
         fn.write(data)
         fn.flush()
         fn.seek(0, 0)
@@ -387,7 +387,7 @@ def _strip_win32_incompat(string, BAD='\:*?;"<>|'):
     if not string:
         return string
 
-    new = "".join(map(lambda s: (s in BAD and "_") or s, string))
+    new = "".join([(s in BAD and "_") or s for s in string])
     parts = new.split(os.sep)
 
     def fix_end(string):
@@ -433,7 +433,7 @@ if sys.platform == "darwin":
 
     def _osx_path_decode_error_handler(error):
         bytes_ = bytearray(error.object[error.start:error.end])
-        return (u"".join(map("%%%X".__mod__, bytes_)), error.end)
+        return ("".join(map("%%%X".__mod__, bytes_)), error.end)
 
     codecs.register_error(
         "quodlibet-osx-path-decode", _osx_path_decode_error_handler)
@@ -468,7 +468,7 @@ def limit_path(path, ellipsis=True):
 
         if len(p) > limit:
             if ellipsis:
-                p = p[:limit - 2] + fsnative(u"..")
+                p = p[:limit - 2] + fsnative("..")
             else:
                 p = p[:limit]
         parts[i] = p

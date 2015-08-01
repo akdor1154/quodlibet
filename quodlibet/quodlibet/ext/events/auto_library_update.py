@@ -10,6 +10,7 @@
 
 import os
 import sys
+from functools import reduce
 
 if os.name == "nt" or sys.platform == "darwin":
     from quodlibet.plugins import PluginNotSupportedError
@@ -20,9 +21,7 @@ try:
     from pyinotify import Notifier, ThreadedNotifier
 except ImportError as e:
     from quodlibet import plugins
-    raise (plugins.MissingGstreamerElementPluginException("pyinotify")
-           if hasattr(plugins, "MissingPluginDependencyException")
-           else e)
+    raise plugins.MissingGstreamerElementPluginException("pyinotify")
 
 
 from quodlibet import print_d

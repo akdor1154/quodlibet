@@ -57,7 +57,7 @@ def get_locale_encoding():
     else:
         # python on macports can return a bugs result (empty string)
         try:
-            u"".encode(encoding)
+            "".encode(encoding)
         except LookupError:
             encoding = "utf-8"
 

@@ -24,14 +24,14 @@ class RemoteFile(AudioFile):
 
     def __init__(self, uri):
         self["~uri"] = str(URI(uri))
-        self.sanitize(fsnative(unicode(self["~uri"])))
+        self.sanitize(fsnative(str(self["~uri"])))
 
     def __getitem__(self, key):
         # we used to save them with the wrong type
         value = super(RemoteFile, self).__getitem__(key)
         if key in ("~filename", "~mountpoint") and not is_fsnative(value):
             if os.name == "nt":
-                value = unicode(value)
+                value = str(value)
             else:
                 value = value.encode("utf-8")
 

@@ -71,7 +71,7 @@ class StorageDevice(Device):
         self.__load_library()
 
         wlb.setup()
-        next = self.__library.rebuild([self.mountpoint]).next
+        next = self.__library.rebuild([self.mountpoint]).__next__
         while True:
             if wlb.quit:
                 wlb.hide()
@@ -84,7 +84,7 @@ class StorageDevice(Device):
             Gtk.main_iteration()
 
         self.__save_library()
-        return self.__library.values()
+        return list(self.__library.values())
 
     def contains(self, song):
         return song in self.__library

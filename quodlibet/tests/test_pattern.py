@@ -16,7 +16,7 @@ class _TPattern(AbstractTestCase):
               '~filename': '/path/to/a.mp3', 'xmltest': "<&>"}
         s2 = {'tracknumber': '6', 'artist': 'Artist', 'title': 'Title6',
               '~filename': '/path/to/b.ogg', 'discnumber': '2',
-              'unislash': u"foo\uff0fbar"}
+              'unislash': "foo\uff0fbar"}
         s3 = {'title': 'test/subdir', 'genre': '/\n/',
               '~filename': '/one/more/a.flac', 'version': 'Instrumental'}
         s4 = {'performer': 'a\nb', 'artist': 'foo\nbar'}
@@ -24,18 +24,18 @@ class _TPattern(AbstractTestCase):
               '~filename': '/path/to/e.mp3'}
         s6 = {'artist': 'Foo', 'albumartist': 'foo.bar', 'album': 'Best Of',
               '~filename': '/path/to/f.mp3', 'title': 'The.Final.Word'}
-        s7 = {'artist': u'un élève français', '~filename': '/path/to/g.mp3',
-              'albumartist': u'Lee "Scratch" Perry',
+        s7 = {'artist': 'un élève français', '~filename': '/path/to/g.mp3',
+              'albumartist': 'Lee "Scratch" Perry',
               'album': "The 'only' way!", 'comment': 'Trouble|Strife'}
 
         if os.name == "nt":
-            s1["filename"] = u"C:\\path\\to\\a.mp3"
-            s2["filename"] = u"C:\\path\\to\\b.ogg"
-            s3["filename"] = u"C:\\one\\more\\a.flac"
-            s4["filename"] = u"C:\\path\\to\\a.mp3"
-            s5["filename"] = u"C:\\path\\to\\a.mp3"
-            s6["filename"] = u"C:\\path\\to\\f.mp3"
-            s7["filename"] = u"C:\\path\\to\\g.mp3"
+            s1["filename"] = "C:\\path\\to\\a.mp3"
+            s2["filename"] = "C:\\path\\to\\b.ogg"
+            s3["filename"] = "C:\\one\\more\\a.flac"
+            s4["filename"] = "C:\\path\\to\\a.mp3"
+            s5["filename"] = "C:\\path\\to\\a.mp3"
+            s6["filename"] = "C:\\path\\to\\f.mp3"
+            s7["filename"] = "C:\\path\\to\\g.mp3"
 
         self.a = AudioFile(s1)
         self.b = AudioFile(s2)
@@ -56,15 +56,15 @@ class TPattern(_TPattern):
 
     def test_conditional_number_dot_title(s):
         pat = Pattern('<tracknumber|<tracknumber>. ><title>')
-        s.assertEquals(pat.format(s.a), '5/6. Title5')
-        s.assertEquals(pat.format(s.b), '6. Title6')
-        s.assertEquals(pat.format(s.c), 'test/subdir')
+        s.assertEqual(pat.format(s.a), '5/6. Title5')
+        s.assertEqual(pat.format(s.b), '6. Title6')
+        s.assertEqual(pat.format(s.c), 'test/subdir')
 
     def test_conditional_other_number_dot_title(s):
         pat = Pattern('<tracknumber|<tracknumber>|00>. <title>')
-        s.assertEquals(pat.format(s.a), '5/6. Title5')
-        s.assertEquals(pat.format(s.b), '6. Title6')
-        s.assertEquals(pat.format(s.c), '00. test/subdir')
+        s.assertEqual(pat.format(s.a), '5/6. Title5')
+        s.assertEqual(pat.format(s.b), '6. Title6')
+        s.assertEqual(pat.format(s.c), '00. test/subdir')
 
     def test_conditional_other_other(s):
         # FIXME: was <tracknumber|a|b|c>.. but we can't put <>| in the format
@@ -73,25 +73,25 @@ class TPattern(_TPattern):
 
     def test_conditional_genre(s):
         pat = Pattern('<genre|<genre>|music>')
-        s.assertEquals(pat.format(s.a), 'music')
-        s.assertEquals(pat.format(s.b), 'music')
-        s.assertEquals(pat.format(s.c), '/, /')
+        s.assertEqual(pat.format(s.a), 'music')
+        s.assertEqual(pat.format(s.b), 'music')
+        s.assertEqual(pat.format(s.c), '/, /')
 
     def test_conditional_unknown(s):
         pat = Pattern('<album|foo|bar>')
-        s.assertEquals(pat.format(s.a), 'bar')
+        s.assertEqual(pat.format(s.a), 'bar')
 
     def test_conditional_equals(s):
         pat = Pattern('<artist=Artist|matched|not matched>')
-        s.assertEquals(pat.format(s.a), 'matched')
+        s.assertEqual(pat.format(s.a), 'matched')
         pat = Pattern('<artist=Artistic|matched|not matched>')
-        s.assertEquals(pat.format(s.a), 'not matched')
+        s.assertEqual(pat.format(s.a), 'not matched')
 
     def test_conditional_equals_unicode(s):
-        pat = Pattern(u'<artist=Artist|matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'not matched')
-        pat = Pattern(u'<artist=un élève français|matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'matched')
+        pat = Pattern('<artist=Artist|matched|not matched>')
+        s.assertEqual(pat.format(s.g), 'not matched')
+        pat = Pattern('<artist=un élève français|matched|not matched>')
+        s.assertEqual(pat.format(s.g), 'matched')
 
     def test_duplicate_query(self):
         pat = Pattern('<u=yes|<u=yes|x|y>|<u=yes|q|z>>')
@@ -100,33 +100,33 @@ class TPattern(_TPattern):
 
     def test_tag_query_escaping(s):
         pat = Pattern('<albumartist=Lee "Scratch" Perry|matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'matched')
+        s.assertEqual(pat.format(s.g), 'matched')
 
     def test_tag_query_escaped_pipe(s):
         pat = Pattern(r'<albumartist=/Lee\|Bob/|matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'matched')
+        s.assertEqual(pat.format(s.g), 'matched')
         pat = Pattern(r'<albumartist=\||matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'not matched')
+        s.assertEqual(pat.format(s.g), 'not matched')
         pat = Pattern(r'<comment=/Trouble\|Strife/|matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'matched')
+        s.assertEqual(pat.format(s.g), 'matched')
 
     def test_tag_query_quoting(s):
         pat = Pattern('<album=The only way|matched|not matched>')
-        s.assertEquals(pat.format(s.g), 'not matched')
+        s.assertEqual(pat.format(s.g), 'not matched')
         pat = Pattern("<album=\"The 'only' way!\"|matched|not matched>")
-        s.assertEquals(pat.format(s.g), 'matched')
+        s.assertEqual(pat.format(s.g), 'matched')
 
     def test_tag_query_regex(s):
         pat = Pattern("<album=/'only'/|matched|not matched>")
-        s.assertEquals(pat.format(s.g), 'matched')
+        s.assertEqual(pat.format(s.g), 'matched')
         pat = Pattern("<album=/The .+ way/|matched|not matched>")
-        s.assertEquals(pat.format(s.g), 'matched')
+        s.assertEqual(pat.format(s.g), 'matched')
         pat = Pattern("</The .+ way/|matched|not matched>")
-        s.assertEquals(pat.format(s.g), 'not matched')
+        s.assertEqual(pat.format(s.g), 'not matched')
 
     def test_tag_query_disallowed_free_text(s):
         pat = Pattern("<The only way|matched|not matched>")
-        s.assertEquals(pat.format(s.g), 'not matched')
+        s.assertEqual(pat.format(s.g), 'not matched')
 
     def test_query_scope(self):
         pat = Pattern("<foo|<artist=Foo|x|y>|<artist=Foo|z|q>>")
@@ -139,55 +139,55 @@ class TPattern(_TPattern):
 
     def test_conditional_notfile(s):
         pat = Pattern('<tracknumber|<tracknumber>|00>')
-        s.assertEquals(pat.format(s.a), '5/6')
-        s.assertEquals(pat.format(s.b), '6')
-        s.assertEquals(pat.format(s.c), '00')
+        s.assertEqual(pat.format(s.a), '5/6')
+        s.assertEqual(pat.format(s.b), '6')
+        s.assertEqual(pat.format(s.c), '00')
 
     def test_conditional_subdir(s):
         pat = Pattern('/a<genre|/<genre>>/<title>')
-        s.assertEquals(pat.format(s.a), '/a/Title5')
-        s.assertEquals(pat.format(s.b), '/a/Title6')
-        s.assertEquals(pat.format(s.c), '/a//, //test/subdir')
+        s.assertEqual(pat.format(s.a), '/a/Title5')
+        s.assertEqual(pat.format(s.b), '/a/Title6')
+        s.assertEqual(pat.format(s.c), '/a//, //test/subdir')
 
     def test_number_dot_title(s):
         pat = Pattern('<tracknumber>. <title>')
-        s.assertEquals(pat.format(s.a), '5/6. Title5')
-        s.assertEquals(pat.format(s.b), '6. Title6')
-        s.assertEquals(pat.format(s.c), '. test/subdir')
+        s.assertEqual(pat.format(s.a), '5/6. Title5')
+        s.assertEqual(pat.format(s.b), '6. Title6')
+        s.assertEqual(pat.format(s.c), '. test/subdir')
 
     def test_recnumber_dot_title(s):
         pat = Pattern('\<<tracknumber>\>. <title>')
-        s.assertEquals(pat.format(s.a), '<5/6>. Title5')
-        s.assertEquals(pat.format(s.b), '<6>. Title6')
-        s.assertEquals(pat.format(s.c), '<>. test/subdir')
+        s.assertEqual(pat.format(s.a), '<5/6>. Title5')
+        s.assertEqual(pat.format(s.b), '<6>. Title6')
+        s.assertEqual(pat.format(s.c), '<>. test/subdir')
 
     def test_generated(s):
         pat = Pattern('<~basename>')
-        s.assertEquals(pat.format(s.a), os.path.basename(s.a["~filename"]))
+        s.assertEqual(pat.format(s.a), os.path.basename(s.a["~filename"]))
 
     def test_generated_and_not_generated(s):
         pat = Pattern('<~basename> <title>')
         res = pat.format(s.a)
-        s.assertEquals(
+        s.assertEqual(
             res, os.path.basename(s.a["~filename"]) + " " + s.a["title"])
 
     def test_number_dot_title_dot(s):
         pat = Pattern('<tracknumber>. <title>.')
-        s.assertEquals(pat.format(s.a), '5/6. Title5.')
-        s.assertEquals(pat.format(s.b), '6. Title6.')
-        s.assertEquals(pat.format(s.c), '. test/subdir.')
+        s.assertEqual(pat.format(s.a), '5/6. Title5.')
+        s.assertEqual(pat.format(s.b), '6. Title6.')
+        s.assertEqual(pat.format(s.c), '. test/subdir.')
 
     def test_number_dot_genre(s):
         pat = Pattern('<tracknumber>. <genre>')
-        s.assertEquals(pat.format(s.a), '5/6. ')
-        s.assertEquals(pat.format(s.b), '6. ')
-        s.assertEquals(pat.format(s.c), '. /, /')
+        s.assertEqual(pat.format(s.a), '5/6. ')
+        s.assertEqual(pat.format(s.b), '6. ')
+        s.assertEqual(pat.format(s.c), '. /, /')
 
     def test_unicode_with_int(s):
         song = AudioFile({"tracknumber": "5/6",
             "title": "\xe3\x81\x99\xe3\x81\xbf\xe3\x82\x8c".decode('utf-8')})
         pat = Pattern('<~#track>. <title>')
-        s.assertEquals(pat.format(song),
+        s.assertEqual(pat.format(song),
             "5. \xe3\x81\x99\xe3\x81\xbf\xe3\x82\x8c".decode('utf-8'))
 
 
@@ -239,30 +239,30 @@ class _TFileFromPattern(_TPattern):
     def test_specialcase_anti_ext(s):
         p1 = s._create('<~filename>')
         p2 = s._create('<~dirname>_<~basename>')
-        s.assertEquals(p1.format(s.a), p2.format(s.a))
-        s.assertEquals(p1.format(s.a), '_path_to_a.mp3')
-        s.assertEquals(p1.format(s.b), p2.format(s.b))
-        s.assertEquals(p1.format(s.b), '_path_to_b.ogg')
-        s.assertEquals(p1.format(s.c), p2.format(s.c))
-        s.assertEquals(p1.format(s.c), '_one_more_a.flac')
+        s.assertEqual(p1.format(s.a), p2.format(s.a))
+        s.assertEqual(p1.format(s.a), '_path_to_a.mp3')
+        s.assertEqual(p1.format(s.b), p2.format(s.b))
+        s.assertEqual(p1.format(s.b), '_path_to_b.ogg')
+        s.assertEqual(p1.format(s.c), p2.format(s.c))
+        s.assertEqual(p1.format(s.c), '_one_more_a.flac')
 
     def test_long_filename(s):
         if os.name == "nt":
-            a = AudioFile({"title": "x" * 300, "~filename": u"C:\\f.mp3"})
-            path = s._create(u'C:\\foobar\\ä<title>\\<title>').format(a)
+            a = AudioFile({"title": "x" * 300, "~filename": "C:\\f.mp3"})
+            path = s._create('C:\\foobar\\ä<title>\\<title>').format(a)
             assert is_fsnative(path)
-            s.failUnlessEqual(len(path), 3 + 6 + 1 + 255 + 1 + 255)
-            path = s._create(u'äüö<title><title>').format(a)
+            s.assertEqual(len(path), 3 + 6 + 1 + 255 + 1 + 255)
+            path = s._create('äüö<title><title>').format(a)
             assert is_fsnative(path)
-            s.failUnlessEqual(len(path), 255)
+            s.assertEqual(len(path), 255)
         else:
             a = AudioFile({"title": "x" * 300, "~filename": "/f.mp3"})
-            path = s._create(u'/foobar/ä<title>/<title>').format(a)
+            path = s._create('/foobar/ä<title>/<title>').format(a)
             assert is_fsnative(path)
-            s.failUnlessEqual(len(path), 1 + 6 + 1 + 255 + 1 + 255)
-            path = s._create(u'äüö<title><title>').format(a)
+            s.assertEqual(len(path), 1 + 6 + 1 + 255 + 1 + 255)
+            path = s._create('äüö<title><title>').format(a)
             assert is_fsnative(path)
-            s.failUnlessEqual(len(path), 255)
+            s.assertEqual(len(path), 255)
 
 
 class TFileFromPattern(_TFileFromPattern):
@@ -271,25 +271,25 @@ class TFileFromPattern(_TFileFromPattern):
 
     def test_number_dot_title_dot(s):
         pat = s._create('<tracknumber>. <title>.')
-        s.assertEquals(pat.format(s.a), '05. Title5..mp3')
-        s.assertEquals(pat.format(s.b), '06. Title6..ogg')
-        s.assertEquals(pat.format(s.c), '. test_subdir..flac')
+        s.assertEqual(pat.format(s.a), '05. Title5..mp3')
+        s.assertEqual(pat.format(s.b), '06. Title6..ogg')
+        s.assertEqual(pat.format(s.c), '. test_subdir..flac')
 
     def test_tracknumber_decimals(s):
         pat = s._create('<tracknumber>. <title>')
-        s.assertEquals(pat.format(s.a), '05. Title5.mp3')
-        s.assertEquals(pat.format(s.e), '0007. Title7.mp3')
+        s.assertEqual(pat.format(s.a), '05. Title5.mp3')
+        s.assertEqual(pat.format(s.e), '0007. Title7.mp3')
 
     def test_ext_case_preservation(s):
         x = AudioFile({'~filename': '/tmp/Xx.Flac', 'title': 'Xx'})
         # If pattern has a particular ext, preserve case of ext
         p1 = s._create('<~basename>')
-        s.assertEquals(p1.format(x), 'Xx.Flac')
+        s.assertEqual(p1.format(x), 'Xx.Flac')
         p2 = s._create('<title>.FLAC')
-        s.assertEquals(p2.format(x), 'Xx.FLAC')
+        s.assertEqual(p2.format(x), 'Xx.FLAC')
         # If pattern doesn't have a particular ext, lowercase ext
         p3 = s._create('<title>')
-        s.assertEquals(p3.format(x), 'Xx.flac')
+        s.assertEqual(p3.format(x), 'Xx.flac')
 
 
 class TArbitraryExtensionFileFromPattern(_TFileFromPattern):
@@ -300,44 +300,44 @@ class TArbitraryExtensionFileFromPattern(_TFileFromPattern):
         pat = s._create('<tracknumber>. <title>.')
         if os.name == 'nt':
             # Can't have Windows names ending with dot
-            s.assertEquals(pat.format(s.a), '05. Title5_')
-            s.assertEquals(pat.format(s.b), '06. Title6_')
-            s.assertEquals(pat.format(s.c), '. test_subdir_')
+            s.assertEqual(pat.format(s.a), '05. Title5_')
+            s.assertEqual(pat.format(s.b), '06. Title6_')
+            s.assertEqual(pat.format(s.c), '. test_subdir_')
         else:
-            s.assertEquals(pat.format(s.a), '05. Title5.')
-            s.assertEquals(pat.format(s.b), '06. Title6.')
-            s.assertEquals(pat.format(s.c), '. test_subdir.')
+            s.assertEqual(pat.format(s.a), '05. Title5.')
+            s.assertEqual(pat.format(s.b), '06. Title6.')
+            s.assertEqual(pat.format(s.c), '. test_subdir.')
 
     def test_tracknumber_decimals(s):
         pat = s._create('<tracknumber>. <title>')
-        s.assertEquals(pat.format(s.a), '05. Title5')
-        s.assertEquals(pat.format(s.e), '0007. Title7')
+        s.assertEqual(pat.format(s.a), '05. Title5')
+        s.assertEqual(pat.format(s.e), '0007. Title7')
 
     def test_constant_albumart_example(s):
         pat = s._create("folder.jpg")
-        s.assertEquals(pat.format(s.a), 'folder.jpg')
+        s.assertEqual(pat.format(s.a), 'folder.jpg')
 
     def test_extra_dots(s):
         pat = s._create("<artist~album>.png")
-        s.assertEquals(pat.format(s.f), 'Foo - Best Of.png')
+        s.assertEqual(pat.format(s.f), 'Foo - Best Of.png')
         pat = s._create("<albumartist~title>.png")
-        s.assertEquals(pat.format(s.f), 'foo.bar - The.Final.Word.png')
+        s.assertEqual(pat.format(s.f), 'foo.bar - The.Final.Word.png')
 
 
 class TXMLFromPattern(_TPattern):
     def test_markup_passthrough(s):
         pat = XMLFromPattern(r'\<b\>&lt;<title>&gt;\</b\>')
-        s.assertEquals(pat.format(s.a), '<b>&lt;Title5&gt;</b>')
-        s.assertEquals(pat.format(s.b), '<b>&lt;Title6&gt;</b>')
-        s.assertEquals(pat.format(s.c), '<b>&lt;test/subdir&gt;</b>')
+        s.assertEqual(pat.format(s.a), '<b>&lt;Title5&gt;</b>')
+        s.assertEqual(pat.format(s.b), '<b>&lt;Title6&gt;</b>')
+        s.assertEqual(pat.format(s.c), '<b>&lt;test/subdir&gt;</b>')
 
     def test_escape(s):
         pat = XMLFromPattern(r'\<b\>&lt;<xmltest>&gt;\</b\>')
-        s.assertEquals(pat.format(s.a), '<b>&lt;&lt;&amp;&gt;&gt;</b>')
+        s.assertEqual(pat.format(s.a), '<b>&lt;&lt;&amp;&gt;&gt;</b>')
 
     def test_cond_markup(s):
         pat = XMLFromPattern(r'<title|\<b\><title> woo\</b\>>')
-        s.assertEquals(pat.format(s.a), '<b>Title5 woo</b>')
+        s.assertEqual(pat.format(s.a), '<b>Title5 woo</b>')
 
 
 class TXMLFromMarkupPattern(_TPattern):
@@ -348,84 +348,84 @@ class TXMLFromMarkupPattern(_TPattern):
 
     def test_convenience(s):
         pat = XMLFromMarkupPattern(r'[b]foo[/b]')
-        s.assertEquals(pat.format(s.a), '<b>foo</b>')
+        s.assertEqual(pat.format(s.a), '<b>foo</b>')
         s._test_markup(pat.format(s.a))
 
         pat = XMLFromMarkupPattern('[small ]foo[/small \t]')
-        s.assertEquals(pat.format(s.a), '<small >foo</small \t>')
+        s.assertEqual(pat.format(s.a), '<small >foo</small \t>')
         s._test_markup(pat.format(s.a))
 
     def test_link(s):
         pat = XMLFromMarkupPattern(r'[a href=""]foo[/a]')
-        s.assertEquals(pat.format(s.a), '<a href="">foo</a>')
+        s.assertEqual(pat.format(s.a), '<a href="">foo</a>')
 
     def test_convenience_invalid(s):
         pat = XMLFromMarkupPattern(r'[b foo="1"]')
-        s.assertEquals(pat.format(s.a), '[b foo="1"]')
+        s.assertEqual(pat.format(s.a), '[b foo="1"]')
         s._test_markup(pat.format(s.a))
 
     def test_span(s):
         pat = XMLFromMarkupPattern(r'[span]foo[/span]')
-        s.assertEquals(pat.format(s.a), '<span>foo</span>')
+        s.assertEqual(pat.format(s.a), '<span>foo</span>')
         s._test_markup(pat.format(s.a))
 
         pat = XMLFromMarkupPattern(r'[span  weight="bold"]foo[/span]')
-        s.assertEquals(pat.format(s.a), '<span  weight="bold">foo</span>')
+        s.assertEqual(pat.format(s.a), '<span  weight="bold">foo</span>')
         s._test_markup(pat.format(s.a))
 
     def test_escape(s):
         pat = XMLFromMarkupPattern(r'\[b]')
-        s.assertEquals(pat.format(s.a), '[b]')
+        s.assertEqual(pat.format(s.a), '[b]')
         s._test_markup(pat.format(s.a))
 
         pat = XMLFromMarkupPattern(r'\\[b]\\[/b]')
-        s.assertEquals(pat.format(s.a), r'\<b>\</b>')
+        s.assertEqual(pat.format(s.a), r'\<b>\</b>')
         s._test_markup(pat.format(s.a))
 
 
 class TRealTags(TestCase):
     def test_empty(self):
-        self.failUnlessEqual(Pattern("").tags, [])
+        self.assertEqual(Pattern("").tags, [])
 
     def test_both(self):
         pat = "<foo|<~bar~fuu> - <fa>|<bar>>"
-        self.failUnlessEqual(Pattern(pat).tags, ["bar", "fuu", "fa"])
+        self.assertEqual(Pattern(pat).tags, ["bar", "fuu", "fa"])
 
         pat = "<foo|<~bar~fuu> - <fa>|<quux>>"
-        self.failUnlessEqual(Pattern(pat).tags, ["bar", "fuu", "fa", "quux"])
+        self.assertEqual(Pattern(pat).tags, ["bar", "fuu", "fa", "quux"])
 
 
 class TPatternFormatList(_TPattern):
     def test_same(s):
         pat = Pattern('<~basename> <title>')
-        s.failUnlessEqual(pat.format_list(s.a), {pat.format(s.a)})
+        s.assertEqual(pat.format_list(s.a), {pat.format(s.a)})
         pat = Pattern('/a<genre|/<genre>>/<title>')
-        s.failUnlessEqual(pat.format_list(s.a), {pat.format(s.a)})
+        s.assertEqual(pat.format_list(s.a), {pat.format(s.a)})
 
     def test_same2(s):
         fpat = FileFromPattern('<~filename>')
         pat = Pattern('<~filename>')
-        s.assertEquals(fpat.format_list(s.a), {fpat.format(s.a)})
-        s.assertEquals(pat.format_list(s.a), {pat.format(s.a)})
+        s.assertEqual(fpat.format_list(s.a), {fpat.format(s.a)})
+        s.assertEqual(pat.format_list(s.a), {pat.format(s.a)})
 
     def test_tied(s):
         pat = Pattern('<genre>')
-        s.failUnlessEqual(pat.format_list(s.c), {'/', '/'})
+        s.assertEqual(pat.format_list(s.c), {'/', '/'})
         pat = Pattern('<performer>')
-        s.failUnlessEqual(pat.format_list(s.d), {'a', 'b'})
+        s.assertEqual(pat.format_list(s.d), {'a', 'b'})
         pat = Pattern('<performer><performer>')
-        s.failUnlessEqual(set(pat.format_list(s.d)),
+        s.assertEqual(set(pat.format_list(s.d)),
                           {'aa', 'ab', 'ba', 'bb'})
         pat = Pattern('<~performer~artist>')
-        s.failUnlessEqual(pat.format_list(s.d),
+        s.assertEqual(pat.format_list(s.d),
                           {'a - foo', 'b - foo', 'a - bar', 'b - bar'})
         pat = Pattern('<performer~artist>')
-        s.failUnlessEqual(pat.format_list(s.d),
+        s.assertEqual(pat.format_list(s.d),
                           {'a - foo', 'b - foo', 'a - bar', 'b - bar'})
         pat = Pattern('<artist|<artist>.|<performer>>')
-        s.failUnlessEqual(pat.format_list(s.d), {'foo.', 'bar.'})
+        s.assertEqual(pat.format_list(s.d), {'foo.', 'bar.'})
         pat = Pattern('<artist|<artist|<artist>.|<performer>>>')
-        s.failUnlessEqual(pat.format_list(s.d), {'foo.', 'bar.'})
+        s.assertEqual(pat.format_list(s.d), {'foo.', 'bar.'})
 
     def test_missing_value(self):
         pat = Pattern('<genre> - <artist>')

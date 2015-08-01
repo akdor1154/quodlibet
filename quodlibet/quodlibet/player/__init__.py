@@ -8,7 +8,7 @@
 
 from quodlibet import const
 from quodlibet import util
-
+import importlib
 
 class PlayerError(Exception):
     """Error raised by player loading/initialization and emitted by the
@@ -24,10 +24,10 @@ class PlayerError(Exception):
 
     def __unicode__(self):
         return self.short_desc + (
-            u"\n" + self.long_desc if self.long_desc else u"")
+            "\n" + self.long_desc if self.long_desc else "")
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return str(self).encode('utf-8')
 
     def __repr__(self):
         return "%s(%r, %r)" % (
@@ -53,11 +53,11 @@ def init_backend(backend_name):
     the module provides the following functions:
         init(librarian) -> new player instance
     """
-
+    print_d(backend_name)
     modulename = "quodlibet.player." + backend_name
 
     try:
-        backend = __import__(modulename, {}, {}, "quodlibet.player")
+        backend = importlib.import_module(modulename)
     except Exception as e:
         if const.DEBUG:
             util.print_exc()

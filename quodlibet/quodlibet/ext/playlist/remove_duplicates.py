@@ -25,7 +25,7 @@ class RemoveDuplicates(PlaylistPlugin):
         return len(playlists) == 1 and playlists[0].has_duplicates
 
     def plugin_playlist(self, playlist):
-        songs = filter(lambda s: isinstance(s, AudioFile), playlist.songs)
+        songs = [s for s in playlist.songs if isinstance(s, AudioFile)]
 
         unique = set()
         dupes = list()

@@ -156,7 +156,7 @@ class IpodGeneration(Enum):
     SHUFFLE_1, SHUFFLE_2, SHUFFLE_3, NANO_1, NANO_2, NANO_3, NANO_4, VIDEO_1,
     VIDEO_2, CLASSIC_1, CLASSIC_2, TOUCH_1, IPHONE_1, SHUFFLE_4, TOUCH_2,
     IPHONE_2, IPHONE_3, CLASSIC_3, NANO_5, TOUCH_3, IPAD_1, IPHONE_4,
-    TOUCH_4, NANO_6) = range(33)
+    TOUCH_4, NANO_6) = list(range(33))
 
 
 class IpodModel(Enum):
@@ -167,7 +167,7 @@ class IpodModel(Enum):
     IPHONE_1, SHUFFLE_SILVER, SHUFFLE_PINK, SHUFFLE_BLUE, SHUFFLE_GREEN,
     SHUFFLE_ORANGE, SHUFFLE_PURPLE, SHUFFLE_RED, CLASSIC_SILVER,
     CLASSIC_BLACK, TOUCH_SILVER, SHUFFLE_BLACK, IPHONE_WHITE, IPHONE_BLACK,
-    SHUFFLE_GOLD, SHUFFLE_STAINLESS, IPAD) = range(43)
+    SHUFFLE_GOLD, SHUFFLE_STAINLESS, IPAD) = list(range(43))
 
 
 class IpodInfo(Structure):
@@ -251,12 +251,12 @@ class SPLAction(Enum):
 
 
 class SPLFieldType(Enum):
-    (STRING, INT, BOOLEAN, DATE, PLAYLIST, UNKNOWN, BINARY_AND) = range(1, 8)
+    (STRING, INT, BOOLEAN, DATE, PLAYLIST, UNKNOWN, BINARY_AND) = list(range(1, 8))
 
 
 class SPLActionType(Enum):
     (STRING, INT, DATE, RANGE_INT, RANGE_DATE, INTHELAST, PLAYLIST, NONE,
-    INVALID, UNKNOWN, BINARY_AND) = range(1, 12)
+    INVALID, UNKNOWN, BINARY_AND) = list(range(1, 12))
 
 
 class SPLActionLast(Enum):
@@ -736,11 +736,11 @@ class TrackPtr(POINTER(Track), StructPointerMixin):
 
 
 class FileError(Enum):
-    SEEK, CORRUPT, NOTFOUND, RENAME, ITDB_CORRUPT = range(5)
+    SEEK, CORRUPT, NOTFOUND, RENAME, ITDB_CORRUPT = list(range(5))
 
 
 class Error(Enum):
-    SEEK, CORRUPT, NOTFOUND, RENAME, ITDB_CORRUPT, SQLITE = range(6)
+    SEEK, CORRUPT, NOTFOUND, RENAME, ITDB_CORRUPT, SQLITE = list(range(6))
 
 
 class GErrorPtrPtr(c_void_p):
@@ -948,12 +948,12 @@ def sw_get_tracks(itdb_ptr):
         entry = node.contents
         track_ptr = cast(entry.data, TrackPtr)
         tracks.append(track_ptr)
-        node = node.next
+        node = node.__next__
     return tracks
 
 
 __all__ = []
-for key in globals().keys():
+for key in list(globals().keys()):
     lower = key.lower()
     if lower.startswith("itdb_") or lower.startswith("sw_"):
         __all__.append(key)

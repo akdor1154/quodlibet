@@ -201,15 +201,15 @@ def init_test_environ():
     global _TEMP_DIR, _BUS_INFO
 
     # create a user dir in /tmp and set env vars
-    _TEMP_DIR = tempfile.mkdtemp(prefix=fsnative(u"QL-TEST-"))
+    _TEMP_DIR = tempfile.mkdtemp(prefix=fsnative("QL-TEST-"))
 
     # needed for dbus/dconf
-    runtime_dir = tempfile.mkdtemp(prefix=fsnative(u"RUNTIME-"), dir=_TEMP_DIR)
-    os.chmod(runtime_dir, 0700)
+    runtime_dir = tempfile.mkdtemp(prefix=fsnative("RUNTIME-"), dir=_TEMP_DIR)
+    os.chmod(runtime_dir, 0o700)
     os.environ["XDG_RUNTIME_DIR"] = runtime_dir
 
     # set HOME and remove all XDG vars that default to it if not set
-    home_dir = tempfile.mkdtemp(prefix=fsnative(u"HOME-"), dir=_TEMP_DIR)
+    home_dir = tempfile.mkdtemp(prefix=fsnative("HOME-"), dir=_TEMP_DIR)
     os.environ["HOME"] = home_dir
     os.environ.pop("XDG_DATA_HOME", None)
     os.environ.pop("XDG_CACHE_HOME", None)
@@ -226,7 +226,7 @@ def init_test_environ():
 
     # Ideally nothing should touch the FS on import, but we do atm..
     # Get rid of all modules so QUODLIBET_USERDIR gets used everywhere.
-    for key in sys.modules.keys():
+    for key in list(sys.modules.keys()):
         if key.startswith('quodlibet'):
             del(sys.modules[key])
 
@@ -328,7 +328,7 @@ def unit(run=[], filter_func=None, main=False, subdirs=None,
 
     runner = Runner()
     failures = errors = 0
-    use_suites = filter(filter_func, suites)
+    use_suites = list(filter(filter_func, suites))
     for test in sorted(use_suites, key=repr):
         if (not run
                 or test.__name__ in run

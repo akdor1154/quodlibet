@@ -107,7 +107,7 @@ class Pane(AllTreeView):
         return "<%s config=%r>" % (type(self).__name__, self.config)
 
     def parse_restore_string(self, config_value):
-        assert isinstance(config_value, unicode)
+        assert isinstance(config_value, str)
 
         values = config_value.split("\t")[:-1]
 
@@ -134,9 +134,9 @@ class Pane(AllTreeView):
 
         # The config lib strips all whitespace,
         # so add a bogus . at the end
-        values.append(u".")
+        values.append(".")
 
-        return u"\t".join(values)
+        return "\t".join(values)
 
     @property
     def tags(self):

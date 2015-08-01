@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from tests import TestCase, init_fake_app, destroy_fake_app
-from helper import capture_output
+from .helper import capture_output
 
 from gi.repository import Gtk
 
@@ -23,8 +23,8 @@ class TCommands(TestCase):
         return registry.handle_line(app, command)
 
     def test_query(self):
-        self.__send(u"query foo")
-        self.assertEqual(self.__send("print-query-text"), u"foo\n")
+        self.__send("query foo")
+        self.assertEqual(self.__send("print-query-text"), "foo\n")
 
     def test_player(self):
         self.__send("previous")

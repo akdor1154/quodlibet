@@ -14,6 +14,7 @@ from quodlibet.util import print_exc
 from quodlibet.util.dprint import print_d, print_e
 from quodlibet.plugins import PluginHandler, PluginManager
 from quodlibet.plugins.gui import MenuItemPlugin
+import collections
 
 
 class ConfirmMultiPlaylistInvoke(WarningMessage):
@@ -122,14 +123,14 @@ class PlaylistPluginHandler(PluginHandler):
         kinds.sort(key=lambda plugin: plugin.PLUGIN_ID)
         print_d("Found %d Playlist plugin(s): %s" % (len(kinds), kinds))
         for Kind in kinds:
-            usable = any([callable(getattr(Kind, s)) for s in attrs])
+            usable = any([isinstance(getattr(Kind, s), collections.Callable) for s in attrs])
             if usable:
                 try:
                     items.append(Kind(playlists, library))
                 except:
                     print_e("Couldn't initialise playlist plugin %s: " % Kind)
                     print_exc()
-        items = filter(lambda i: i.initialized, items)
+        items = [i for i in items if i.initialized]
 
         if items:
             menu.append(SeparatorMenuItem())
@@ -171,7 +172,7 @@ class PlaylistPluginHandler(PluginHandler):
             return
 
         if (len(playlists) == 1
-                and callable(plugin.plugin_single_playlist)):
+                and isinstance(plugin.plugin_single_playlist, collections.Callable)):
             pl = playlists[0]
             try:
                 ret = plugin.plugin_single_playlist(pl)
@@ -183,7 +184,7 @@ class PlaylistPluginHandler(PluginHandler):
                     browser.changed(pl)
                     browser.activate()
                     return
-        if callable(plugin.plugin_playlist):
+        if isinstance(plugin.plugin_playlist, collections.Callable):
             total = len(playlists)
             if total > plugin.MAX_INVOCATIONS:
                 if not self._confirm_multiple(
@@ -191,7 +192,7 @@ class PlaylistPluginHandler(PluginHandler):
                     return
 
             try:
-                ret = map(plugin.plugin_playlist, playlists)
+                ret = list(map(plugin.plugin_playlist, playlists))
                 if ret:
                     for update, pl in zip(ret, playlists):
                         if update:
@@ -203,7 +204,7 @@ class PlaylistPluginHandler(PluginHandler):
             else:
                 if max(ret):
                     return
-        if callable(plugin.plugin_playlists):
+        if isinstance(plugin.plugin_playlists, collections.Callable):
             try:
                 if plugin.plugin_playlists(playlists):
                     browser.activate()

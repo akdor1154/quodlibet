@@ -17,7 +17,7 @@ from quodlibet.plugins.songsmenu import SongsMenuPlugin
 
 class Bookmarks(SongsMenuPlugin):
     PLUGIN_ID = "Go to Bookmark..."
-    PLUGIN_NAME = _(u"Go to Bookmark…")
+    PLUGIN_NAME = _("Go to Bookmark…")
     PLUGIN_DESC = _("Lists all bookmarks in the selected files.")
     PLUGIN_ICON = Icons.GO_JUMP
 
@@ -54,7 +54,7 @@ class Bookmarks(SongsMenuPlugin):
                     song_menu.append(item)
 
                 song_menu.append(SeparatorMenuItem())
-                i = qltk.MenuItem(_(u"_Edit Bookmarks…"), Icons.EDIT)
+                i = qltk.MenuItem(_("_Edit Bookmarks…"), Icons.EDIT)
 
                 def edit_bookmarks_cb(menu_item):
                     window = EditBookmarks(self.plugin_window, app.library,

@@ -14,11 +14,11 @@ from tests import TestCase
 
 ON_WINDOWS = sys.platform == "win32"
 
-STANDARD_PATH = fsnative(u"/home/user/Music")
-OTHER_PATH = fsnative(u"/opt/party")
-GVFS_PATH = fsnative(u"/run/user/12345/gvfs/smb-share"
+STANDARD_PATH = fsnative("/home/user/Music")
+OTHER_PATH = fsnative("/opt/party")
+GVFS_PATH = fsnative("/run/user/12345/gvfs/smb-share"
                       ":server=12.23.34.45,share=/foo/bar/baz/path")
-GVFS_PATH_ESCAPED = fsnative(u"/run/user/12345/gvfs/smb-share"
+GVFS_PATH_ESCAPED = fsnative("/run/user/12345/gvfs/smb-share"
                               "\:server=12.23.34.45,share=/foo/bar/baz/path")
 
 
@@ -26,16 +26,16 @@ class Tsplit_scan_dirs(TestCase):
     def test_basic(self):
         if ON_WINDOWS:
             res = split_scan_dirs(r":Z:\foo:C:/windows:")
-            self.assertEquals(res, [r"Z:\foo", "C:/windows"])
+            self.assertEqual(res, [r"Z:\foo", "C:/windows"])
         else:
             res = split_scan_dirs(":%s:%s:" % (STANDARD_PATH, OTHER_PATH))
-            self.assertEquals(res, [STANDARD_PATH, OTHER_PATH])
+            self.assertEqual(res, [STANDARD_PATH, OTHER_PATH])
 
     def test_colon_paths(self):
         if not ON_WINDOWS:
             res = split_scan_dirs(
                 ":%s:%s" % (STANDARD_PATH, GVFS_PATH_ESCAPED))
-            self.assertEquals(res, [STANDARD_PATH, GVFS_PATH])
+            self.assertEqual(res, [STANDARD_PATH, GVFS_PATH])
 
 
 class Tset_scan_dirs(TestCase):

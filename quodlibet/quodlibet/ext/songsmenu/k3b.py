@@ -31,7 +31,7 @@ class BurnCD(SongsMenuPlugin):
         super(BurnCD, self).__init__(*args, **kwargs)
         self.prog_name = None
 
-        items = self.burn_programs.items()
+        items = list(self.burn_programs.items())
         progs = [(iscommand(x[1][0]), x) for x in items]
         progs.sort(reverse=True)
 

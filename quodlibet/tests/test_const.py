@@ -27,11 +27,11 @@ class Tconst(TestCase):
             ["git", "rev-parse", "--abbrev-ref", "HEAD"],
             stdout=subprocess.PIPE)
         branch = p.communicate()[0].strip()
-        self.failIf(p.returncode)
+        self.assertFalse(p.returncode)
 
         # only check for stable/dev branches, no feature branches
         if branch == "master" or branch.startswith("quodlibet"):
-            self.failUnlessEqual(branch, const.BRANCH_NAME)
+            self.assertEqual(branch, const.BRANCH_NAME)
 
     def test_authors(self):
         # Noting that <= is subset operator on sets...

@@ -34,10 +34,10 @@ class _TAACFile(TestCase):
 class _TAACFileMixin(object):
 
     def test_basic(self):
-        self.song["title"] = u"SomeTestValue"
+        self.song["title"] = "SomeTestValue"
         self.song.write()
         self.song.reload()
-        self.assertEqual(self.song("title"), u"SomeTestValue")
+        self.assertEqual(self.song("title"), "SomeTestValue")
 
     def test_write(self):
         self.song.write()

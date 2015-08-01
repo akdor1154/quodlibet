@@ -126,9 +126,9 @@ class SearchProvider(dbus.service.Object):
             query = Query("")
             for term in terms:
                 query &= Query(term)
-            songs = filter(query.search, app.library)
+            songs = list(filter(query.search, app.library))
         else:
-            songs = app.library.values()
+            songs = list(app.library.values())
 
         ids = [get_song_id(s) for s in songs]
         return ids

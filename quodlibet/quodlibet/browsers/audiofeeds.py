@@ -5,7 +5,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-import cPickle as pickle
+import pickle as pickle
 import os
 import sys
 import threading
@@ -34,7 +34,7 @@ from quodlibet.qltk.x import ScrolledWindow, Align, Button, MenuItem
 
 
 FEEDS = os.path.join(quodlibet.get_user_dir(), "feeds")
-DND_URI_LIST, DND_MOZ_URL = range(2)
+DND_URI_LIST, DND_MOZ_URL = list(range(2))
 
 # Migration path for pickle
 sys.modules["browsers.audiofeeds"] = sys.modules[__name__]
@@ -123,7 +123,7 @@ class Feed(list):
             pass
 
         try:
-            values = dict(feed.categories).values()
+            values = list(dict(feed.categories).values())
         except AttributeError:
             pass
         else:
@@ -293,13 +293,13 @@ class AudioFeeds(Browser):
 
     def Menu(self, songs, library, items):
         if len(songs) == 1:
-            item = qltk.MenuItem(_(u"_Download…"), Icons.NETWORK_WORKGROUP)
+            item = qltk.MenuItem(_("_Download…"), Icons.NETWORK_WORKGROUP)
             item.connect('activate', self.__download, songs[0]("~uri"))
             item.set_sensitive(not songs[0].is_file)
         else:
-            songs = filter(lambda s: not s.is_file, songs)
+            songs = [s for s in songs if not s.is_file]
             uris = [song("~uri") for song in songs]
-            item = qltk.MenuItem(_(u"_Download…"), Icons.NETWORK_WORKGROUP)
+            item = qltk.MenuItem(_("_Download…"), Icons.NETWORK_WORKGROUP)
             item.connect('activate', self.__download_many, uris)
             item.set_sensitive(bool(songs))
 
@@ -439,7 +439,7 @@ class AudioFeeds(Browser):
         connect_obj(refresh,
             'activate', self.__refresh, [model[p][0] for p in paths])
         connect_obj(delete,
-            'activate', map, model.remove, map(model.get_iter, paths))
+            'activate', map, model.remove, list(map(model.get_iter, paths)))
 
         menu.append(refresh)
         menu.append(delete)
@@ -455,7 +455,7 @@ class AudioFeeds(Browser):
         AudioFeeds.write()
 
     def __refresh(self, feeds):
-        changed = filter(Feed.parse, feeds)
+        changed = list(filter(Feed.parse, feeds))
         AudioFeeds.changed(changed)
 
     def activate(self):

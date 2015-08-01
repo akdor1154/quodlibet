@@ -6,7 +6,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-from __future__ import absolute_import
+
 
 from collections import MutableSequence, defaultdict
 
@@ -27,7 +27,7 @@ class DictMixin(object):
     """
 
     def __iter__(self):
-        return iter(self.keys())
+        return iter(list(self.keys()))
 
     def has_key(self, key):
         try:
@@ -38,18 +38,18 @@ class DictMixin(object):
             return True
     __contains__ = has_key
 
-    iterkeys = lambda self: iter(self.keys())
+    iterkeys = lambda self: iter(list(self.keys()))
 
     def values(self):
-        return map(self.__getitem__, self.keys())
-    itervalues = lambda self: iter(self.values())
+        return list(map(self.__getitem__, list(self.keys())))
+    itervalues = lambda self: iter(list(self.values()))
 
     def items(self):
-        return zip(self.keys(), self.values())
-    iteritems = lambda s: iter(s.items())
+        return list(zip(list(self.keys()), list(self.values())))
+    iteritems = lambda s: iter(list(s.items()))
 
     def clear(self):
-        for key in self.keys():
+        for key in list(self.keys()):
             del self[key]
 
     def pop(self, key, *args):
@@ -67,7 +67,7 @@ class DictMixin(object):
 
     def popitem(self):
         try:
-            key = self.keys()[0]
+            key = list(self.keys())[0]
             return key, self.pop(key)
         except IndexError:
             raise KeyError("dictionary is empty")
@@ -78,7 +78,7 @@ class DictMixin(object):
             other = {}
 
         try:
-            for key, value in other.items():
+            for key, value in list(other.items()):
                 self[key] = value
         except AttributeError:
             for key, value in other:
@@ -98,18 +98,18 @@ class DictMixin(object):
             return default
 
     def __repr__(self):
-        return repr(dict(self.items()))
+        return repr(dict(list(self.items())))
 
     def __cmp__(self, other):
         if other is None:
             return 1
         else:
-            return cmp(dict(self.items()), other)
+            return cmp(dict(list(self.items())), other)
 
     __hash__ = object.__hash__
 
     def __len__(self):
-        return len(self.keys())
+        return len(list(self.keys()))
 
 
 class DictProxy(DictMixin):
@@ -127,7 +127,7 @@ class DictProxy(DictMixin):
         del(self.__dict[key])
 
     def keys(self):
-        return self.__dict.keys()
+        return list(self.__dict.keys())
 
 
 class HashedList(MutableSequence):

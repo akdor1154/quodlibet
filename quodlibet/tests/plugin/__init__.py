@@ -28,7 +28,7 @@ ms = ModuleScanner(PLUGIN_DIRS)
 ms.rescan()
 
 # make sure plugins only raise expected errors
-for name, err in ms.failures.items():
+for name, err in list(ms.failures.items()):
     exc = err.exception
     assert issubclass(type(exc), (PluginImportException, ImportError)),\
         "%s shouldn't have raised a %s, but it did (%r)."\
@@ -36,7 +36,7 @@ for name, err in ms.failures.items():
 
 plugins = {}
 modules = {}
-for name, module in ms.modules.iteritems():
+for name, module in ms.modules.items():
     for plugin in list_plugins(module.module):
         plugins[plugin.PLUGIN_ID] = Plugin(plugin)
         modules[plugin.PLUGIN_ID] = module.module

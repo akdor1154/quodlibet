@@ -29,9 +29,11 @@ from quodlibet.formats._audio import TAG_TO_SORT, AudioFile
 from quodlibet.qltk.x import SeparatorMenuItem
 from quodlibet.qltk.songlistcolumns import create_songlist_column
 from quodlibet.util import connect_destroy
+import collections
+from functools import reduce
 
 
-DND_QL, DND_URI_LIST = range(2)
+DND_QL, DND_URI_LIST = list(range(2))
 
 
 class SongInfoSelection(GObject.Object):
@@ -152,7 +154,7 @@ def get_sort_tag(tag):
         tag = "album"
 
     if tag.startswith("<"):
-        for key, value in replace_order.iteritems():
+        for key, value in replace_order.items():
             tag = tag.replace("<%s>" % key, "<%s>" % value)
         tag = Pattern(tag).format
     else:
@@ -247,7 +249,7 @@ class SongListDnDMixin(object):
 
             qltk.selection_set_songs(sel, songs)
             if ctx.get_actions() & Gdk.DragAction.MOVE:
-                self.__drag_iters = map(model.get_iter, paths)
+                self.__drag_iters = list(map(model.get_iter, paths))
             else:
                 self.__drag_iters = []
         else:
@@ -267,7 +269,7 @@ class SongListDnDMixin(object):
                 except ValueError:
                     return None
 
-            filenames = filter(None, map(to_filename, sel.get_uris()))
+            filenames = [_f for _f in map(to_filename, sel.get_uris()) if _f]
             move = False
         else:
             Gtk.drag_finish(ctx, False, False, etime)
@@ -280,7 +282,7 @@ class SongListDnDMixin(object):
             elif filename not in library:
                 to_add.append(library.librarian[filename])
         library.add(to_add)
-        songs = filter(None, map(library.get, filenames))
+        songs = [_f for _f in map(library.get, filenames) if _f]
         if not songs:
             Gtk.drag_finish(ctx, bool(not filenames), False, etime)
             return
@@ -554,7 +556,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
     def __search_func(self, model, column, key, iter, *args):
         for column in self.get_columns():
             value = model.get_value(iter)(column.header_name)
-            if not isinstance(value, basestring):
+            if not isinstance(value, str):
                 continue
             elif key in value.lower() or key in value:
                 return False
@@ -577,7 +579,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
     def __button_press(self, view, event, librarian):
         if event.button != Gdk.BUTTON_PRIMARY:
             return
-        x, y = map(int, [event.x, event.y])
+        x, y = list(map(int, [event.x, event.y]))
         try:
             path, col, cellx, celly = view.get_path_at_pos(x, y)
         except TypeError:
@@ -645,7 +647,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
         return False
 
     def __enqueue(self, songs):
-        songs = filter(lambda s: s.can_add, songs)
+        songs = [s for s in songs if s.can_add]
         if songs:
             from quodlibet import app
             app.window.playlist.enqueue(songs)
@@ -658,7 +660,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             model.row_changed(path, iter_)
 
     def __columns_changed(self, *args):
-        headers = map(lambda h: h.header_name, self.get_columns())
+        headers = [h.header_name for h in self.get_columns()]
         SongList.set_all_column_headers(headers)
         SongList.headers = headers
 
@@ -770,7 +772,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
 
         self._sort_songs(old_songs)
 
-        for index, song in sorted(zip(map(old_songs.index, songs), songs)):
+        for index, song in sorted(zip(list(map(old_songs.index, songs)), songs)):
             model.insert(index, row=[song])
 
     def set_songs(self, songs, sorted=False, scroll=True, scroll_select=False):
@@ -882,7 +884,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             return
         (start,), (end,) = vrange
         model = self.get_model()
-        for path in xrange(start, end + 1):
+        for path in range(start, end + 1):
             row = model[path]
             if row[0] in songs:
                 model.row_changed(row.path, row.iter)
@@ -890,8 +892,8 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
     def __song_added(self, librarian, songs):
         window = qltk.get_top_parent(self)
         filter_ = window.browser.active_filter
-        if callable(filter_):
-            self.add_songs(filter(filter_, songs))
+        if isinstance(filter_, collections.Callable):
+            self.add_songs(list(filter(filter_, songs)))
 
     def __song_removed(self, librarian, songs, player):
         # The player needs to be called first so it can ge the next song
@@ -1030,9 +1032,10 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             if tag.startswith("<"):
                 return util.pattern(tag)
             return util.tag(tag)
-        current = zip(map(tag_title, current), current)
+        current = list(zip(list(map(tag_title, current)), current))
 
-        def add_header_toggle(menu, (header, tag), active, column=column):
+        def add_header_toggle(menu, xxx_todo_changeme, active, column=column):
+            (header, tag) = xxx_todo_changeme
             item = Gtk.CheckMenuItem(label=header)
             item.tag = tag
             item.set_active(active)
@@ -1077,7 +1080,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
             menu.append(item)
             submenu = Gtk.Menu()
             item.set_submenu(submenu)
-            for header in sorted(zip(map(util.tag, group), group)):
+            for header in sorted(zip(list(map(util.tag, group)), group)):
                 add_header_toggle(submenu, header, header[1] in current_set)
 
         sep = SeparatorMenuItem()
@@ -1085,7 +1088,7 @@ class SongList(AllTreeView, SongListDnDMixin, DragScroll,
         menu.append(sep)
 
         custom = Gtk.MenuItem(
-            label=_(u"_Customize Headers…"), use_underline=True)
+            label=_("_Customize Headers…"), use_underline=True)
         custom.show()
         custom.connect('activate', self.__add_custom_column)
         menu.append(custom)

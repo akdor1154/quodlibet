@@ -74,8 +74,7 @@ class StripDiacriticals(FilterCheckButton):
 
     def filter(self, original, filename):
         filename = fsdecode(filename)
-        return fsnative(filter(lambda s: not unicodedata.combining(s),
-                               unicodedata.normalize('NFKD', filename)))
+        return fsnative([s for s in unicodedata.normalize('NFKD', filename) if not unicodedata.combining(s)])
 
 
 class StripNonASCII(FilterCheckButton):
@@ -87,7 +86,7 @@ class StripNonASCII(FilterCheckButton):
     def filter(self, original, filename):
         filename = fsdecode(filename)
         return fsnative(
-            u"".join(map(lambda s: (s <= "~" and s) or u"_", filename)))
+            "".join([(s <= "~" and s) or "_" for s in filename]))
 
 
 class Lowercase(FilterCheckButton):
@@ -136,7 +135,7 @@ class RenameFiles(Gtk.VBox):
         cbes_defaults = NBP_EXAMPLES.split("\n")
         self.combo = ComboBoxEntrySave(NBP, cbes_defaults,
             title=_("Path Patterns"),
-            edit_title=_(u"Edit saved patterns…"))
+            edit_title=_("Edit saved patterns…"))
         self.combo.show_all()
         hbox.pack_start(self.combo, True, True, 0)
         self.preview = qltk.Button(_("_Preview"), Icons.VIEW_REFRESH)
@@ -189,7 +188,7 @@ class RenameFiles(Gtk.VBox):
 
         def cell_data_new_name(column, cell, model, iter_, data):
             entry = model.get_value(iter_)
-            cell.set_property("text", entry.new_name or u"")
+            cell.set_property("text", entry.new_name or "")
         column.set_cell_data_func(render, cell_data_new_name)
 
         column.set_sizing(Gtk.TreeViewColumnSizing.AUTOSIZE)
@@ -234,7 +233,7 @@ class RenameFiles(Gtk.VBox):
         skip_all = False
         self.view.freeze_child_notify()
 
-        for entry in model.itervalues():
+        for entry in model.values():
             song = entry.song
             new_name = entry.new_name
             old_name = entry.name
@@ -282,7 +281,7 @@ class RenameFiles(Gtk.VBox):
     def __preview(self, songs):
         model = self.view.get_model()
         if songs is None:
-            songs = [e.song for e in model.itervalues()]
+            songs = [e.song for e in model.values()]
 
         pattern_text = self.combo.get_child().get_text().decode("utf-8")
 

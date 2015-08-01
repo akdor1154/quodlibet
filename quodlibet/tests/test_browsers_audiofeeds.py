@@ -14,7 +14,7 @@ class TAudioFeeds(TestCase):
 
     def test_can_filter(self):
         for key in ["foo", "title", "fake~key", "~woobar", "~#huh"]:
-            self.failIf(self.bar.can_filter(key))
+            self.assertFalse(self.bar.can_filter(key))
 
     def tearDown(self):
         self.bar.destroy()

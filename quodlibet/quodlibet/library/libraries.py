@@ -14,8 +14,8 @@ least useful but most content-agnostic.
 """
 
 from pickle import Unpickler
-from cStringIO import StringIO
-import cPickle as pickle
+from io import StringIO
+import pickle as pickle
 import os
 import shutil
 import time
@@ -88,7 +88,7 @@ class Library(GObject.GObject, DictMixin):
 
         if not items:
             return
-        if self.librarian and self in self.librarian.libraries.itervalues():
+        if self.librarian and self in iter(self.librarian.libraries.values()):
             print_d("Changing %d items via librarian." % len(items), self)
             self.librarian.changed(items)
         else:
@@ -110,16 +110,16 @@ class Library(GObject.GObject, DictMixin):
 
     def __iter__(self):
         """Iterate over the items in the library."""
-        return self._contents.itervalues()
+        return iter(self._contents.values())
 
     def iteritems(self):
-        return self._contents.iteritems()
+        return iter(self._contents.items())
 
     def iterkeys(self):
-        return self._contents.iterkeys()
+        return iter(self._contents.keys())
 
     def itervalues(self):
-        return self._contents.itervalues()
+        return iter(self._contents.values())
 
     def __len__(self):
         """The number of items in the library."""
@@ -139,13 +139,13 @@ class Library(GObject.GObject, DictMixin):
     def get_content(self):
         """All items including hidden ones for saving the library
            (see FileLibrary with masked items)"""
-        return self.values()
+        return list(self.values())
 
     def keys(self):
-        return self._contents.keys()
+        return list(self._contents.keys())
 
     def values(self):
-        return self._contents.values()
+        return list(self._contents.values())
 
     def _load_item(self, item):
         """Load (add) an item into this library"""
@@ -358,7 +358,7 @@ class AlbumLibrary(Library):
         self._asig = library.connect('added', self.__added)
         self._rsig = library.connect('removed', self.__removed)
         self._csig = library.connect('changed', self.__changed)
-        self.__added(library, library.values(), signal=False)
+        self.__added(library, list(library.values()), signal=False)
 
     def refresh(self, items):
         """Refresh albums after a manual change."""
@@ -439,7 +439,7 @@ class AlbumLibrary(Library):
                 changed.add(self._contents[key])
             else:  # key changed.. look for it in each album
                 to_add.append(song)
-                for key, album in self._contents.iteritems():
+                for key, album in self._contents.items():
                     if song in album.songs:
                         album.songs.remove(song)
                         if not album.songs:
@@ -491,7 +491,7 @@ class SongLibrary(PicklingLibrary):
     def tag_values(self, tag):
         """Return a list of all values for the given tag."""
         tags = set()
-        for song in self.itervalues():
+        for song in self.values():
             tags.update(song.list(tag))
         return list(tags)
 
@@ -522,9 +522,9 @@ class SongLibrary(PicklingLibrary):
         if isinstance(text, str):
             text = text.decode('utf-8')
 
-        songs = self.values()
+        songs = list(self.values())
         if text != "":
-            songs = filter(Query(text, star).search, songs)
+            songs = list(filter(Query(text, star).search, songs))
         return songs
 
 
@@ -592,7 +592,7 @@ class FileLibrary(PicklingLibrary):
             if item.exists():
                 try:
                     item.reload()
-                except (StandardError, EnvironmentError):
+                except (Exception, EnvironmentError):
                     print_d("Error reloading %r." % item.key, self)
                     util.print_exc()
                     return False, True
@@ -661,7 +661,7 @@ class FileLibrary(PicklingLibrary):
             if os.path.ismount(point):
                 self._contents.update(items)
                 del(self._masked[point])
-                self.emit('added', items.values())
+                self.emit('added', list(items.values()))
                 yield True
 
         task = Task(_("Library"), _("Scanning library"))
@@ -724,19 +724,19 @@ class FileLibrary(PicklingLibrary):
                 if cofuncid:
                     task.copool(cofuncid)
                 fullpath = expanduser(fullpath)
-                if filter(fullpath.startswith, exclude):
+                if list(filter(fullpath.startswith, exclude)):
                     continue
                 for path, dnames, fnames in os.walk(fullpath):
                     for filename in fnames:
                         fullfilename = os.path.join(path, filename)
-                        if filter(fullfilename.startswith, exclude):
+                        if list(filter(fullfilename.startswith, exclude)):
                             continue
                         if fullfilename not in self._contents:
                             fullfilename = os.path.realpath(fullfilename)
                             # skip unknown file extensions
                             if not formats.filter(fullfilename):
                                 continue
-                            if filter(fullfilename.startswith, exclude):
+                            if list(filter(fullfilename.startswith, exclude)):
                                 continue
                             if fullfilename not in self._contents:
                                 item = self.add_filename(fullfilename, False)
@@ -758,9 +758,9 @@ class FileLibrary(PicklingLibrary):
     def get_content(self):
         """Return visible and masked items"""
 
-        items = self.values()
-        for masked in self._masked.values():
-            items.extend(masked.values())
+        items = list(self.values())
+        for masked in list(self._masked.values()):
+            items.extend(list(masked.values()))
 
         # Item keys are often based on filenames, in which case
         # sorting takes advantage of the filesystem cache when we
@@ -775,39 +775,39 @@ class FileLibrary(PicklingLibrary):
             point = item.mountpoint
         except AttributeError:
             # Checking a key.
-            for point in self._masked.itervalues():
+            for point in self._masked.values():
                 if item in point:
                     return True
         else:
             # Checking a full item.
-            return item in self._masked.get(point, {}).itervalues()
+            return item in iter(self._masked.get(point, {}).values())
 
     def unmask(self, point):
         print_d("Unmasking %r." % point, self)
         items = self._masked.pop(point, {})
         if items:
-            self.add(items.values())
+            self.add(list(items.values()))
 
     def mask(self, point):
         print_d("Masking %r." % point, self)
         removed = {}
-        for item in self.itervalues():
+        for item in self.values():
             if item.mountpoint == point:
                 removed[item.key] = item
         if removed:
-            self.remove(removed.values())
+            self.remove(list(removed.values()))
             self._masked.setdefault(point, {}).update(removed)
 
     @property
     def masked_mount_points(self):
         """List of mount points that contain masked items"""
 
-        return self._masked.keys()
+        return list(self._masked.keys())
 
     def get_masked(self, mount_point):
         """List of items for a mount point"""
 
-        return self._masked.get(mount_point, {}).values()
+        return list(self._masked.get(mount_point, {}).values())
 
     def remove_masked(self, mount_point):
         """Remove all songs for a masked point"""

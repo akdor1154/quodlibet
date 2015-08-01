@@ -29,12 +29,12 @@ class TSongList(TestCase):
     def test_set_all_column_headers(self):
         SongList.set_all_column_headers(self.HEADERS)
         headers = [col.header_name for col in self.songlist.get_columns()]
-        self.failUnlessEqual(headers, self.HEADERS)
+        self.assertEqual(headers, self.HEADERS)
 
     def test_set_column_headers(self):
         self.songlist.set_column_headers(self.HEADERS)
         headers = [col.header_name for col in self.songlist.get_columns()]
-        self.failUnlessEqual(headers, self.HEADERS)
+        self.assertEqual(headers, self.HEADERS)
 
     def test_drop(self):
         self.songlist.enable_drop()
@@ -46,11 +46,11 @@ class TSongList(TestCase):
                            ("two", False),
                            ("three", False)]:
             self.songlist.set_sort_orders([(key, order)])
-            self.failUnlessEqual(
+            self.assertEqual(
                 self.songlist.get_sort_orders(), [(key, order)])
 
         self.songlist.toggle_column_sort(self.songlist.get_columns()[-1])
-        self.failUnlessEqual(
+        self.assertEqual(
             self.songlist.get_sort_orders(), [("three", True)])
 
     def test_sort_orders(self):
@@ -169,7 +169,7 @@ class TSongList(TestCase):
         from quodlibet import browsers
         from quodlibet.library import SongLibrary, SongLibrarian
 
-        song = AudioFile({"~filename": fsnative(u"/dev/null")})
+        song = AudioFile({"~filename": fsnative("/dev/null")})
         song.sanitize()
         self.songlist.set_songs([song])
 
@@ -185,26 +185,26 @@ class TSongList(TestCase):
         self.assertTrue(self.songlist.Menu("foo", browser, library))
 
     def test_get_columns_migrates(self):
-        self.failIf(config.get("settings", "headers", None))
-        self.failIf(config.get("settings", "columns", None))
+        self.assertFalse(config.get("settings", "headers", None))
+        self.assertFalse(config.get("settings", "columns", None))
 
         headers = "~album ~#replaygain_track_gain foobar"
         config.set("settings", "headers", headers)
         columns = get_columns()
-        self.failUnlessEqual(columns, ["~album", "~#replaygain_track_gain",
+        self.assertEqual(columns, ["~album", "~#replaygain_track_gain",
                                        "foobar"])
-        self.failIf(config.get("settings", "headers", None))
+        self.assertFalse(config.get("settings", "headers", None))
 
     def test_get_set_columns(self):
-        self.failIf(config.get("settings", "headers", None))
-        self.failIf(config.get("settings", "columns", None))
+        self.assertFalse(config.get("settings", "headers", None))
+        self.assertFalse(config.get("settings", "columns", None))
         columns = ["first", "won't", "two words", "4"]
         set_columns(columns)
-        self.failUnlessEqual(columns, get_columns())
+        self.assertEqual(columns, get_columns())
         columns += ["~~another~one"]
         set_columns(columns)
-        self.failUnlessEqual(columns, get_columns())
-        self.failIf(config.get("settings", "headers", None))
+        self.assertEqual(columns, get_columns())
+        self.assertFalse(config.get("settings", "headers", None))
 
     def test_header_tag_split(self):
         self.assertEqual(header_tag_split("foo"), ["foo"])

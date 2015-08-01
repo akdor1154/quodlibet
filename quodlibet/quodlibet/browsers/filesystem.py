@@ -42,7 +42,7 @@ class FileSystem(Browser, Gtk.HBox):
     priority = 10
     uses_main_library = False
 
-    TARGET_QL, TARGET_EXT = range(1, 3)
+    TARGET_QL, TARGET_EXT = list(range(1, 3))
 
     def pack(self, songpane):
         container = qltk.ConfigRHPaned("browsers", "filesystem_pos", 0.4)
@@ -69,7 +69,7 @@ class FileSystem(Browser, Gtk.HBox):
 
     @classmethod
     def __remove_because_added(klass, library, songs):
-        songs = filter(klass.__library.__contains__, songs)
+        songs = list(filter(klass.__library.__contains__, songs))
         klass.__library.remove(songs)
 
     def __init__(self, library):
@@ -106,7 +106,7 @@ class FileSystem(Browser, Gtk.HBox):
         for songs in self.__find_songs(view.get_selection()):
             pass
         if tid == self.TARGET_QL:
-            cant_add = filter(lambda s: not s.can_add, songs)
+            cant_add = [s for s in songs if not s.can_add]
             if cant_add:
                 qltk.ErrorMessage(
                     qltk.get_top_parent(self), _("Unable to copy songs"),
@@ -114,7 +114,7 @@ class FileSystem(Browser, Gtk.HBox):
                       "song lists or the queue.")).run()
                 ctx.drag_abort(etime)
                 return
-            to_add = filter(self.__library.__contains__, songs)
+            to_add = list(filter(self.__library.__contains__, songs))
             self.__add_songs(view, to_add)
 
             qltk.selection_set_songs(sel, songs)
@@ -146,9 +146,10 @@ class FileSystem(Browser, Gtk.HBox):
     def __select_paths(self, paths):
         # AudioFile uses normalized paths, DirectoryTree doesn't
 
-        paths = map(normalize_path, paths)
+        paths = list(map(normalize_path, paths))
 
-        def select(model, path, iter_, (paths, first)):
+        def select(model, path, iter_, xxx_todo_changeme):
+            (paths, first) = xxx_todo_changeme
             value = model.get_value(iter_)
             if value is None:
                 return not bool(paths)
@@ -198,11 +199,11 @@ class FileSystem(Browser, Gtk.HBox):
         return menu
 
     def __add_songs(self, item, songs):
-        songs = filter(self.__library.__contains__, songs)
+        songs = list(filter(self.__library.__contains__, songs))
         self.__library.librarian.move(songs, self.__library, self.__glibrary)
 
     def __remove_songs(self, songs):
-        songs = filter(self.__glibrary.__contains__, songs)
+        songs = list(filter(self.__glibrary.__contains__, songs))
         self.__library.librarian.move(songs, self.__glibrary, self.__library)
 
     def __find_songs(self, selection):

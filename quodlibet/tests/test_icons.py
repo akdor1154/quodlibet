@@ -17,4 +17,4 @@ class TIconTheme(TestCase):
         theme.append_search_path(quodlibet.get_image_dir())
 
         for i in ["quodlibet", "exfalso", "quodlibet-missing-cover"]:
-            self.failUnless(theme.has_icon(i))
+            self.assertTrue(theme.has_icon(i))

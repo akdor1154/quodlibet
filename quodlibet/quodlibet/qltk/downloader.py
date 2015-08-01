@@ -6,7 +6,7 @@
 # published by the Free Software Foundation
 
 import os
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from gi.repository import Gtk, Pango, GLib
 
@@ -89,7 +89,7 @@ class DownloadWindow(qltk.UniqueWindow):
         selection = view.get_selection()
         model, paths = selection.get_selected_rows()
         if model:
-            iters = map(model.get_iter, paths)
+            iters = list(map(model.get_iter, paths))
             menu = Gtk.Menu()
             item = MenuItem(_("_Stop"), Icons.PROCESS_STOP)
             connect_obj(item, 'activate', self.__stop_download, iters)
@@ -99,13 +99,13 @@ class DownloadWindow(qltk.UniqueWindow):
             return view.popup_menu(menu, 0, Gtk.get_current_event_time())
 
     def __start_next(self):
-        started = len(filter(lambda row: row[2] != 0, self.downloads))
+        started = len([row for row in self.downloads if row[2] != 0])
         iter = self.downloads.get_iter_first()
         while iter is not None:
             if started >= 2:
                 break
             if self.downloads[iter][2] == 0:
-                url = urllib.urlopen(self.downloads[iter][3])
+                url = urllib.request.urlopen(self.downloads[iter][3])
                 sock = url.fp._sock
                 sock.setblocking(0)
                 self.downloads[iter][0] = sock

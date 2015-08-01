@@ -66,7 +66,7 @@ def parse_id666(data):
     else:
         tags["artist"] = data[130:162]
 
-    for k in tags.keys():
+    for k in list(tags.keys()):
         if k[:2] == "~#":
             continue
         tags[k] = tags[k].replace("\x00", "").decode("ascii", "ignore")

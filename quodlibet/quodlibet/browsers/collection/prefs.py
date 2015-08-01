@@ -132,7 +132,7 @@ class PatternEditor(Gtk.HBox):
 
     @property
     def headers(self):
-        for button in self.__headers.iterkeys():
+        for button in self.__headers.keys():
             if button.get_active():
                 if button == self.__custom:
                     model_headers = [(row[0], row[1]) for row in self.__model]
@@ -141,7 +141,7 @@ class PatternEditor(Gtk.HBox):
 
     @headers.setter
     def headers(self, new_headers):
-        for button, headers in self.__headers.iteritems():
+        for button, headers in self.__headers.items():
             if headers == new_headers:
                 button.set_active(True)
                 button.emit("toggled")

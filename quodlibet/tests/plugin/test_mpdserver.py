@@ -34,7 +34,7 @@ class TMPDServer(PluginTestCase):
             parse("foo\t bar \"q 2\" x"), ("foo", ["bar", "q 2", "x"]))
         self.assertEqual(parse("foo 'bar  quux'"), ("foo", ["'bar", "quux'"]))
         self.assertEqual(
-            parse("foo \xc3\xb6\xc3\xa4\xc3\xbc"), ("foo", [u"\xf6\xe4\xfc"]))
+            parse("foo \xc3\xb6\xc3\xa4\xc3\xbc"), ("foo", ["\xf6\xe4\xfc"]))
 
     def test_format_tags(self):
         format_tags = self.mod.main.format_tags

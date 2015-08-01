@@ -139,7 +139,7 @@ class TPot(TestCase):
         for entry in self.pot:
             self.assertFalse(
                 "..." in entry.msgid,
-                msg=u"%s should use '…' (ELLIPSIS) instead of '...'" % entry)
+                msg="%s should use '…' (ELLIPSIS) instead of '...'" % entry)
 
     def test_markup(self):
         # https://wiki.gnome.org/Initiatives/GnomeGoals/RemoveMarkupInMessages
@@ -217,7 +217,7 @@ class PO(AbstractTestCase):
         if not iscommand("msgfmt"):
             return
 
-        self.failIf(os.system("msgfmt -c po/%s.po > /dev/null" % self.lang))
+        self.assertFalse(os.system("msgfmt -c po/%s.po > /dev/null" % self.lang))
         try:
             os.unlink("messages.mo")
         except OSError:
@@ -227,7 +227,7 @@ class PO(AbstractTestCase):
         for line in open(os.path.join(PODIR, "%s.po" % self.lang), "rb"):
             if line.strip().startswith("#"):
                 continue
-            self.failIf("\xc2\xb7" in line,
+            self.assertFalse("\xc2\xb7" in line,
                         "Broken GTranslator copy/paste in %s:\n%s" % (
                 self.lang, line))
 
@@ -236,7 +236,7 @@ class PO(AbstractTestCase):
             if line.strip().startswith('msgstr "gtk-'):
                 parts = line.strip().split()
                 value = parts[1].strip('"')[4:]
-                self.failIf(value and value not in [
+                self.assertFalse(value and value not in [
                     'media-next', 'media-previous', 'media-play',
                     'media-pause'],
                             "Invalid stock translation in %s\n%s" % (
@@ -282,7 +282,7 @@ class PO(AbstractTestCase):
             # Possible endings for the strings. Make sure to put longer
             # endings before shorter ones, for example: '...', '.'
             # otherwise this pair: 'a...', 'b..' will pass the test.
-            ends = [(':', u'：'), u'…', '...', ('.', u'。'), ' ']
+            ends = [(':', '：'), '…', '...', ('.', '。'), ' ']
 
             # First find the appropriate ending of msgid
             for end in ends:

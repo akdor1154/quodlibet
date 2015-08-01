@@ -140,7 +140,7 @@ class DuplicateSongsView(RCMHintedTreeView):
             'added': self._added,
             'changed': self._changed
         }
-        for (sig, callback) in SIGNAL_MAP.items():
+        for (sig, callback) in list(SIGNAL_MAP.items()):
             print_d("Listening to library.%s signals" % sig)
             connect_destroy(app.library, sig, callback)
 
@@ -432,8 +432,7 @@ class Duplicates(SongsMenuPlugin, PluginConfigMixin):
 
     @staticmethod
     def remove_accents(s):
-        return filter(lambda c: not unicodedata.combining(c),
-                      unicodedata.normalize('NFKD', unicode(s)))
+        return [c for c in unicodedata.normalize('NFKD', str(s)) if not unicodedata.combining(c)]
 
     @classmethod
     def get_key(cls, song):
@@ -469,7 +468,7 @@ class Duplicates(SongsMenuPlugin, PluginConfigMixin):
                 groups[key].add(song)
 
         # Now display the grouped duplicates
-        for (key, children) in groups.items():
+        for (key, children) in list(groups.items()):
             if len(children) < self.MIN_GROUP_SIZE:
                 continue
             # The parent (group) label

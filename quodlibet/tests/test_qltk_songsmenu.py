@@ -19,14 +19,14 @@ class TSongsMenu(TestCase):
         self.songs = [AudioFile({"title": x}) for x in
                       ["song1", "song2", "song3"]]
         for song in self.songs:
-            song.sanitize(fsnative(unicode(song["title"])))
+            song.sanitize(fsnative(str(song["title"])))
 
     def test_empty(self):
         self.menu = SongsMenu(self.library, self.songs, plugins=False,
                               playlists=False, queue=False, devices=False,
                               remove=False, delete=False, edit=False,
                               ratings=False)
-        self.failUnlessEqual(0, len(self.menu))
+        self.assertEqual(0, len(self.menu))
 
     def test_simple(self):
         self.menu = SongsMenu(self.library, self.songs, plugins=False)
@@ -36,32 +36,32 @@ class TSongsMenu(TestCase):
             self.library, self.songs, plugins=False, playlists=True,
             queue=False, devices=False, remove=False, delete=False, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failUnless(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertTrue(self.menu.get_children()[0].props.sensitive)
 
         self.songs[0].can_add = False
         self.menu = SongsMenu(
             self.library, self.songs, plugins=False, playlists=True,
             queue=False, devices=False, remove=False, delete=False, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failIf(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertFalse(self.menu.get_children()[0].props.sensitive)
 
     def test_queue(self):
         self.menu = SongsMenu(
             self.library, self.songs, plugins=False, playlists=False,
             queue=True, devices=False, remove=False, delete=False, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failUnless(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertTrue(self.menu.get_children()[0].props.sensitive)
 
         self.songs[0].can_add = False
         self.menu = SongsMenu(
             self.library, self.songs, plugins=False, playlists=False,
             queue=True, devices=False, remove=False, delete=False, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failIf(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertFalse(self.menu.get_children()[0].props.sensitive)
 
     def test_devices(self):
         self.menu = SongsMenu(
@@ -70,17 +70,17 @@ class TSongsMenu(TestCase):
             ratings=False)
         from quodlibet import browsers
         if browsers.media.MediaDevices in browsers.browsers:
-            self.failUnlessEqual(1, len(self.menu))
+            self.assertEqual(1, len(self.menu))
         else:
-            self.failUnlessEqual(0, len(self.menu))
+            self.assertEqual(0, len(self.menu))
 
     def test_remove(self):
         self.menu = SongsMenu(
             self.library, self.songs, plugins=False, playlists=False,
             queue=False, devices=False, remove=True, delete=False, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failIf(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertFalse(self.menu.get_children()[0].props.sensitive)
 
     def test_remove_sensitive(self):
         self.library.add(self.songs)
@@ -88,24 +88,24 @@ class TSongsMenu(TestCase):
             self.library, self.songs, plugins=False, playlists=False,
             queue=False, devices=False, remove=True, delete=False, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failUnless(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertTrue(self.menu.get_children()[0].props.sensitive)
 
     def test_delete(self):
         self.menu = SongsMenu(
             self.library, self.songs, plugins=False, playlists=False,
             queue=False, devices=False, remove=False, delete=True, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failUnless(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertTrue(self.menu.get_children()[0].props.sensitive)
 
         self.songs[0].is_file = False
         self.menu = SongsMenu(
             self.library, self.songs, plugins=False, playlists=False,
             queue=False, devices=False, remove=False, delete=True, edit=False,
             ratings=False)
-        self.failUnlessEqual(1, len(self.menu))
-        self.failIf(self.menu.get_children()[0].props.sensitive)
+        self.assertEqual(1, len(self.menu))
+        self.assertFalse(self.menu.get_children()[0].props.sensitive)
 
     def tearDown(self):
         self.device.destroy()

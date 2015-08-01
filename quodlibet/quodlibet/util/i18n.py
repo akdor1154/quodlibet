@@ -7,7 +7,7 @@
 
 import os
 import sys
-import __builtin__
+import builtins
 import gettext
 import locale
 
@@ -63,9 +63,9 @@ def set_i18n_envvars():
     if os.name == "nt":
         import ctypes
         k32 = ctypes.windll.kernel32
-        langs = filter(None, map(locale.windows_locale.get,
+        langs = [_f for _f in map(locale.windows_locale.get,
                                  [k32.GetUserDefaultUILanguage(),
-                                  k32.GetSystemDefaultUILanguage()]))
+                                  k32.GetSystemDefaultUILanguage()]) if _f]
         if langs:
             os.environ.setdefault('LANG', langs[0])
             os.environ.setdefault('LANGUAGE', ":".join(langs))
@@ -77,7 +77,7 @@ def set_i18n_envvars():
 
         preferred_langs = NSLocale.preferredLanguages()
         if preferred_langs:
-            languages = map(bcp47_to_language, preferred_langs)
+            languages = list(map(bcp47_to_language, preferred_langs))
             os.environ.setdefault('LANGUAGE', ":".join(languages))
     else:
         return
@@ -128,26 +128,26 @@ class GlibTranslations(gettext.GNUTranslations):
         self.plural = lambda n: n != 1
         gettext.GNUTranslations.__init__(self, fp)
 
-    def ugettext(self, message):
+    def gettext(self, message):
         # force unicode here since __contains__ (used in gettext) ignores
         # our changed defaultencoding for coercion, so utf-8 encoded strings
         # fail at lookup.
-        message = unicode(message)
-        return unicode(gettext.GNUTranslations.ugettext(self, message))
+        message = str(message)
+        return str(gettext.GNUTranslations.gettext(self, message))
 
-    def ungettext(self, msgid1, msgid2, n):
+    def ngettext(self, msgid1, msgid2, n):
         # see ugettext
-        msgid1 = unicode(msgid1)
-        msgid2 = unicode(msgid2)
-        return unicode(
-            gettext.GNUTranslations.ungettext(self, msgid1, msgid2, n))
+        msgid1 = str(msgid1)
+        msgid2 = str(msgid2)
+        return str(
+            gettext.GNUTranslations.ngettext(self, msgid1, msgid2, n))
 
     def unpgettext(self, context, msgid, msgidplural, n):
-        context = unicode(context)
-        msgid = unicode(msgid)
-        msgidplural = unicode(msgidplural)
-        real_msgid = u"%s\x04%s" % (context, msgid)
-        real_msgidplural = u"%s\x04%s" % (context, msgidplural)
+        context = str(context)
+        msgid = str(msgid)
+        msgidplural = str(msgidplural)
+        real_msgid = "%s\x04%s" % (context, msgid)
+        real_msgidplural = "%s\x04%s" % (context, msgidplural)
         result = self.ngettext(real_msgid, real_msgidplural, n)
         if result == real_msgid:
             return msgid
@@ -156,16 +156,16 @@ class GlibTranslations(gettext.GNUTranslations):
         return result
 
     def upgettext(self, context, msgid):
-        context = unicode(context)
-        msgid = unicode(msgid)
-        real_msgid = u"%s\x04%s" % (context, msgid)
-        result = self.ugettext(real_msgid)
+        context = str(context)
+        msgid = str(msgid)
+        real_msgid = "%s\x04%s" % (context, msgid)
+        result = self.gettext(real_msgid)
         if result == real_msgid:
             return msgid
         return result
 
-    def install(self, unicode=False, debug_text=None):
-        if not unicode:
+    def install(self, str=False, debug_text=None):
+        if not str:
             raise NotImplementedError
 
         if debug_text is not None:
@@ -177,8 +177,8 @@ class GlibTranslations(gettext.GNUTranslations):
             def wrap(f):
                 return f
 
-        __builtin__.__dict__["_"] = wrap(self.ugettext)
-        __builtin__.__dict__["N_"] = wrap(type(u""))
-        __builtin__.__dict__["C_"] = wrap(self.upgettext)
-        __builtin__.__dict__["ngettext"] = wrap(self.ungettext)
-        __builtin__.__dict__["npgettext"] = wrap(self.unpgettext)
+        builtins.__dict__["_"] = wrap(self.gettext)
+        builtins.__dict__["N_"] = wrap(type(""))
+        builtins.__dict__["C_"] = wrap(self.upgettext)
+        builtins.__dict__["ngettext"] = wrap(self.ngettext)
+        builtins.__dict__["npgettext"] = wrap(self.unpgettext)

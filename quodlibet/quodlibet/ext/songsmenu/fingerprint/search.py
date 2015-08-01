@@ -77,11 +77,11 @@ class SearchEntry(object):
         # To reduce chaotic results with half tagged albums, delete
         # all tags for which we could have written values, but don't
         # or the value would be empty
-        for key, value in self.release.tags.items():
+        for key, value in list(self.release.tags.items()):
             if not write_musicbrainz and key.startswith("musicbrainz_"):
-                value = u""
+                value = ""
             if not write_album and key not in non_album_tags:
-                value = u""
+                value = ""
 
             if not value:
                 self.song.pop(key, None)
@@ -201,7 +201,7 @@ class ResultView(AllTreeView):
         self.set_fixed_height_mode(True)
 
     def __button_press(self, view, event, edit_column):
-        x, y = map(int, [event.x, event.y])
+        x, y = list(map(int, [event.x, event.y]))
         try:
             path, col, cellx, celly = view.get_path_at_pos(x, y)
         except TypeError:

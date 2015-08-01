@@ -97,7 +97,7 @@ class PreferencesWindow(UniqueWindow):
             others.set_sensitive(False)
             # Stock edit doesn't have ellipsis chars.
             edit_button = Gtk.Button(
-                label=_(u"_Edit…"), use_underline=True)
+                label=_("_Edit…"), use_underline=True)
             edit_button.connect("clicked", self.__config_cols)
             edit_button.set_tooltip_text(_("Add or remove additional column "
                                            "headers"))
@@ -577,7 +577,7 @@ class PreferencesWindow(UniqueWindow):
             config.set(section, name, str(entry.get_value()))
             print_d("Signalling \"changed\" to entire library. Hold tight...")
             # Cache over clicks
-            self._songs = self._songs or app.library.values()
+            self._songs = self._songs or list(app.library.values())
             copool.add(emit_signal, self._songs, funcid="library changed",
                        name=_("Updating for new ratings"))
 

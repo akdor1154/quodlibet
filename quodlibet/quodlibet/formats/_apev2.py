@@ -84,7 +84,7 @@ class APEv2File(AudioFile):
              "original artist": "originalartist",
              "mixartist": "remixer",
     }
-    SNART = dict([(v, k) for k, v in TRANS.iteritems()])
+    SNART = dict([(v, k) for k, v in TRANS.items()])
 
     can_change_images = True
 
@@ -96,7 +96,7 @@ class APEv2File(AudioFile):
                 tag = mutagen.apev2.APEv2(filename)
             except mutagen.apev2.APENoHeaderError:
                 tag = {}
-        for key, value in tag.items():
+        for key, value in list(tag.items()):
             if get_cover_type(key, value) is not None:
                 self.has_images = True
 
@@ -130,7 +130,7 @@ class APEv2File(AudioFile):
             tag = mutagen.apev2.APEv2()
 
         # Remove any text keys we read in
-        for key in tag.iterkeys():
+        for key in tag.keys():
             value = tag[key]
             if (value.kind == mutagen.apev2.TEXT and
                 key.lower() not in self.IGNORE):
@@ -155,7 +155,7 @@ class APEv2File(AudioFile):
             return
 
         primary = None
-        for key, value in tag.iteritems():
+        for key, value in tag.items():
             cover_type = get_cover_type(key, value)
             if cover_type is not None:
                 primary = primary or (key, value)
@@ -172,7 +172,7 @@ class APEv2File(AudioFile):
             return []
 
         images = []
-        for key, value in tag.iteritems():
+        for key, value in tag.items():
             image = parse_cover(key, value)
             if image is not None:
                 images.append(image)
@@ -186,7 +186,7 @@ class APEv2File(AudioFile):
         except mutagen.apev2.APENoHeaderError:
             return
 
-        for key, value in tag.items():
+        for key, value in list(tag.items()):
             cover_type = get_cover_type(key, value)
             if cover_type is not None:
                 del tag[key]
@@ -200,7 +200,7 @@ class APEv2File(AudioFile):
         except mutagen.apev2.APENoHeaderError:
             tag = mutagen.apev2.APEv2()
 
-        for key, value in tag.items():
+        for key, value in list(tag.items()):
             cover_type = get_cover_type(key, value)
             if cover_type is not None:
                 del tag[key]

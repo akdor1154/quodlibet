@@ -35,10 +35,10 @@ def split_scan_dirs(s):
     """Split the value of the "scan" setting, accounting for drive letters on
     win32."""
     if sys.platform == "win32":
-        return filter(None, re.findall(r"[a-zA-Z]:[\\/][^:]*", s))
+        return [_f for _f in re.findall(r"[a-zA-Z]:[\\/][^:]*", s) if _f]
     else:
         # See Issue 1413 - allow escaped colons
-        return filter(None, split_escape(s, ":"))
+        return [_f for _f in split_escape(s, ":") if _f]
 
 
 def get_scan_dirs():
@@ -48,9 +48,9 @@ def get_scan_dirs():
 
 def set_scan_dirs(dirs):
     if sys.platform == "win32":
-        joined = fsnative(u":").join(dirs)
+        joined = fsnative(":").join(dirs)
     else:
-        joined = join_escape(dirs, fsnative(u":"))
+        joined = join_escape(dirs, fsnative(":"))
     config.set("settings", "scan", fsnative2bytes(joined))
 
 

@@ -104,7 +104,7 @@ class _UdevListIterator(object):
     def __iter__(self):
         return self
 
-    def next(self):
+    def __next__(self):
         next_ = self.__current.get_next()
         if next_:
             self.__current = next_

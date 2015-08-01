@@ -17,7 +17,7 @@ from quodlibet.util.collection import Playlist
 class PlaylistMenu(Gtk.Menu):
     def __init__(self, songs):
         super(PlaylistMenu, self).__init__()
-        i = Gtk.MenuItem(label=_(u"_New Playlist…"), use_underline=True)
+        i = Gtk.MenuItem(label=_("_New Playlist…"), use_underline=True)
         i.connect('activate', self._on_new_playlist_activate, songs)
         self.append(i)
         self.append(SeparatorMenuItem())
@@ -76,7 +76,7 @@ class ConfirmMultipleSongsAction(qltk.Message):
     """Dialog to ask the user what to do when selecting a playlist
        for multiple songs with a mix of inclusion"""
 
-    ADD, REMOVE = range(2)
+    ADD, REMOVE = list(range(2))
 
     def __init__(self, parent, playlist, songs):
 

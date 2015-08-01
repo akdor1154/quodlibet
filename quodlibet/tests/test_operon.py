@@ -10,7 +10,7 @@ import sys
 import shutil
 
 from tests import TestCase, DATA_DIR, mkstemp
-from helper import capture_output
+from .helper import capture_output
 
 from quodlibet import config
 from quodlibet import util
@@ -23,7 +23,7 @@ def call(args=None):
     with capture_output() as (out, err):
         try:
             return_code = operon_main(["operon.py"] + args)
-        except SystemExit, e:
+        except SystemExit as e:
             return_code = e.code
 
     return (return_code, out.getvalue(), err.getvalue())
@@ -62,9 +62,9 @@ class TOperonBase(TestCase):
 
     def _check(self, args, success, so, se):
         s, o, e = call(args)
-        self.failUnlessEqual(s == 0, success, msg=repr((s, o, e)))
-        self.failUnlessEqual(bool(o), so, msg=repr(o))
-        self.failUnlessEqual(bool(e), se, msg=repr(e))
+        self.assertEqual(s == 0, success, msg=repr((s, o, e)))
+        self.assertEqual(bool(o), so, msg=repr(o))
+        self.assertEqual(bool(e), se, msg=repr(e))
         return o, e
 
 
@@ -102,15 +102,15 @@ class TOperonAdd(TOperonBase):
         self.check_true(["add", "tag", "value", self.f, self.f], False, False)
 
     def test_add_check(self):
-        keys = self.s.keys()
+        keys = list(self.s.keys())
         self.check_true(["add", "foo", "bar", self.f], False, False)
         self.s.reload()
-        self.failUnlessEqual(self.s["foo"], "bar")
-        self.failUnlessEqual(len(keys) + 1, len(self.s.keys()))
+        self.assertEqual(self.s["foo"], "bar")
+        self.assertEqual(len(keys) + 1, len(list(self.s.keys())))
 
         self.check_true(["-v", "add", "foo", "bar2", self.f], False, True)
         self.s.reload()
-        self.failUnlessEqual(set(self.s.list("foo")), {"bar", "bar2"})
+        self.assertEqual(set(self.s.list("foo")), {"bar", "bar2"})
 
     def test_add_backlisted(self):
         self.check_false(["add", "playcount", "bar", self.f], False, True)
@@ -120,11 +120,11 @@ class TOperonAdd(TOperonBase):
             os.chmod(self.f, 0000)
             self.check_false(["add", "foo", "bar", self.f, self.f],
                              False, True)
-            os.chmod(self.f, 0444)
+            os.chmod(self.f, 0o444)
             self.check_false(["add", "foo", "bar", self.f, self.f],
                              False, True)
         finally:
-            os.chmod(self.f, 0666)
+            os.chmod(self.f, 0o666)
 
 
 class TOperonPrint(TOperonBase):
@@ -133,15 +133,15 @@ class TOperonPrint(TOperonBase):
     def test_print(self):
         self.check_false(["print"], False, True)
         o, e = self.check_true(["print", self.f], True, False)
-        self.failUnlessEqual(o.splitlines()[0],
+        self.assertEqual(o.splitlines()[0],
             "piman, jzig - Quod Libet Test Data - 02/10 - Silence")
 
         o, e = self.check_true(["print", "-p", "<title>", self.f], True, False)
-        self.failUnlessEqual(o.splitlines()[0], "Silence")
+        self.assertEqual(o.splitlines()[0], "Silence")
 
         o, e = self.check_true(["print", "-p", "<title>", self.f, self.f],
                                True, False)
-        self.failUnlessEqual(o.splitlines(), ["Silence", "Silence"])
+        self.assertEqual(o.splitlines(), ["Silence", "Silence"])
 
     def test_print_invalid(self):
         # passing a song which can't be loaded results in fail
@@ -178,13 +178,13 @@ class TOperonRemove(TOperonBase):
 
         self.check_true(["remove", "test", "foo", self.f], False, False)
         self.s.reload()
-        self.failUnlessEqual(self.s["test"], "bar")
+        self.assertEqual(self.s["test"], "bar")
 
         self.check_true(["-v", "remove", "test", "xxx", self.f, self.f],
                         False, True)
 
         self.s.reload()
-        self.failUnlessEqual(self.s["test"], "bar")
+        self.assertEqual(self.s["test"], "bar")
 
     def test_dry_run(self):
         self.s["test"] = "foo\nbar\nfoo"
@@ -192,7 +192,7 @@ class TOperonRemove(TOperonBase):
         self.check_true(["remove", "--dry-run", "test", "foo", self.f],
                         False, True)
         self.s.reload()
-        self.failUnlessEqual(len(self.s.list("test")), 3)
+        self.assertEqual(len(self.s.list("test")), 3)
 
     def test_pattern(self):
         self.s["test"] = "fao\nbar\nfoo"
@@ -200,12 +200,12 @@ class TOperonRemove(TOperonBase):
         self.check_true(["remove", "test", "-e", "f[ao]o", self.f],
                         False, False)
         self.s.reload()
-        self.failUnlessEqual(self.s.list("test"), ["bar"])
+        self.assertEqual(self.s.list("test"), ["bar"])
 
         self.check_true(["-v", "remove", "test", "-e", ".*", self.f],
                         False, True)
         self.s.reload()
-        self.failIf(self.s.list("test"))
+        self.assertFalse(self.s.list("test"))
 
 
 class TOperonClear(TOperonBase):
@@ -223,35 +223,35 @@ class TOperonClear(TOperonBase):
     def _test_all(self):
         self.check(["clear", "-a", self.f], True, output=False)
         self.s.reload()
-        self.failIf(self.s.realkeys())
+        self.assertFalse(self.s.realkeys())
         self.check(["clear", "-a", self.f, self.f], True, output=False)
 
     def _test_all_dry_run(self):
         old_len = len(self.s.realkeys())
-        self.failUnless(old_len)
+        self.assertTrue(old_len)
         self.check(["clear", "-a", "--dry-run", self.f], True)
         self.s.reload()
-        self.failUnlessEqual(len(self.s.realkeys()), old_len)
+        self.assertEqual(len(self.s.realkeys()), old_len)
 
     def _test_pattern(self):
         old_len = len(self.s.realkeys())
         self.check(["clear", "-e", "a.*", self.f], True, output=False)
         self.s.reload()
-        self.failUnlessEqual(len(self.s.realkeys()), old_len - 2)
+        self.assertEqual(len(self.s.realkeys()), old_len - 2)
 
     def _test_simple(self):
         old_len = len(self.s.realkeys())
         self.check(["clear", "a.*", self.f], True, output=False)
         self.s.reload()
-        self.failUnlessEqual(len(self.s.realkeys()), old_len)
+        self.assertEqual(len(self.s.realkeys()), old_len)
 
         self.check(["clear", "--dry-run", "artist", self.f], True)
         self.s.reload()
-        self.failUnlessEqual(len(self.s.realkeys()), old_len)
+        self.assertEqual(len(self.s.realkeys()), old_len)
 
         self.check(["clear", "artist", self.f], True, output=False)
         self.s.reload()
-        self.failUnlessEqual(len(self.s.realkeys()), old_len - 1)
+        self.assertEqual(len(self.s.realkeys()), old_len - 1)
 
 
 class TOperonSet(TOperonBase):
@@ -269,17 +269,17 @@ class TOperonSet(TOperonBase):
     def test_simple(self):
         self.check_true(["set", "foo", "bar", self.f], False, False)
         self.s.reload()
-        self.failUnlessEqual(self.s["foo"], "bar")
+        self.assertEqual(self.s["foo"], "bar")
 
         self.check_true(["set", "--dry-run", "foo", "x", self.f], False, False)
         self.s.reload()
-        self.failUnlessEqual(self.s["foo"], "bar")
+        self.assertEqual(self.s["foo"], "bar")
 
     def test_replace(self):
-        self.failIfEqual(self.s["artist"], "foobar")
+        self.assertNotEqual(self.s["artist"], "foobar")
         self.check_true(["set", "artist", "foobar", self.f], False, False)
         self.s.reload()
-        self.failUnlessEqual(self.s["artist"], "foobar")
+        self.assertEqual(self.s["artist"], "foobar")
 
 
 class TOperonCopy(TOperonBase):
@@ -297,10 +297,10 @@ class TOperonCopy(TOperonBase):
             del self.s2[key]
         self.s2.write()
         self.s2.reload()
-        self.failIf(self.s2.realkeys())
+        self.assertFalse(self.s2.realkeys())
         self.check_true(["copy", self.f, self.f2], False, False)
         self.s2.reload()
-        self.failUnless(self.s2.realkeys())
+        self.assertTrue(self.s2.realkeys())
 
     def test_not_changable(self):
         self.s2["rating"] = "foo"
@@ -310,10 +310,10 @@ class TOperonCopy(TOperonBase):
                         False, False)
 
     def test_add(self):
-        self.failUnlessEqual(len(self.s2.list("genre")), 1)
+        self.assertEqual(len(self.s2.list("genre")), 1)
         self.check_true(["copy", self.f, self.f2], False, False)
         self.s2.reload()
-        self.failUnlessEqual(len(self.s2.list("genre")), 2)
+        self.assertEqual(len(self.s2.list("genre")), 2)
 
     def test_dry_run(self):
         for key in self.s2.realkeys():
@@ -322,7 +322,7 @@ class TOperonCopy(TOperonBase):
         self.s2.reload()
         self.check_true(["copy", "--dry-run", self.f, self.f2], False, True)
         self.s2.reload()
-        self.failIf(self.s2.realkeys())
+        self.assertFalse(self.s2.realkeys())
 
 
 class TOperonEdit(TOperonBase):
@@ -334,7 +334,7 @@ class TOperonEdit(TOperonBase):
         self.check_false(["edit", "foo", "bar"], False, True)
 
     def test_nonexist_editor(self):
-        editor = fsnative(u"/this/path/does/not/exist/hopefully")
+        editor = fsnative("/this/path/does/not/exist/hopefully")
         util.environ["VISUAL"] = editor
         e = self.check_false(["edit", self.f], False, True)[1]
         self.assertTrue(editor in e)

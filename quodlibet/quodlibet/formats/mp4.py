@@ -51,13 +51,13 @@ class MP4File(AudioFile):
         "----:com.apple.iTunes:MusicBrainz Album Release Country":
             "releasecountry",
     }
-    __rtranslate = dict([(v, k) for k, v in __translate.iteritems()])
+    __rtranslate = dict([(v, k) for k, v in __translate.items()])
 
     __tupletranslate = {
         "disk": "discnumber",
         "trkn": "tracknumber",
         }
-    __rtupletranslate = dict([(v, k) for k, v in __tupletranslate.iteritems()])
+    __rtupletranslate = dict([(v, k) for k, v in __tupletranslate.items()])
 
     def __init__(self, filename):
         audio = MP4(filename)
@@ -65,21 +65,21 @@ class MP4File(AudioFile):
             self.format, getattr(audio.info, "codec_description", "AAC"))
         self["~#length"] = audio.info.length
         self["~#bitrate"] = int(audio.info.bitrate / 1000)
-        for key, values in audio.items():
+        for key, values in list(audio.items()):
             if key in self.__tupletranslate:
                 name = self.__tupletranslate[key]
                 cur, total = values[0]
                 if total:
-                    self[name] = u"%d/%d" % (cur, total)
+                    self[name] = "%d/%d" % (cur, total)
                 else:
-                    self[name] = unicode(cur)
+                    self[name] = str(cur)
             elif key in self.__translate:
                 name = self.__translate[key]
                 if key == "tmpo":
-                    self[name] = "\n".join(map(unicode, values))
+                    self[name] = "\n".join(map(str, values))
                 elif key.startswith("----"):
                     self[name] = "\n".join(
-                        map(lambda v: decode(v).strip("\x00"), values))
+                        [decode(v).strip("\x00") for v in values])
                 else:
                     self[name] = "\n".join(values)
             elif key == "covr":
@@ -88,7 +88,7 @@ class MP4File(AudioFile):
 
     def write(self):
         audio = MP4(self["~filename"])
-        for key in self.__translate.keys() + self.__tupletranslate.keys():
+        for key in list(self.__translate.keys()) + list(self.__tupletranslate.keys()):
             try:
                 del(audio[key])
             except KeyError:
@@ -101,9 +101,9 @@ class MP4File(AudioFile):
                 continue
             values = self.list(key)
             if name == "tmpo":
-                values = map(int, values)
+                values = list(map(int, values))
             elif name.startswith("----"):
-                values = map(lambda v: v.encode("utf-8"), values)
+                values = [v.encode("utf-8") for v in values]
             audio[name] = values
         track, tracks = self("~#track"), self("~#tracks", 0)
         if track:
@@ -120,7 +120,7 @@ class MP4File(AudioFile):
         return False
 
     def can_change(self, key=None):
-        OK = self.__rtranslate.keys() + self.__rtupletranslate.keys()
+        OK = list(self.__rtranslate.keys()) + list(self.__rtupletranslate.keys())
         if key is None:
             return OK
         else:

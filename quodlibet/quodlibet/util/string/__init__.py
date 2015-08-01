@@ -25,10 +25,13 @@ def isascii(string):
 def decode(s, charset="utf-8"):
     """Decode a string; if an error occurs, replace characters and append
     a note to the string."""
-    try:
-        return s.decode(charset)
-    except UnicodeError:
-        return s.decode(charset, "replace") + " " + _("[Invalid Encoding]")
+    if isinstance(s, str):
+        return s
+    else:
+        try:
+            return s.decode(charset)
+        except UnicodeError:
+            return s.decode(charset, "replace") + " " + _("[Invalid Encoding]")
 
 
 def encode(s, charset="utf-8"):
@@ -53,7 +56,7 @@ def split_escape(string, sep, maxsplit=None, escape_char="\\"):
 
     # don't allow auto decoding of 'string'
     if isinstance(string, bytes):
-        assert not isinstance(sep, unicode)
+        assert not isinstance(sep, str)
 
     if maxsplit is None:
         maxsplit = len(string)
@@ -94,7 +97,7 @@ def join_escape(values, sep, escape_char="\\"):
 
     # don't allow auto decoding of 'values'
     if values and isinstance(values[0], bytes):
-        assert not isinstance(sep, unicode)
+        assert not isinstance(sep, str)
 
     escaped = []
     for value in values:

@@ -70,7 +70,7 @@ class Filter(object):
         library = app.library
         bg = background_filter()
         if bg:
-            songs = filter(bg, library.itervalues())
+            songs = list(filter(bg, iter(library.values())))
             tags = set()
             for song in songs:
                 tags.update(song.list(tag))

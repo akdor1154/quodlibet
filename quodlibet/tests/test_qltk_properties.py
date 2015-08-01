@@ -29,9 +29,9 @@ class DummyPlugins(object):
 
 class TSongProperties(TestCase):
     af1 = AudioFile({"title": "woo"})
-    af1.sanitize(fsnative(u"invalid"))
+    af1.sanitize(fsnative("invalid"))
     af2 = AudioFile({"title": "bar", "album": "quux"})
-    af2.sanitize(fsnative(u"alsoinvalid"))
+    af2.sanitize(fsnative("alsoinvalid"))
 
     def setUp(self):
         SongProperties.plugins = DummyPlugins()

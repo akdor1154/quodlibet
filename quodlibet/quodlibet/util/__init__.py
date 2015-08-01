@@ -13,12 +13,13 @@ import ctypes
 import ctypes.util
 import sys
 import traceback
-import urlparse
+import urllib.parse
 import unicodedata
 import threading
 import subprocess
 import webbrowser
 import contextlib
+from functools import reduce
 
 # Windows doesn't have fcntl, just don't lock for now
 try:
@@ -35,7 +36,6 @@ from quodlibet.util.dprint import print_d, print_
 from .misc import environ, argv, cached_func, get_locale_encoding, \
     get_fs_encoding
 from .environment import *
-
 
 # pyflakes
 environ, argv, cached_func, get_locale_encoding, get_fs_encoding
@@ -86,16 +86,16 @@ class OptionParser(object):
 
     def __shorts(self):
         shorts = ""
-        for short, canon in self.__translate_short.items():
+        for short, canon in list(self.__translate_short.items()):
             shorts += short + (self.__args[canon] and "=" or "")
         return shorts
 
     def __longs(self):
         longs = []
-        for long, arg in self.__args.items():
-            longs.append(long + (arg and "=" or ""))
-        for long, canon in self.__translate_long.items():
-            longs.append(long + (self.__args[canon] and "=" or ""))
+        for int, arg in list(self.__args.items()):
+            longs.append(int + (arg and "=" or ""))
+        for int, canon in list(self.__translate_long.items()):
+            longs.append(int + (self.__args[canon] and "=" or ""))
         return longs
 
     def __format_help(self, opt, space):
@@ -109,7 +109,7 @@ class OptionParser(object):
 
     def help(self):
         l = 0
-        for k in self.__help.keys():
+        for k in list(self.__help.keys()):
             l = max(l, len(k) + len(self.__args.get(k, "")) + 4)
 
         s = _("Usage: %(program)s %(usage)s") % {
@@ -154,7 +154,7 @@ class OptionParser(object):
         from getopt import getopt, GetoptError
         try:
             opts, args = getopt(args, self.__shorts(), self.__longs())
-        except GetoptError, s:
+        except GetoptError as s:
             s = str(s)
             text = []
             if "not recognized" in s:
@@ -358,7 +358,7 @@ def format_time(time):
 def format_time_display(time):
     """Like format_time, but will use RATIO instead of a colon to separate"""
 
-    return format_time(time).replace(":", u"\u2236")
+    return format_time(time).replace(":", "\u2236")
 
 
 def format_time_long(time, limit=2):
@@ -404,7 +404,7 @@ def capitalize(str):
 
 def _split_numeric_sortkey(s, limit=10,
                            reg=re.compile(r"[0-9][0-9]*\.?[0-9]*").search,
-                           join=u" ".join):
+                           join=" ".join):
     """Separate numeric values from the string and convert to float, so
     it can be used for human sorting. Also removes all extra whitespace."""
     result = reg(s)
@@ -419,7 +419,7 @@ def _split_numeric_sortkey(s, limit=10,
 
 
 def human_sort_key(s, normalize=unicodedata.normalize):
-    if not isinstance(s, unicode):
+    if not isinstance(s, str):
         s = s.decode("utf-8")
     s = normalize("NFD", s.lower())
     return s and _split_numeric_sortkey(s)
@@ -476,16 +476,16 @@ def tag(name, cap=True):
         return _("Invalid tag")
     else:
         from quodlibet.util.tags import readable
-        parts = map(readable, tagsplit(name))
+        parts = list(map(readable, tagsplit(name)))
         if cap:
             # Translators: If tag names, when capitalized, should not
             # be title-cased ("Looks Like This"), but rather only have
             # the first letter capitalized, translate this string as
             # something other than "titlecase?".
             if C_("check", "titlecase?") == "titlecase?":
-                parts = map(title, parts)
+                parts = list(map(title, parts))
             else:
-                parts = map(capitalize, parts)
+                parts = list(map(capitalize, parts))
         return " / ".join(parts)
 
 
@@ -545,7 +545,7 @@ def spawn(argv, stdout=False):
 
     from gi.repository import GLib
 
-    types = map(type, argv)
+    types = list(map(type, argv))
     if not (min(types) == max(types) == str):
         raise TypeError("executables and arguments must be str objects")
     print_d("Running %r" % " ".join(argv))
@@ -563,7 +563,7 @@ def fver(tup):
 
 
 def uri_is_valid(uri):
-    return bool(urlparse.urlparse(uri)[0])
+    return bool(urllib.parse.urlparse(uri)[0])
 
 
 def make_case_insensitive(filename):
@@ -625,7 +625,7 @@ class DeferredSignal(object):
 
     @property
     def im_self(self):
-        return self.func.im_self
+        return self.func.__self__
 
     @property
     def __code__(self):
@@ -689,8 +689,8 @@ def _connect_destroy(sender, func, detailed_signal, handler, *args, **kwargs):
     to the bound method and the bound to object doesn't get GCed.
     """
 
-    if hasattr(handler, "im_self"):
-        obj = handler.im_self
+    if hasattr(handler, "__self__"):
+        obj = handler.__self__
     else:
         # XXX: get the "self" var of the enclosing scope.
         # Used for nested functions which ref the object but aren't methods.
@@ -743,23 +743,23 @@ def sanitize_tags(tags, stream=False):
     """
 
     san = {}
-    for key, value in tags.iteritems():
+    for key, value in tags.items():
         key = key.lower()
         key = {"location": "website"}.get(key, key)
 
-        if isinstance(value, unicode):
+        if isinstance(value, str):
             lower = value.lower().strip()
 
             if key == "channel-mode":
                 if "stereo" in lower or "dual" in lower:
-                    value = u"stereo"
+                    value = "stereo"
             elif key == "audio-codec":
                 if "mp3" in lower:
-                    value = u"MP3"
+                    value = "MP3"
                 elif "aac" in lower or "advanced" in lower:
-                    value = u"MPEG-4 AAC"
+                    value = "MPEG-4 AAC"
                 elif "vorbis" in lower:
-                    value = u"Ogg Vorbis"
+                    value = "Ogg Vorbis"
 
             if lower in ("http://www.shoutcast.com", "http://localhost/",
                          "default genre", "none", "http://", "unnamed server",
@@ -768,7 +768,7 @@ def sanitize_tags(tags, stream=False):
 
         if key == "duration":
             try:
-                value = int(long(value) / 1000)
+                value = int(int(value) / 1000)
             except ValueError:
                 pass
             else:
@@ -801,7 +801,7 @@ def sanitize_tags(tags, stream=False):
         if not stream and key in ("title", "album", "artist", "date"):
             continue
 
-        if isinstance(value, (int, long, float)):
+        if isinstance(value, (int, float)):
             if not key.startswith("~#"):
                 key = "~#" + key
             san[key] = value
@@ -809,7 +809,7 @@ def sanitize_tags(tags, stream=False):
             if key.startswith("~#"):
                 key = key[2:]
 
-            if not isinstance(value, unicode):
+            if not isinstance(value, str):
                 continue
 
             value = value.strip()
@@ -832,12 +832,12 @@ def build_filter_query(key, values):
     """
 
     if not values:
-        return u""
+        return ""
     if key.startswith("~#"):
         nheader = key[2:]
         queries = ["#(%s = %s)" % (nheader, i) for i in values]
         if len(queries) > 1:
-            return u"|(%s)" % ", ".join(queries)
+            return "|(%s)" % ", ".join(queries)
         else:
             return queries[0]
     else:
@@ -845,9 +845,9 @@ def build_filter_query(key, values):
             ["'%s'c" % v.replace("\\", "\\\\").replace("'", "\\'")
              for v in values])
         if len(values) == 1:
-            return u"%s = %s" % (key, text)
+            return "%s = %s" % (key, text)
         else:
-            return u"%s = |(%s)" % (key, text)
+            return "%s = |(%s)" % (key, text)
 
 
 def limit_songs(songs, max, weight_by_ratings=False):
@@ -909,7 +909,7 @@ def atomic_save(filename, suffix, mode):
     assert is_fsnative(filename)
 
     temp_filename = filename + suffix
-    fileobj = open(temp_filename, "wb")
+    fileobj = open(temp_filename, mode)
     try:
         if fcntl is not None:
             fcntl.flock(fileobj.fileno(), fcntl.LOCK_EX)
@@ -1119,7 +1119,7 @@ def enum(cls):
     new_type.__module__ = cls.__module__
 
     map_ = {}
-    for key, value in d.iteritems():
+    for key, value in d.items():
         if key.upper() == key and isinstance(value, type_):
             value_instance = new_type(value)
             setattr(new_type, key, value_instance)
@@ -1176,4 +1176,4 @@ def reraise(tp, value, tb=None):
 
     if tb is None:
         tb = sys.exc_info()[2]
-    raise tp, value, tb
+    raise tp(value).with_traceback(tb)

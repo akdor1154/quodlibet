@@ -10,7 +10,7 @@ import os
 import pickle
 
 from tests import TestCase, DATA_DIR
-from helper import capture_output, temp_filename
+from .helper import capture_output, temp_filename
 
 from quodlibet import formats
 from quodlibet.formats import AudioFile
@@ -25,31 +25,31 @@ class TFormats(TestCase):
         config.quit()
 
     def test_presence(self):
-        self.failUnless(formats.aac)
-        self.failUnless(formats.midi)
-        self.failUnless(formats.mod)
-        self.failUnless(formats.monkeysaudio)
-        self.failUnless(formats.mp3)
-        self.failUnless(formats.mp4)
-        self.failUnless(formats.mpc)
-        self.failUnless(formats.spc)
-        self.failUnless(formats.trueaudio)
-        self.failUnless(formats.vgm)
-        self.failUnless(formats.wav)
-        self.failUnless(formats.wavpack)
-        self.failUnless(formats.wma)
-        self.failUnless(formats.xiph)
+        self.assertTrue(formats.aac)
+        self.assertTrue(formats.midi)
+        self.assertTrue(formats.mod)
+        self.assertTrue(formats.monkeysaudio)
+        self.assertTrue(formats.mp3)
+        self.assertTrue(formats.mp4)
+        self.assertTrue(formats.mpc)
+        self.assertTrue(formats.spc)
+        self.assertTrue(formats.trueaudio)
+        self.assertTrue(formats.vgm)
+        self.assertTrue(formats.wav)
+        self.assertTrue(formats.wavpack)
+        self.assertTrue(formats.wma)
+        self.assertTrue(formats.xiph)
 
     def test_infos(self):
-        self.failUnless(formats._infos[".mp3"] is formats.mp3.MP3File)
+        self.assertTrue(formats._infos[".mp3"] is formats.mp3.MP3File)
 
     def test_migration(self):
-        self.failUnless(formats.mp3 is sys.modules["quodlibet.formats.mp3"])
-        self.failUnless(formats.mp3 is sys.modules["quodlibet/formats/mp3"])
-        self.failUnless(formats.mp3 is sys.modules["formats.mp3"])
+        self.assertTrue(formats.mp3 is sys.modules["quodlibet.formats.mp3"])
+        self.assertTrue(formats.mp3 is sys.modules["quodlibet/formats/mp3"])
+        self.assertTrue(formats.mp3 is sys.modules["formats.mp3"])
 
-        self.failUnless(formats.xiph is sys.modules["formats.flac"])
-        self.failUnless(formats.xiph is sys.modules["formats.oggvorbis"])
+        self.assertTrue(formats.xiph is sys.modules["formats.flac"])
+        self.assertTrue(formats.xiph is sys.modules["formats.oggvorbis"])
 
     def test_filter(self):
         self.assertTrue(formats.filter("foo.mp3"))

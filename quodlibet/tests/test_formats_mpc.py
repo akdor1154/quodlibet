@@ -20,12 +20,12 @@ class TMPCFile(TestCase):
         self.assertAlmostEqual(self.song("~#length"), 0.065306, 3)
 
     def test_bitrate(self):
-        self.failUnlessEqual(self.song("~#bitrate"), 239)
+        self.assertEqual(self.song("~#bitrate"), 239)
 
     def test_invalid(self):
         path = os.path.join(DATA_DIR, 'empty.xm')
-        self.failUnless(os.path.exists(path))
-        self.failUnlessRaises(Exception, MPCFile, path)
+        self.assertTrue(os.path.exists(path))
+        self.assertRaises(Exception, MPCFile, path)
 
 
 class TMPCSV8File(TestCase):
@@ -37,4 +37,4 @@ class TMPCSV8File(TestCase):
         self.assertAlmostEqual(self.song("~#length"), 3.684716, 3)
 
     def test_bitrate(self):
-        self.failUnlessEqual(self.song("~#bitrate"), 1)
+        self.assertEqual(self.song("~#bitrate"), 1)

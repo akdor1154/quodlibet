@@ -24,7 +24,7 @@ class _Routine(object):
             pool.remove(funcid)
             yield False
 
-        self.source_func = wrap(func, funcid, args, kwargs).next
+        self.source_func = wrap(func, funcid, args, kwargs).__next__
 
     @property
     def paused(self):
@@ -111,7 +111,7 @@ class CoPool(object):
     def remove_all(self):
         """Stop all running routines."""
 
-        for funcid in self.__routines.keys():
+        for funcid in list(self.__routines.keys()):
             self.remove(funcid)
 
     def pause(self, funcid):
@@ -124,7 +124,7 @@ class CoPool(object):
     def pause_all(self):
         """Temporarily pause all registered routines."""
 
-        for funcid in self.__routines.keys():
+        for funcid in list(self.__routines.keys()):
             self.pause(funcid)
 
     def resume(self, funcid):

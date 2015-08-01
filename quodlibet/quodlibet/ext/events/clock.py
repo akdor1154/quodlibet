@@ -44,7 +44,7 @@ class Alarm(EventPlugin):
 
     def is_valid_time(time):
         try:
-            hour, minute = map(int, time.split(":"))
+            hour, minute = list(map(int, time.split(":")))
         except:
             return False
         else:
@@ -55,14 +55,14 @@ class Alarm(EventPlugin):
         pass
 
     def _entry_changed(self, entries):
-        self._times = map(ValidatingEntry.get_text, entries)
+        self._times = list(map(ValidatingEntry.get_text, entries))
         config.set("plugins", self._pref_name, " ".join(self._times))
 
     def _ready(self):
         tdata = time.localtime()
         goal = self._times[tdata.tm_wday]
         try:
-            ghour, gminute = map(int, goal.split(":"))
+            ghour, gminute = list(map(int, goal.split(":")))
         except:
             return False
         else:
@@ -72,7 +72,7 @@ class Alarm(EventPlugin):
         if self._enabled:
             if app.player.paused:
                 if app.player.song is None:
-                    app.player.next()
+                    next(app.player)
                 else:
                     app.player.paused = False
         GLib.timeout_add(60000, self._longer_check)

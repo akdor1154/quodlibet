@@ -16,8 +16,7 @@ try:
     import CDDB
 except ImportError as e:
     from quodlibet import plugins
-    raise (plugins.MissingModulePluginException("cddb") if
-           hasattr(plugins, "MissingModulePluginException") else e)
+    raise plugins.MissingModulePluginException("cddb")
 
 from os import path
 from gi.repository import Gtk
@@ -34,7 +33,7 @@ CLIENTINFO = {'client_name': "quodlibet", 'client_version': VERSION}
 
 
 def sumdigits(n):
-    return sum(map(long, str(n)))
+    return sum(map(int, str(n)))
 
 
 def calculate_discid(album):
@@ -89,16 +88,16 @@ def query(category, discid, xcode='utf8:utf8'):
         pass
     try:
         save = file(dump, 'w')
-        keys = info.keys()
+        keys = list(info.keys())
         keys.sort()
         for key in keys:
-            print>>save, "%s=%s" % (key, info[key])
+            print("%s=%s" % (key, info[key]), file=save)
         save.close()
     except EnvironmentError:
         pass
 
     xf, xt = xcode.split(':')
-    for key, value in info.iteritems():
+    for key, value in info.items():
         try:
             value = value.decode('utf-8', 'replace').strip().encode(
                 xf, 'replace').decode(xt, 'replace')
@@ -123,7 +122,8 @@ def query(category, discid, xcode='utf8:utf8'):
     return discinfo, tracktitles
 
 
-def make_info_label((disc, track), album, discid):
+def make_info_label(xxx_todo_changeme, album, discid):
+    (disc, track) = xxx_todo_changeme
     message = []
 
     if 'artist' in disc:
@@ -141,7 +141,7 @@ def make_info_label((disc, track), album, discid):
         message.append('%s:\t<b>%s</b>' % (tag("CDDB ID"), escape(discid)))
 
     message.append('\n<u>%s</u>' % _('Track List'))
-    keys = track.keys()
+    keys = list(track.keys())
     keys.sort()
     for key in keys:
         message.append('    <b>%d.</b> %s' % (key + 1,
@@ -209,12 +209,12 @@ class CDDBLookup(SongsMenuPlugin):
                 try:
                     xf, xt = combo.get_child().get_text().split(':')
                     for row in model:
-                        for show, store in zip(range(0, 3), range(3, 6)):
+                        for show, store in zip(list(range(0, 3)), list(range(3, 6))):
                             row[show] = row[store].encode(
                                 xf, 'replace').decode(xt, 'replace')
                 except:
                     for row in model:
-                        for show, store in zip(range(0, 3), range(3, 6)):
+                        for show, store in zip(list(range(0, 3)), list(range(3, 6))):
                             row[show] = row[store]
                 update_discinfo(box)
 
@@ -233,7 +233,7 @@ class CDDBLookup(SongsMenuPlugin):
             if resp == Gtk.ResponseType.OK:
                 t, c, d, title, cat, discid = model[box.get_active()]
                 (disc, track) = query(cat, discid, xcode=xcode)
-                keys = track.keys()
+                keys = list(track.keys())
                 keys.sort()
                 for key, song in zip(keys, album):
                     if 'artist' in disc:
@@ -258,7 +258,7 @@ class CDDBLookup(SongsMenuPlugin):
             if not albumname:
                 albumname = ngettext('%d track', '%d tracks', n) % n
             ErrorMessage(None, _("CDDB lookup failed (%s)" % stat),
-                    ngettext(u"%(title)s and %(count)d more…",
-                        u"%(title)s and %(count)d more…", n - 1) % {
+                    ngettext("%(title)s and %(count)d more…",
+                        "%(title)s and %(count)d more…", n - 1) % {
                         'title': album[0]('~basename'), 'count':
                         n - 1}).run()

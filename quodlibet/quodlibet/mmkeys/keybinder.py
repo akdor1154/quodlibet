@@ -36,7 +36,7 @@ class KeybinderBackend(MMKeysBackend):
         self._callback = callback
         self._worked = []
 
-        for keystring, action in self._EVENTS.items():
+        for keystring, action in list(self._EVENTS.items()):
             if Keybinder.bind(keystring, self._bind_cb, None):
                 self._worked.append(keystring)
 

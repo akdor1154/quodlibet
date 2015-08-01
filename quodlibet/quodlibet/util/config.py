@@ -10,11 +10,11 @@
 """Simple proxy to a Python ConfigParser."""
 
 import os
-from StringIO import StringIO
+from io import StringIO
 import csv
 
 # We don't need/want variable interpolation.
-from ConfigParser import RawConfigParser as ConfigParser, Error, NoSectionError
+from configparser import RawConfigParser as ConfigParser, Error, NoSectionError
 
 from quodlibet.util import atomic_save, list_unique
 from quodlibet.util.string import join_escape, split_escape
@@ -207,7 +207,7 @@ class Config(object):
             parser = csv.reader(
                 [value], lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
             try:
-                vals = [v.decode('utf-8') for v in parser.next()]
+                vals = [v for v in next(parser)]
             except (csv.Error, ValueError) as e:
                 raise Error(e)
             return vals
@@ -225,7 +225,7 @@ class Config(object):
         """Saves a list of unicode strings using the csv module"""
 
         sw = StringIO()
-        values = [unicode(v).encode('utf-8') for v in values]
+        values = [str(v) for v in values]
         writer = csv.writer(sw, lineterminator='\n', quoting=csv.QUOTE_MINIMAL)
         writer.writerow(values)
         self.set(section, option, sw.getvalue())
@@ -233,7 +233,7 @@ class Config(object):
     def setlist(self, section, option, values, sep=","):
         """Saves a list of str using ',' as a separator and \\ for escaping"""
 
-        values = map(str, values)
+        values = list(map(str, values))
         joined = join_escape(values, sep)
         self.set(section, option, joined)
 
@@ -289,7 +289,7 @@ class Config(object):
             self.add_section("__config__")
             self.set("__config__", "version", self._version)
         try:
-            with atomic_save(filename, ".tmp", "wb") as fileobj:
+            with atomic_save(filename, ".tmp", "wt") as fileobj:
                 self._config.write(fileobj)
         finally:
             if self._loaded_version is not None:

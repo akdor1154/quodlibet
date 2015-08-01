@@ -8,7 +8,7 @@
 import sys
 
 from tests import TestCase
-from helper import capture_output
+from .helper import capture_output
 
 from quodlibet.qltk.debugwindow import ExceptionDialog, MinExceptionDialog
 
@@ -26,4 +26,4 @@ class TExceptionDialog(TestCase):
 class TMinExceptionDialog(TestCase):
 
     def test_main(self):
-        MinExceptionDialog(None, u"foo", u"bar", u"quux\nquux2").destroy()
+        MinExceptionDialog(None, "foo", "bar", "quux\nquux2").destroy()

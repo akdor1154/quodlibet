@@ -67,7 +67,7 @@ class CurrentColumn(SongListColumn):
         self.set_cell_data_func(self._render, self._cdf)
 
     def _format_title(self, tag):
-        return u""
+        return ""
 
     def _cdf(self, column, cell, model, iter_, user_data):
         PLAY = "media-playback-start"
@@ -465,7 +465,7 @@ def ViewBrowser():
     return "\n".join(items)
 
 
-DND_URI_LIST, = range(1)
+DND_URI_LIST, = list(range(1))
 
 
 class QuodLibetWindow(Window, PersistentWindowMixin):
@@ -800,17 +800,17 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
         act = Action(name="Music", label=_("_Music"))
         ag.add_action(act)
 
-        act = Action(name="AddFolders", label=_(u'_Add a Folder…'),
+        act = Action(name="AddFolders", label=_('_Add a Folder…'),
                      icon_name=Icons.LIST_ADD)
         act.connect('activate', self.open_chooser)
         ag.add_action_with_accel(act, "<control>O")
 
-        act = Action(name="AddFiles", label=_(u'_Add a File…'),
+        act = Action(name="AddFiles", label=_('_Add a File…'),
                      icon_name=Icons.LIST_ADD)
         act.connect('activate', self.open_chooser)
         ag.add_action(act)
 
-        act = Action(name="AddLocation", label=_(u'_Add a Location…'),
+        act = Action(name="AddLocation", label=_('_Add a Location…'),
                      icon_name=Icons.LIST_ADD)
         act.connect('activate', self.open_location)
         ag.add_action(act)
@@ -885,7 +885,7 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
                            library.librarian, player)
         ag.add_action_with_accel(act, "<ctrl>D")
 
-        act = Action(name="EditBookmarks", label=_(u"Edit Bookmarks…"))
+        act = Action(name="EditBookmarks", label=_("Edit Bookmarks…"))
         connect_obj(act, 'activate', self.__edit_bookmarks,
                            library.librarian, player)
         ag.add_action_with_accel(act, "<ctrl>B")
@@ -1162,7 +1162,7 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
                 idle_jump_to, song, explicit, priority=GLib.PRIORITY_LOW)
 
     def __next_song(self, *args):
-        app.player.next()
+        next(app.player)
 
     def __previous_song(self, *args):
         app.player.previous()
@@ -1229,7 +1229,7 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
             fns, do_watch = dialog.run()
             dialog.destroy()
             if fns:
-                fns = map(glib2fsnative, fns)
+                fns = list(map(glib2fsnative, fns))
                 # scan them
                 self.last_dir = fns[0]
                 copool.add(self.__library.scan, fns, cofuncid="library",
@@ -1247,7 +1247,7 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
             fns = dialog.run()
             dialog.destroy()
             if fns:
-                fns = map(glib2fsnative, fns)
+                fns = list(map(glib2fsnative, fns))
                 self.last_dir = os.path.dirname(fns[0])
                 for filename in map(os.path.realpath, fns):
                     self.__library.add_filename(filename)
@@ -1281,7 +1281,7 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
         if browser.background:
             bg = background_filter()
             if bg:
-                songs = filter(bg, songs)
+                songs = list(filter(bg, songs))
         self.songlist.set_songs(songs, sorted)
 
         # After the first time the browser activates, which should always

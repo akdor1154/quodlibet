@@ -6,7 +6,7 @@
 # published by the Free Software Foundation
 
 import os
-import urlparse
+import urllib.parse
 import errno
 
 from gi.repository import Gtk, GObject, Gdk, Gio, Pango
@@ -115,7 +115,7 @@ def _get_win_drives():
     """Returns a list of paths for all available drives e.g. ['C:\\']"""
 
     assert os.name == "nt"
-    drives = [letter + u":\\" for letter in u"CDEFGHIJKLMNOPQRSTUVWXYZ"]
+    drives = [letter + ":\\" for letter in "CDEFGHIJKLMNOPQRSTUVWXYZ"]
     return [d for d in drives if os.path.isdir(d)]
 
 
@@ -152,7 +152,7 @@ def get_gtk_bookmarks():
                 if not parts:
                     continue
                 folder_url = parts[0]
-                folders.append(urlparse.urlsplit(folder_url)[2])
+                folders.append(urllib.parse.urlsplit(folder_url)[2])
     except EnvironmentError:
         pass
 
@@ -218,7 +218,7 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
             self.go_to(initial)
 
         menu = Gtk.Menu()
-        m = qltk.MenuItem(_(u"_New Folder…"), Icons.DOCUMENT_NEW)
+        m = qltk.MenuItem(_("_New Folder…"), Icons.DOCUMENT_NEW)
         m.connect('activate', self.__mkdir)
         menu.append(m)
         m = qltk.MenuItem(_("_Delete"), Icons.EDIT_DELETE)
@@ -257,7 +257,7 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
         # Find the top level row which has the largest common
         # path with the path we want to go to
         roots = dict([(p, i) for (i, p) in model.iterrows(None)])
-        head, tail = path_to_go, fsnative(u"")
+        head, tail = path_to_go, fsnative("")
         to_find = []
         while head and head not in roots:
             new_head, tail = os.path.split(head)
@@ -320,7 +320,7 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
         delete = menu.get_children()[1]
         try:
             delete.set_sensitive(len(os.listdir(directory)) == 0)
-        except OSError, err:
+        except OSError as err:
             if err.errno == errno.ENOENT:
                 model.remove(model.get_iter(path))
             return False
@@ -349,7 +349,7 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
 
         try:
             os.makedirs(fullpath)
-        except EnvironmentError, err:
+        except EnvironmentError as err:
             error = "<b>%s</b>: %s" % (err.filename, err.strerror)
             qltk.ErrorMessage(
                 None, _("Unable to create folder"), error).run()
@@ -366,7 +366,7 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
         directory = model[paths[0]][0]
         try:
             os.rmdir(directory)
-        except EnvironmentError, err:
+        except EnvironmentError as err:
             error = "<b>%s</b>: %s" % (err.filename, err.strerror)
             qltk.ErrorMessage(
                 None, _("Unable to delete folder"), error).run()
@@ -392,7 +392,7 @@ class DirectoryTree(RCMHintedTreeView, MultiDragTreeView):
         nchildren = model.iter_n_children(iter_)
         last = model.get_path(iter_)
 
-        for i in xrange(nchildren):
+        for i in range(nchildren):
             child = model.iter_nth_child(iter_, i)
             self.expand_row(model.get_path(child), False)
             last = self.__select_children(child, model, selection)
@@ -580,7 +580,7 @@ class FileSelector(Paned):
         dirs = [dmodel[row][0] for row in rows]
         for dir_ in dirs:
             try:
-                files = filter(self.__filter, listdir(dir_))
+                files = list(filter(self.__filter, listdir(dir_)))
                 for file_ in sorted(files):
                     filename = os.path.join(dir_, file_)
                     if (os.access(filename, os.R_OK) and

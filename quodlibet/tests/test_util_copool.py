@@ -25,23 +25,23 @@ class Tcopool(TestCase):
         copool.add(self.__set_buffer)
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, True)
+        self.assertEqual(self.buffer, True)
         copool.remove(self.__set_buffer)
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, None)
+        self.assertEqual(self.buffer, None)
 
     def test_add_remove_with_funcid(self):
         copool.add(self.__set_buffer, funcid="test")
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, True)
+        self.assertEqual(self.buffer, True)
         copool.remove("test")
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, None)
+        self.assertEqual(self.buffer, None)
 
     def test_pause_resume(self):
         copool.add(self.__set_buffer)
@@ -51,11 +51,11 @@ class Tcopool(TestCase):
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, None)
+        self.assertEqual(self.buffer, None)
         copool.resume(self.__set_buffer)
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, True)
+        self.assertEqual(self.buffer, True)
         copool.remove(self.__set_buffer)
         self.buffer = None
         Gtk.main_iteration_do(False)
@@ -69,12 +69,12 @@ class Tcopool(TestCase):
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, None)
+        self.assertEqual(self.buffer, None)
         copool.resume("test")
         copool.resume("test")
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.assertEquals(self.buffer, True)
+        self.assertEqual(self.buffer, True)
         copool.remove("test")
         self.buffer = None
         Gtk.main_iteration_do(False)
@@ -84,32 +84,32 @@ class Tcopool(TestCase):
         copool.add(self.__set_buffer, funcid="test")
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.failUnless(self.buffer)
+        self.assertTrue(self.buffer)
         copool.pause("test")
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.failIf(self.buffer)
+        self.assertFalse(self.buffer)
         copool.add(self.__set_buffer, funcid="test")
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.failUnless(self.buffer)
+        self.assertTrue(self.buffer)
         copool.pause("test")
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.failIf(self.buffer)
+        self.assertFalse(self.buffer)
 
     def test_pause_all(self):
         copool.add(self.__set_buffer, funcid="test")
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.failUnless(self.buffer)
+        self.assertTrue(self.buffer)
         copool.pause_all()
         self.buffer = None
         Gtk.main_iteration_do(False)
         Gtk.main_iteration_do(False)
-        self.failIf(self.buffer)
+        self.assertFalse(self.buffer)
 
     def test_step(self):
         copool.add(self.__set_buffer, funcid="test")

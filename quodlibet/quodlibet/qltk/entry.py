@@ -248,7 +248,7 @@ class ValidatingEntryMixin(object):
             color = self.VALID
         elif value is False:
             color = self.INVALID
-        elif value and isinstance(value, basestring):
+        elif value and isinstance(value, str):
             color = Gdk.RGBA()
             color.parse(value)
         else:

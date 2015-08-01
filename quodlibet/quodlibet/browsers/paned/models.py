@@ -93,7 +93,7 @@ class AllEntry(BaseEntry):
         super(AllEntry, self).__init__()
 
     def get_count_text(self, config):
-        return u""
+        return ""
 
     def get_text(self, config):
         return True, "<b>%s</b>" % _("All")
@@ -121,7 +121,7 @@ class PaneModel(ObjectStore):
             return self.__key_cache[song]
         except KeyError:
             # We filter out empty values, so Unknown can be ""
-            self.__key_cache[song] = filter(None, self.config.format(song))
+            self.__key_cache[song] = [_f for _f in self.config.format(song) if _f]
             return self.__key_cache[song]
 
     def __human_sort_key(self, text, reg=re.compile('<.*?>')):
@@ -145,7 +145,7 @@ class PaneModel(ObjectStore):
 
         first_path = paths[0]
         if isinstance(self[first_path][0], AllEntry):
-            for entry in self.itervalues():
+            for entry in self.values():
                 s.update(entry.songs)
         else:
             for path in paths:
@@ -215,7 +215,7 @@ class PaneModel(ObjectStore):
                     collection[key] = (entry, human_sort(key))
                     entry.songs.add(song)
 
-        items = sorted(collection.iteritems(),
+        items = sorted(iter(collection.items()),
                        key=lambda s: s[1][1],
                        reverse=True)
 
@@ -315,13 +315,13 @@ class PaneModel(ObjectStore):
         # fast path, use the keys since they are unique and only depend
         # on the tag in question.
         if tag in tags and len(tags) == 1:
-            return set(r.key for r in self.itervalues()
+            return set(r.key for r in self.values()
                        if not isinstance(r, AllEntry))
 
         # For patterns/tied tags we have to make sure that filtering for
         # that key will return only songs that all have the specified value
         values = set()
-        for entry in self.itervalues():
+        for entry in self.values():
             if isinstance(entry, AllEntry):
                 continue
 
@@ -345,10 +345,10 @@ class PaneModel(ObjectStore):
         # Like with self.list we can select all matching keys if the tag
         # is our only tag
         if len(tags) == 1 and tag in tags:
-            return [e.key for e in self.itervalues() if e.key in values]
+            return [e.key for e in self.values() if e.key in values]
 
         keys = []
-        for entry in self.itervalues():
+        for entry in self.values():
             if isinstance(entry, SongsEntry):
                 for value in values:
                     if entry.all_have(tag, value):

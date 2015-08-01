@@ -83,7 +83,7 @@ class ScanBox(Gtk.HBox):
         self.pack_start(sw, True, True, 0)
         self.pack_start(vbox, False, True, 0)
 
-        paths = map(fsdecode, get_scan_dirs())
+        paths = list(map(fsdecode, get_scan_dirs()))
         for path in paths:
             model.append(row=[path])
 

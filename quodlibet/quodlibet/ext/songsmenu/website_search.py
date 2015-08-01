@@ -16,7 +16,7 @@ from quodlibet.qltk import Icons
 from quodlibet.util import website
 from quodlibet.util.tags import USER_TAGS, MACHINE_TAGS
 from quodlibet.util import connect_obj
-from urllib import quote_plus
+from urllib.parse import quote_plus
 
 from gi.repository import Gtk
 import os
@@ -112,7 +112,7 @@ class WebsiteSearch(SongsMenuPlugin):
             connect_obj(item, 'activate', self.__set_site, name)
             submenu.append(item)
         # Add link to editor
-        configure = Gtk.MenuItem(label=_(u"Configure searches…"))
+        configure = Gtk.MenuItem(label=_("Configure searches…"))
         connect_obj(configure, 'activate', self.edit_patterns, configure)
         submenu.append(SeparatorMenuItem())
         submenu.append(configure)
@@ -134,7 +134,7 @@ class WebsiteSearch(SongsMenuPlugin):
                     vals = song.comma(k)
                     if vals:
                         try:
-                            subs[k] = quote_plus(unicode(vals).encode('utf-8'))
+                            subs[k] = quote_plus(str(vals).encode('utf-8'))
                         # Dodgy unicode problems
                         except KeyError:
                             print_d("Problem with %s tag values: %r"

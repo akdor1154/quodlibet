@@ -40,7 +40,7 @@ class PluginErrorWindow(UniqueWindow):
                                Gtk.PolicyType.AUTOMATIC)
         scrolledwin.add_with_viewport(vbox)
 
-        keys = failures.keys()
+        keys = list(failures.keys())
         show_expanded = len(keys) <= 3
         for key in sorted(keys):
             expander = Gtk.Expander(label="<b>%s</b>" % util.escape(key))
@@ -79,7 +79,7 @@ class PluginErrorWindow(UniqueWindow):
 
 
 class ComboType(object):
-    TAG, ALL, NO, DIS, EN, SEP = range(6)
+    TAG, ALL, NO, DIS, EN, SEP = list(range(6))
 
 
 class PluginFilterCombo(Gtk.ComboBox):

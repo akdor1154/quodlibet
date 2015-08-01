@@ -5,7 +5,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-from __future__ import absolute_import
+
 
 import os
 import sys
@@ -45,7 +45,7 @@ def _get_path(folder, default=False, create=False):
     except pywintypes.com_error:
         return
 
-    if not isinstance(path, unicode):
+    if not isinstance(path, str):
         path = path.decode("ascii")
 
     return path
@@ -132,10 +132,10 @@ def _set_windows_env_var(key, value):
     Can raise WindowsEnvironError
     """
 
-    if not isinstance(key, unicode):
+    if not isinstance(key, str):
         raise TypeError
 
-    if not isinstance(value, unicode):
+    if not isinstance(value, str):
         raise TypeError
 
     status = SetEnvironmentVariableW(key, value)
@@ -149,7 +149,7 @@ def _del_windows_env_var(key):
     Can raise WindowsEnvironError
     """
 
-    if not isinstance(key, unicode):
+    if not isinstance(key, str):
         raise TypeError
 
     status = SetEnvironmentVariableW(key, None)
@@ -170,23 +170,23 @@ def _get_windows_environ():
     res = ctypes.cast(res, ctypes.POINTER(ctypes.c_wchar))
 
     done = []
-    current = u""
+    current = ""
     i = 0
     while 1:
         c = res[i]
         i += 1
-        if c == u"\x00":
+        if c == "\x00":
             if not current:
                 break
             done.append(current)
-            current = u""
+            current = ""
             continue
         current += c
 
     dict_ = {}
     for entry in done:
         try:
-            key, value = entry.split(u"=", 1)
+            key, value = entry.split("=", 1)
         except ValueError:
             continue
         dict_[key] = value

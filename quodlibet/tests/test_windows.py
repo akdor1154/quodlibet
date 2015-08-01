@@ -19,50 +19,50 @@ class TWindows(TestCase):
 
     def test_dir_funcs(self):
         d = windows.get_personal_dir()
-        self.assertTrue(d is None or isinstance(d, unicode))
+        self.assertTrue(d is None or isinstance(d, str))
 
         d = windows.get_appdate_dir()
-        self.assertTrue(d is None or isinstance(d, unicode))
+        self.assertTrue(d is None or isinstance(d, str))
 
         d = windows.get_desktop_dir()
-        self.assertTrue(d is None or isinstance(d, unicode))
+        self.assertTrue(d is None or isinstance(d, str))
 
         d = windows.get_music_dir()
-        self.assertTrue(d is None or isinstance(d, unicode))
+        self.assertTrue(d is None or isinstance(d, str))
 
         d = windows.get_profile_dir()
-        self.assertTrue(d is None or isinstance(d, unicode))
+        self.assertTrue(d is None or isinstance(d, str))
 
         d = windows.get_links_dir()
-        self.assertTrue(d is None or isinstance(d, unicode))
+        self.assertTrue(d is None or isinstance(d, str))
 
     def test_get_link_target(self):
         path = os.path.join(DATA_DIR, "test.lnk")
         d = windows.get_link_target(path)
         self.assertEqual(
-            normalize_path(d), normalize_path(u"C:\Windows\explorer.exe"))
-        self.assertTrue(isinstance(d, unicode))
+            normalize_path(d), normalize_path("C:\Windows\explorer.exe"))
+        self.assertTrue(isinstance(d, str))
 
     def test_get_link_target_latin1(self):
         path = os.path.join(DATA_DIR, "test2.lnk")
         d = windows.get_link_target(path)
         # the second char is only not in latin-1
-        self.assertEqual(os.path.basename(d), u"\xe1??.txt")
-        self.assertTrue(isinstance(d, unicode))
+        self.assertEqual(os.path.basename(d), "\xe1??.txt")
+        self.assertTrue(isinstance(d, str))
 
     def test_environ(self):
         env = windows.WindowsEnviron()
         len_ = len(env)
-        env[u"FOO"] = u"bar"
+        env["FOO"] = "bar"
         self.assertEqual(len(env), len_ + 1)
-        self.assertEqual(env.get(u"FOO"), u"bar")
+        self.assertEqual(env.get("FOO"), "bar")
         self.assertTrue("FOO" in repr(env))
         self.assertEqual(len(list(env)), len(env))
-        del env[u"FOO"]
+        del env["FOO"]
 
     def test_environ_ascii(self):
         env = windows.WindowsEnviron()
-        env["FOO"] = u"bar"
+        env["FOO"] = "bar"
         env["FOO"]
         del env["FOO"]
 
@@ -74,4 +74,4 @@ class Tget_win32_unicode_argv(TestCase):
         newargv = windows.get_win32_unicode_argv()
         self.assertEqual(len(sys.argv), len(newargv))
         if newargv:
-            self.assertTrue(isinstance(newargv[0], unicode))
+            self.assertTrue(isinstance(newargv[0], str))

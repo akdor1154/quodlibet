@@ -82,11 +82,6 @@ def _print(string, output, frm="utf-8", strip_color=True, end=os.linesep):
         string = clicolor.strip_color(string)
         can_have_color = False
 
-    if isinstance(string, unicode):
-        string = string.encode(_ENCODING, "replace")
-    else:
-        string = string.decode(frm).encode(_ENCODING, "replace")
-
     try:
         if can_have_color:
             clicolor.print_color(string, output)

@@ -32,7 +32,7 @@ class Node(object):
         raise NotImplementedError
 
     def filter(self, sequence):
-        return filter(self.search, sequence)
+        return list(filter(self.search, sequence))
 
     def _unpack(self):
         return self
@@ -166,7 +166,7 @@ class Numcmp(Node):
     """Numeric comparisons"""
 
     def __init__(self, tag, op, value):
-        if isinstance(tag, unicode):
+        if isinstance(tag, str):
             self.__tag = tag.encode("utf-8")
         else:
             self.__tag = tag
@@ -237,11 +237,11 @@ class Tag(Node):
                 else:
                     val = data.get("~" + name, "")
 
-            if self.res.search(unicode(val)):
+            if self.res.search(str(val)):
                 return True
 
         for name in self.__intern:
-            if self.res.search(unicode(data(name))):
+            if self.res.search(str(data(name))):
                 return True
 
         for name in self.__fs:
@@ -324,7 +324,7 @@ def map_numeric_op(tag, op, value, time_=None):
     # check for time formats: "5:30"
     # TODO: handle "5:30 ago"
     try:
-        hms = map(int, value.split(":"))
+        hms = list(map(int, value.split(":")))
     except ValueError:
         pass
     else:
@@ -340,7 +340,7 @@ def map_numeric_op(tag, op, value, time_=None):
 
     # get the biggest float/int
     max_val = ""
-    for i in xrange(len(value) + 1, 0, -1):
+    for i in range(len(value) + 1, 0, -1):
         part = value[:i]
         try:
             float(part)

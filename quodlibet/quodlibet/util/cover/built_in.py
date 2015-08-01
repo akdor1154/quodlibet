@@ -49,11 +49,9 @@ class FilesystemCover(CoverSourcePlugin):
     cover_positive_words = ["front", "cover", "frontcover", "jacket",
                             "folder", "albumart", "edited"]
     cover_positive_regexes = frozenset(
-        map(lambda s: re.compile(r'(\b|_)' + s + r'(\b|_)'),
-                                 cover_positive_words))
+        [re.compile(r'(\b|_)' + s + r'(\b|_)') for s in cover_positive_words])
     cover_negative_regexes = frozenset(
-        map(lambda s: re.compile(r'(\b|_|)' + s + r'(\b|_)'),
-            ["back", "inlay", "inset", "inside"]))
+        [re.compile(r'(\b|_|)' + s + r'(\b|_)') for s in ["back", "inlay", "inset", "inside"]])
 
     @classmethod
     def group_by(cls, song):

@@ -36,11 +36,11 @@ class MakeSortTags(SongsMenuPlugin):
 
     def plugin_song(self, song):
         for tag in ["album"]:
-            values = filter(None, map(album_to_sort, song.list(tag)))
+            values = [_f for _f in map(album_to_sort, song.list(tag)) if _f]
             if values and (tag + "sort") not in song:
                 song[tag + "sort"] = "\n".join(values)
 
         for tag in ["artist", "albumartist", "performer"]:
-            values = filter(None, map(artist_to_sort, song.list(tag)))
+            values = [_f for _f in map(artist_to_sort, song.list(tag)) if _f]
             if values and (tag + "sort") not in song:
                 song[tag + "sort"] = "\n".join(values)

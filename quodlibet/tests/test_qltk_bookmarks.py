@@ -21,7 +21,7 @@ class TBookmarks(TestCase):
         player = NullPlayer()
         song = AudioFile()
         song.bookmarks = [(10, "bla")]
-        song.sanitize(fsnative(u"/"))
+        song.sanitize(fsnative("/"))
         player.song = song
         self.player = player
 

@@ -87,8 +87,8 @@ class TThumb(TestCase):
         thumb = thumbnails.get_thumbnail(s.filename, (50, 60))
 
         #check for right scaling
-        s.failUnless(thumb)
-        s.failUnlessEqual((thumb.get_width(), thumb.get_height()), (50, 3))
+        s.assertTrue(thumb)
+        s.assertEqual((thumb.get_width(), thumb.get_height()), (50, 3))
 
         #test the thumbnail filename
         uri = "file://" + pathname2url(s.filename)
@@ -97,16 +97,16 @@ class TThumb(TestCase):
         path = thumbnails.get_thumbnail_folder()
         path = os.path.join(path, "normal", name)
 
-        s.failUnless(os.path.isfile(path))
+        s.assertTrue(os.path.isfile(path))
 
         #check for metadata
         thumb_pb = GdkPixbuf.Pixbuf.new_from_file(path)
         meta_mtime = thumb_pb.get_option("tEXt::Thumb::MTime")
         meta_uri = thumb_pb.get_option("tEXt::Thumb::URI")
 
-        s.failUnlessEqual(int(meta_mtime), int(mtime(s.filename)))
-        s.failUnlessEqual(meta_uri, uri)
+        s.assertEqual(int(meta_mtime), int(mtime(s.filename)))
+        s.assertEqual(meta_uri, uri)
 
         #check rights
         if os.name != "nt":
-            s.failUnlessEqual(os.stat(path).st_mode, 33152)
+            s.assertEqual(os.stat(path).st_mode, 33152)

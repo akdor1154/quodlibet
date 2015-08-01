@@ -21,7 +21,7 @@ class TEventPlugins(TestCase):
             librarian=self.lib, player=self.player)
         self.pm.register_handler(self.handler)
         self.pm.rescan()
-        self.assertEquals(self.pm.plugins, [])
+        self.assertEqual(self.pm.plugins, [])
 
     def tearDown(self):
         self.pm.quit()
@@ -56,24 +56,24 @@ class TEventPlugins(TestCase):
     def test_found(self):
         self.create_plugin(name='Name')
         self.pm.rescan()
-        self.assertEquals(len(self.pm.plugins), 1)
+        self.assertEqual(len(self.pm.plugins), 1)
 
     def test_player_paused(self):
         self.create_plugin(name='Name', funcs=["plugin_on_paused"])
         self.pm.rescan()
-        self.assertEquals(len(self.pm.plugins), 1)
+        self.assertEqual(len(self.pm.plugins), 1)
         plugin = self.pm.plugins[0]
         self.pm.enable(plugin, True)
         self.player.emit("paused")
-        self.failUnlessEqual([("plugin_on_paused", tuple())],
+        self.assertEqual([("plugin_on_paused", tuple())],
                              self._get_calls(plugin))
 
     def test_lib_changed(self):
         self.create_plugin(name='Name', funcs=["plugin_on_changed"])
         self.pm.rescan()
-        self.assertEquals(len(self.pm.plugins), 1)
+        self.assertEqual(len(self.pm.plugins), 1)
         plugin = self.pm.plugins[0]
         self.pm.enable(plugin, True)
         self.lib.emit("changed", [None])
-        self.failUnlessEqual([("plugin_on_changed", ([None],))],
+        self.assertEqual([("plugin_on_changed", ([None],))],
                              self._get_calls(plugin))

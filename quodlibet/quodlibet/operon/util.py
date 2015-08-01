@@ -64,7 +64,7 @@ def print_table(rows, headers, nicks, order):
 
     widths = []
     for c in range(len(rows[0])):
-        widths.append(max(map(lambda r: len(r[c]), rows)))
+        widths.append(max([len(r[c]) for r in rows]))
 
     seperator = " %s " % Colorise.gray("|")
     format_string = seperator.join(["%%-%ds" % w for w in widths])

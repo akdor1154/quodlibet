@@ -78,7 +78,7 @@ class test_cmd(Command):
         return Colorise.red(text) if cls.use_colors else text
 
     def run(self):
-        mods = sys.modules.keys()
+        mods = list(sys.modules.keys())
         if "gi" in mods:
             raise SystemExit("E: setup.py shouldn't depend on gi")
 
@@ -151,7 +151,7 @@ class distcheck(sdist):
 
             diff = set(tracked_files) ^ set(included_files)
             if diff:
-                print("#" * 80)
+                print(("#" * 80))
                 print("WARNING: MANFIFEST.in doesn't include all "
                       "tracked files or includes non-tracked files")
                 for path in sorted(diff):
@@ -217,7 +217,7 @@ class coverage_cmd(Command):
     def run(self):
         # Wipe existing modules, to make sure coverage data is properly
         # generated for them.
-        for key in sys.modules.keys():
+        for key in list(sys.modules.keys()):
             if key.startswith('quodlibet'):
                 del(sys.modules[key])
 
@@ -245,7 +245,7 @@ class coverage_cmd(Command):
             ignore_errors=True,
             include=["quodlibet*", "operon*"])
 
-        print("Coverage summary: file://%s/index.html" % dest)
+        print(("Coverage summary: file://%s/index.html" % dest))
 
 
 def recursive_include(base, sub, ext):

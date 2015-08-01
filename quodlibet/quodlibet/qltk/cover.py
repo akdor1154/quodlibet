@@ -259,7 +259,7 @@ class CoverImage(Gtk.EventBox):
     def refresh(self):
         self.set_song(self.__song)
 
-    def __nonzero__(self):
+    def __bool__(self):
         return bool(self.__file)
 
     def __reset_bci(self, bci):

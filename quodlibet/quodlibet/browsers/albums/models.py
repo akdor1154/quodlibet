@@ -18,7 +18,7 @@ class AlbumModelMixin(object):
         except ValueError:
             return values
         else:
-            return [v for v in self.itervalues() if v]
+            return [v for v in self.values() if v]
 
     def get_album(self, iter_):
         return self.get_value(iter_, 0)
@@ -38,7 +38,7 @@ class AlbumModel(ObjectStore, AlbumModelMixin):
         ]
 
         self.append(row=[None])
-        self.append_many(albums.itervalues())
+        self.append_many(iter(albums.values()))
 
     def refresh_all(self):
         """Trigger redraws for all rows"""

@@ -4,7 +4,7 @@ from tests import TestCase, DATA_DIR, mkstemp
 
 import os
 import shutil
-import StringIO
+import io
 
 from quodlibet import config, const
 from quodlibet.formats._image import EmbeddedImage
@@ -27,10 +27,10 @@ class TID3Images(TestCase):
         config.quit()
 
     def test_can_change_images(self):
-        self.failUnless(MP3File(self.filename).can_change_images)
+        self.assertTrue(MP3File(self.filename).can_change_images)
 
     def test_get_primary_image(self):
-        self.failIf(MP3File(self.filename).has_images)
+        self.assertFalse(MP3File(self.filename).has_images)
 
         f = mutagen.File(self.filename)
         apic = mutagen.id3.APIC(encoding=3, mime="image/jpeg", type=4,
@@ -39,11 +39,11 @@ class TID3Images(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnless(song.has_images)
+        self.assertTrue(song.has_images)
         image = song.get_primary_image()
         self.assertEqual(image.mime_type, "image/jpeg")
         fn = image.file
-        self.failUnlessEqual(fn.read(), "bar")
+        self.assertEqual(fn.read(), "bar")
 
         apic = mutagen.id3.APIC(encoding=3, mime="image/jpeg", type=3,
                                 desc="xx", data="bar2")
@@ -51,9 +51,9 @@ class TID3Images(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnless(song.has_images)
+        self.assertTrue(song.has_images)
         image = song.get_primary_image()
-        self.failUnlessEqual(image.file.read(), "bar2")
+        self.assertEqual(image.file.read(), "bar2")
 
         # get_images()
         images = song.get_images()
@@ -69,18 +69,18 @@ class TID3Images(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnless(song.has_images)
+        self.assertTrue(song.has_images)
         song.clear_images()
 
         song = MP3File(self.filename)
         self.assertFalse(song.has_images)
 
     def test_set_image(self):
-        fileobj = StringIO.StringIO("foo")
+        fileobj = io.StringIO("foo")
         image = EmbeddedImage(fileobj, "image/jpeg", 10, 10, 8)
 
         song = MP3File(self.filename)
-        self.failIf(song.has_images)
+        self.assertFalse(song.has_images)
         song.set_image(image)
         self.assertTrue(song.has_images)
 
@@ -92,7 +92,7 @@ class TID3Images(TestCase):
         f = mutagen.File(self.filename)
         f.delete()
         song = MP3File(self.filename)
-        fileobj = StringIO.StringIO("foo")
+        fileobj = io.StringIO("foo")
         image = EmbeddedImage(fileobj, "image/jpeg", 10, 10, 8)
         song.set_image(image)
 
@@ -125,14 +125,14 @@ class TID3File(TestCase):
     def test_TXXX_DATE(self):
         # https://github.com/quodlibet/quodlibet/issues/220
         f = mutagen.File(self.filename)
-        f.tags.add(mutagen.id3.TXXX(encoding=3, desc=u'DATE',
-                                    text=u'2010-01-13'))
-        f.tags.add(mutagen.id3.TDRC(encoding=3, text=u'2010-01-14'))
+        f.tags.add(mutagen.id3.TXXX(encoding=3, desc='DATE',
+                                    text='2010-01-13'))
+        f.tags.add(mutagen.id3.TDRC(encoding=3, text='2010-01-14'))
         f.save()
-        self.assertEquals(MP3File(self.filename)['date'], '2010-01-14')
+        self.assertEqual(MP3File(self.filename)['date'], '2010-01-14')
         f.tags.delall('TDRC')
         f.save()
-        self.assertEquals(MP3File(self.filename)['date'], '2010-01-13')
+        self.assertEqual(MP3File(self.filename)['date'], '2010-01-13')
         f.delete()
         MP3File(self.filename)
 
@@ -141,23 +141,23 @@ class TID3File(TestCase):
         # https://github.com/quodlibet/quodlibet/issues/439
         f = mutagen.File(self.filename)
         try:
-            lang = u'free-text'
+            lang = 'free-text'
             f.tags.add(
-                mutagen.id3.TXXX(encoding=3, desc=u'QuodLibet::language',
+                mutagen.id3.TXXX(encoding=3, desc='QuodLibet::language',
                                  text=lang))
             f.save()
-            self.assertEquals(MP3File(self.filename)['language'], lang)
+            self.assertEqual(MP3File(self.filename)['language'], lang)
         finally:
             f.delete()
 
     def test_lang_read_TLAN(self):
         """Tests reading language from TLAN"""
         f = mutagen.File(self.filename)
-        lang = u'eng'
+        lang = 'eng'
         try:
             f.tags.add(mutagen.id3.TLAN(encoding=3, text=lang))
             f.save()
-            self.assertEquals(MP3File(self.filename)['language'], lang)
+            self.assertEqual(MP3File(self.filename)['language'], lang)
         finally:
             f.delete()
 
@@ -165,12 +165,12 @@ class TID3File(TestCase):
         """Tests reading multiple language from TLAN"""
         f = mutagen.File(self.filename)
         # Include an invalid one; current behaviour is to load anyway
-        lang = u'eng\0der\0fra\0fooooo'
-        exp = u'eng\nder\nfra\nfooooo'
+        lang = 'eng\0der\0fra\0fooooo'
+        exp = 'eng\nder\nfra\nfooooo'
         try:
             f.tags.add(mutagen.id3.TLAN(encoding=3, text=lang))
             f.save()
-            self.assertEquals(MP3File(self.filename)['language'], exp)
+            self.assertEqual(MP3File(self.filename)['language'], exp)
         finally:
             f.delete()
 
@@ -183,23 +183,23 @@ class TID3File(TestCase):
         for val in ["free-text", "foo", "de", "en"]:
             af["language"] = val
             # Just checking...
-            self.failUnlessEqual(af("language"), val)
+            self.assertEqual(af("language"), val)
             af.write()
             tags = mutagen.File(self.filename).tags
-            self.failUnlessEqual(tags[u'TXXX:QuodLibet::language'], val)
-            self.failIf("TLAN" in tags)
+            self.assertEqual(tags['TXXX:QuodLibet::language'], val)
+            self.assertFalse("TLAN" in tags)
 
     def test_write_lang_iso(self):
         """Tests that if you use an ISO 639-2 code, TLAN gets populated"""
         for iso_lang in ['eng', 'ger', 'zho']:
             af = MP3File(self.filename)
             af["language"] = iso_lang
-            self.failUnlessEqual(af("language"), iso_lang)
+            self.assertEqual(af("language"), iso_lang)
             af.write()
             tags = mutagen.File(self.filename).tags
-            self.failIf(u'TXXX:QuodLibet::language' in tags,
+            self.assertFalse('TXXX:QuodLibet::language' in tags,
                     "Should have used TLAN tag for '%s'" % iso_lang)
-            self.failUnlessEqual(tags[u'TLAN'], iso_lang)
+            self.assertEqual(tags['TLAN'], iso_lang)
             af.clear()
 
     def test_write_multiple_lang_iso(self):
@@ -208,12 +208,12 @@ class TID3File(TestCase):
         iso_langs_str = "\n".join(iso_langs)
         af = MP3File(self.filename)
         af["language"] = iso_langs_str
-        self.failUnlessEqual(af("language"), iso_langs_str)
+        self.assertEqual(af("language"), iso_langs_str)
         af.write()
         tags = mutagen.File(self.filename).tags
-        self.failIf(u'TXXX:QuodLibet::language' in tags,
+        self.assertFalse('TXXX:QuodLibet::language' in tags,
                     "Should have used TLAN for %s" % iso_langs)
-        self.failUnlessEqual(tags[u'TLAN'], iso_langs,
+        self.assertEqual(tags['TLAN'], iso_langs,
                 msg="Wrong tags: %s" % tags)
         af.clear()
 
@@ -221,18 +221,18 @@ class TID3File(TestCase):
         f = mutagen.File(self.filename)
         f.tags.add(mutagen.id3.TLEN(encoding=0, text=['20000']))
         f.save()
-        self.failUnlessEqual(MP3File(self.filename)("~#length"), 20)
+        self.assertEqual(MP3File(self.filename)("~#length"), 20)
 
         # ignore <= 0 [issue 222]
         f = mutagen.File(self.filename)
         f.tags.add(mutagen.id3.TLEN(encoding=0, text=['0']))
         f.save()
-        self.failUnless(MP3File(self.filename)("~#length") > 0)
+        self.assertTrue(MP3File(self.filename)("~#length") > 0)
 
         # inval
         f.tags.add(mutagen.id3.TLEN(encoding=0, text=['x']))
         f.save()
-        self.failUnless(MP3File(self.filename)("~#length") > 0)
+        self.assertTrue(MP3File(self.filename)("~#length") > 0)
 
     def test_load_tcon(self):
         # check if the mutagen preprocessing is used
@@ -240,22 +240,22 @@ class TID3File(TestCase):
         f.tags.add(mutagen.id3.TCON(encoding=3, text=["4", "5"]))
         f.save()
         genres = set(MP3File(self.filename).list("genre"))
-        self.failUnlessEqual(genres, {"Funk", "Disco"})
+        self.assertEqual(genres, {"Funk", "Disco"})
 
     def test_mb_track_id(self):
         f = mutagen.File(self.filename)
         f.tags.add(mutagen.id3.UFID(owner="http://musicbrainz.org", data="x"))
         f.save()
         song = MP3File(self.filename)
-        self.failUnlessEqual(song("musicbrainz_trackid"), "x")
+        self.assertEqual(song("musicbrainz_trackid"), "x")
         song["musicbrainz_trackid"] = "y"
         song.write()
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(f.tags["UFID:http://musicbrainz.org"].data, "y")
+        self.assertEqual(f.tags["UFID:http://musicbrainz.org"].data, "y")
         del song["musicbrainz_trackid"]
         song.write()
         f = mutagen.File(self.filename)
-        self.failIf(f.tags.get("UFID:http://musicbrainz.org"))
+        self.assertFalse(f.tags.get("UFID:http://musicbrainz.org"))
 
     def test_load_comment(self):
         # comm with empty descriptions => comment
@@ -264,7 +264,7 @@ class TID3File(TestCase):
                                     desc="", text=["foo", "bar"]))
         f.save()
         comments = set(MP3File(self.filename).list("comment"))
-        self.failUnlessEqual(comments, {"bar", "foo"})
+        self.assertEqual(comments, {"bar", "foo"})
 
     def test_foobar2k_replaygain(self):
         # foobar2k saved gain there
@@ -273,18 +273,18 @@ class TID3File(TestCase):
                                     text=["-6 db"]))
         f.save()
         song = MP3File(self.filename)
-        self.failIfAlmostEqual(song.replay_gain(["track"]), 1.0, 1)
+        self.assertNotAlmostEqual(song.replay_gain(["track"]), 1.0, 1)
 
         # check if all keys are str
-        for k in MP3File(self.filename).keys():
-            self.failUnless(isinstance(k, str))
+        for k in list(MP3File(self.filename).keys()):
+            self.assertTrue(isinstance(k, str))
 
         # remove value, save, reload and check if still gone
         del song["replaygain_track_gain"]
         song.write()
         song.reload()
 
-        self.failUnlessAlmostEqual(song.replay_gain(["track"]), 1.0, 1)
+        self.assertAlmostEqual(song.replay_gain(["track"]), 1.0, 1)
 
     def test_foobar2k_replaygain_read_new(self):
         # Others don't like RVA2, so we have to read/write foobar style
@@ -301,17 +301,17 @@ class TID3File(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnlessEqual(song("replaygain_track_gain"), "-6 db")
-        self.failUnlessEqual(song("replaygain_track_peak"), "0.9")
-        self.failUnlessEqual(song("replaygain_album_gain"), "3 db")
-        self.failUnlessEqual(song("replaygain_album_peak"), "0.8")
+        self.assertEqual(song("replaygain_track_gain"), "-6 db")
+        self.assertEqual(song("replaygain_track_peak"), "0.9")
+        self.assertEqual(song("replaygain_album_gain"), "3 db")
+        self.assertEqual(song("replaygain_album_peak"), "0.8")
 
         # still prefer RVA2 in case there are both
         f.tags.add(mutagen.id3.RVA2(desc="track", channel=1,
                                     gain=-9, peak=1.0))
         f.save()
         song = MP3File(self.filename)
-        self.failUnlessAlmostEqual(song.replay_gain(["track"]), 0.35, 1)
+        self.assertAlmostEqual(song.replay_gain(["track"]), 0.35, 1)
 
     def test_foobar2k_replaygain_write_new(self):
         # Others don't like RVA2, so we have to read/write foobar style
@@ -325,7 +325,7 @@ class TID3File(TestCase):
 
         f = mutagen.File(self.filename)
         for k in ["track_peak", "track_gain", "album_peak", "album_gain"]:
-            self.failUnless(f["TXXX:replaygain_" + k])
+            self.assertTrue(f["TXXX:replaygain_" + k])
 
     def test_quodlibet_txxx_inval(self):
         # This shouldn't happen in our namespace, but check anyway since
@@ -336,44 +336,44 @@ class TID3File(TestCase):
                                     text=["quux"]))
         f.tags.add(mutagen.id3.TXXX(encoding=3, desc="QuodLibet::foo=",
                                     text=["quux", "bar"]))
-        f.tags.add(mutagen.id3.COMM(encoding=3, desc=u"QuodLibet::öäü",
+        f.tags.add(mutagen.id3.COMM(encoding=3, desc="QuodLibet::öäü",
                                     text=["quux", "bar"], lang="aar"))
-        f.tags.add(mutagen.id3.COMM(encoding=3, desc=u"",
+        f.tags.add(mutagen.id3.COMM(encoding=3, desc="",
                                     text=["a"], lang="aar"))
-        f.tags.add(mutagen.id3.COMM(encoding=3, desc=u"",
+        f.tags.add(mutagen.id3.COMM(encoding=3, desc="",
                                     text=["b"], lang="foo"))
         f.save()
 
         # check if all keys are valid
-        for k in MP3File(self.filename).keys():
-            self.failUnless(isinstance(k, str))
+        for k in list(MP3File(self.filename).keys()):
+            self.assertTrue(isinstance(k, str))
 
         song = MP3File(self.filename)
-        self.failIf("foo=" in song)
-        self.failIf(u"öäü" in song)
-        self.failUnlessEqual(set(song.list("comment")), {"a", "b"})
-        self.failUnlessEqual(song("valid"), "quux")
+        self.assertFalse("foo=" in song)
+        self.assertFalse("öäü" in song)
+        self.assertEqual(set(song.list("comment")), {"a", "b"})
+        self.assertEqual(song("valid"), "quux")
         del song["valid"]
         song.write()
 
         f = mutagen.File(self.filename)
-        self.failUnless(f.tags.getall("TXXX:QuodLibet::foo="))
-        self.failIf(f.tags.getall("TXXX:QuodLibet::valid"))
-        self.failUnlessEqual(len(f.tags.getall("COMM")), 2)
-        self.failUnlessEqual(len(f.tags.getall("COMM:")), 1)
+        self.assertTrue(f.tags.getall("TXXX:QuodLibet::foo="))
+        self.assertFalse(f.tags.getall("TXXX:QuodLibet::valid"))
+        self.assertEqual(len(f.tags.getall("COMM")), 2)
+        self.assertEqual(len(f.tags.getall("COMM:")), 1)
 
     def test_old_comm_to_txxx(self):
         f = mutagen.File(self.filename)
-        f.tags.add(mutagen.id3.COMM(encoding=3, desc=u"QuodLibet::foo",
+        f.tags.add(mutagen.id3.COMM(encoding=3, desc="QuodLibet::foo",
                                     text=["a"], lang="aar"))
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnlessEqual(song("foo"), "a")
+        self.assertEqual(song("foo"), "a")
         song.write()
 
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(f["TXXX:QuodLibet::foo"].text, ["a"])
+        self.assertEqual(f["TXXX:QuodLibet::foo"].text, ["a"])
 
     def test_txxx_others(self):
         f = mutagen.File(self.filename)
@@ -385,13 +385,13 @@ class TID3File(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failIf("invalid" in song)
-        self.failIf(u"öäü" in song)
+        self.assertFalse("invalid" in song)
+        self.assertFalse("öäü" in song)
         song.write()
 
         f = mutagen.File(self.filename)
-        self.failUnless(f[t1.HashKey])
-        self.failUnless(f[t2.HashKey])
+        self.assertTrue(f[t1.HashKey])
+        self.assertTrue(f[t2.HashKey])
 
     def test_woar(self):
         f = mutagen.File(self.filename)
@@ -400,12 +400,12 @@ class TID3File(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnlessEqual(song("website"), t1.url)
+        self.assertEqual(song("website"), t1.url)
         song["website"] = "http://another.test\nhttp://omg.another.one"
         song.write()
 
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(len(f.tags.getall("WOAR")), 2)
+        self.assertEqual(len(f.tags.getall("WOAR")), 2)
 
     def test_unhandled(self):
         f = mutagen.File(self.filename)
@@ -418,37 +418,37 @@ class TID3File(TestCase):
     def test_id3_hack(self):
         # will only show the content of the last frame
         f = mutagen.File(self.filename)
-        self.failUnless(len(f.tags["TPE1"].text), 1)
+        self.assertTrue(len(f.tags["TPE1"].text), 1)
 
         # will merge both frames and translate TP1 to TPE1, so 3 values
         f = mutagen.mp3.MP3(self.filename, ID3=ID3hack)
         f.tags.add(mutagen.id3.TP1(encoding=3, text="blah"))
-        self.failUnless(len(f.tags["TPE1"].text), 3)
+        self.assertTrue(len(f.tags["TPE1"].text), 3)
 
         # same here, but without the TP1, so 2 values
         song = MP3File(self.filename)
-        self.failUnlessEqual(len(song.list("artist")), 2)
+        self.assertEqual(len(song.list("artist")), 2)
 
     def test_encoding(self):
         song = MP3File(self.filename)
-        song["foo"] = u"öäü"
-        song["bar"] = u"abc"
-        song["comment"] = u"öäü"
-        song["artist"] = u"xyz"
-        song["album"] = u"öäü"
-        song["tracknumber"] = u"ö"
-        song["discnumber"] = u"9"
+        song["foo"] = "öäü"
+        song["bar"] = "abc"
+        song["comment"] = "öäü"
+        song["artist"] = "xyz"
+        song["album"] = "öäü"
+        song["tracknumber"] = "ö"
+        song["discnumber"] = "9"
         song.write()
 
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(f.tags["TXXX:QuodLibet::foo"].encoding, 1)
-        self.failUnlessEqual(f.tags["TXXX:QuodLibet::bar"].encoding, 3)
-        self.failUnlessEqual(f.tags["TPE1"].encoding, 3)
-        self.failUnlessEqual(f.tags["TALB"].encoding, 1)
-        self.failUnlessEqual(f.tags["TPE1"].encoding, 3)
+        self.assertEqual(f.tags["TXXX:QuodLibet::foo"].encoding, 1)
+        self.assertEqual(f.tags["TXXX:QuodLibet::bar"].encoding, 3)
+        self.assertEqual(f.tags["TPE1"].encoding, 3)
+        self.assertEqual(f.tags["TALB"].encoding, 1)
+        self.assertEqual(f.tags["TPE1"].encoding, 3)
         # FIXME: we shouldn't write invalid TRCK...
-        self.failUnlessEqual(f.tags["TRCK"].encoding, 1)
-        self.failUnlessEqual(f.tags["TPOS"].encoding, 3)
+        self.assertEqual(f.tags["TRCK"].encoding, 1)
+        self.assertEqual(f.tags["TPOS"].encoding, 3)
 
     def test_tcon(self):
         f = mutagen.File(self.filename)
@@ -456,30 +456,30 @@ class TID3File(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnless("performer:foo" in song)
-        self.failUnlessEqual(song("performer:foo"), "bar")
+        self.assertTrue("performer:foo" in song)
+        self.assertEqual(song("performer:foo"), "bar")
 
     def test_nonascii_unsup_tcon(self):
-        people = [["a=", "a"], ["b~", "b"], [u"äöü", "u"], ["quux", "x"]]
+        people = [["a=", "a"], ["b~", "b"], ["äöü", "u"], ["quux", "x"]]
         f = mutagen.File(self.filename)
         f.tags.add(mutagen.id3.TMCL(encoding=3, people=people))
         f.save()
 
         # we only support one of them
-        self.failUnlessEqual(len(MP3File(self.filename).list("~performer")), 1)
+        self.assertEqual(len(MP3File(self.filename).list("~performer")), 1)
 
         # but after writing they should still be there
         song = MP3File(self.filename)
         song.write()
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(len(f.tags["TMCL"].people), 4)
-        self.failUnlessEqual(f.tags["TMCL"].people, people)
+        self.assertEqual(len(f.tags["TMCL"].people), 4)
+        self.assertEqual(f.tags["TMCL"].people, people)
 
         # also change something..
         song["performer:quux"] = "foo"
         song.write()
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(dict(f.tags["TMCL"].people)["quux"], "foo")
+        self.assertEqual(dict(f.tags["TMCL"].people)["quux"], "foo")
 
     def test_rva_large(self):
         song = MP3File(self.filename)
@@ -499,12 +499,12 @@ class TID3File(TestCase):
         f.save()
 
         song = MP3File(self.filename)
-        self.failUnlessAlmostEqual(song.replay_gain(["track"]), 0.7, 1)
-        self.failUnlessAlmostEqual(song.replay_gain(["album"]), 0.5, 1)
+        self.assertAlmostEqual(song.replay_gain(["track"]), 0.7, 1)
+        self.assertAlmostEqual(song.replay_gain(["album"]), 0.5, 1)
         song.write()
 
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(len(f.tags.getall("RVA2")), 2)
+        self.assertEqual(len(f.tags.getall("RVA2")), 2)
 
     def test_rva_unknown(self):
         f = mutagen.File(self.filename)
@@ -516,12 +516,12 @@ class TID3File(TestCase):
 
         # we use foo as track if nothing else is there
         song = MP3File(self.filename)
-        self.failUnlessAlmostEqual(song.replay_gain(["track"]), 0.7, 1)
+        self.assertAlmostEqual(song.replay_gain(["track"]), 0.7, 1)
         song.write()
 
         # and we write that over track..
         f = mutagen.File(self.filename)
-        self.failUnlessAlmostEqual(f.tags["RVA2:track"].gain, -3.0, 1)
+        self.assertAlmostEqual(f.tags["RVA2:track"].gain, -3.0, 1)
 
         # now that one is there, ignore foo
         f = mutagen.File(self.filename)
@@ -529,12 +529,12 @@ class TID3File(TestCase):
                                     gain=0, peak=1.0))
         f.save()
         song = MP3File(self.filename)
-        self.failUnlessAlmostEqual(song.replay_gain(["track"]), 0.7, 1)
+        self.assertAlmostEqual(song.replay_gain(["track"]), 0.7, 1)
 
     def test_rva_inval(self):
         song = MP3File(self.filename)
-        song["replaygain_track_peak"] = u"0.1afasf"
-        song["replaygain_track_gain"] = u"0.1afasf"
+        song["replaygain_track_peak"] = "0.1afasf"
+        song["replaygain_track_gain"] = "0.1afasf"
         song.write()
 
     def test_without_id3_tag(self):
@@ -546,7 +546,7 @@ class TID3File(TestCase):
         song.write()
 
     def test_distrust_latin1(self):
-        x = u"Å"
+        x = "Å"
 
         # abuse mutagen a bit, and get some utf-8 in with the wrong encoding
         f = mutagen.File(self.filename)
@@ -555,24 +555,24 @@ class TID3File(TestCase):
 
         # back to utf-8
         song = MP3File(self.filename)
-        self.failUnlessEqual(song("artist"), x)
+        self.assertEqual(song("artist"), x)
         song.write()
 
         # because it's not ascii, saved as utf-16
         f = mutagen.File(self.filename)
-        self.failUnlessEqual(f.tags["TPE1"].encoding, 1)
+        self.assertEqual(f.tags["TPE1"].encoding, 1)
 
         # and now latin-1 that is not decodable using utf-8/16
-        x = u"äöü".encode("ibm1026").decode("latin-1")
+        x = "äöü".encode("ibm1026").decode("latin-1")
         f.tags.add(mutagen.id3.TPE1(encoding=0, text=x))
         f.save()
 
-        self.failUnlessEqual(MP3File(self.filename)("artist"), x)
+        self.assertEqual(MP3File(self.filename)("artist"), x)
 
     def test_handled_txxx_encoding(self):
         song = MP3File(self.filename)
-        song['albumartistsort'] = u'Dvo\u0159\xe1k, Anton\xedn'
-        song["replaygain_track_peak"] = u'Dvo\u0159\xe1k, Anton\xedn'
+        song['albumartistsort'] = 'Dvo\u0159\xe1k, Anton\xedn'
+        song["replaygain_track_peak"] = 'Dvo\u0159\xe1k, Anton\xedn'
         song.write()
 
     def tearDown(self):

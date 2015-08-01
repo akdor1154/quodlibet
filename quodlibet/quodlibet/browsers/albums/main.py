@@ -8,7 +8,7 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-from __future__ import absolute_import
+
 
 import os
 
@@ -157,7 +157,7 @@ class PreferencesButton(Gtk.HBox):
         menu = Gtk.Menu()
 
         sort_item = Gtk.MenuItem(
-            label=_(u"Sort _by…"), use_underline=True)
+            label=_("Sort _by…"), use_underline=True)
         sort_menu = Gtk.Menu()
 
         active = config.getint('browsers', 'album_sort', 1)
@@ -302,7 +302,7 @@ class VisibleUpdate(object):
         start = start.get_indices()[0] - preload - 1
         end = end.get_indices()[0] + preload
 
-        vlist = range(end, start, -1)
+        vlist = list(range(end, start, -1))
         top = vlist[:len(vlist) / 2]
         bottom = vlist[len(vlist) / 2:]
         top.reverse()
@@ -313,9 +313,9 @@ class VisibleUpdate(object):
                 vlist_new.append(top.pop())
             if bottom:
                 vlist_new.append(bottom.pop())
-        vlist_new = filter(lambda s: s >= 0, vlist_new)
+        vlist_new = [s for s in vlist_new if s >= 0]
 
-        vlist_new = map(Gtk.TreePath, vlist_new)
+        vlist_new = list(map(Gtk.TreePath, vlist_new))
 
         visible_paths = []
         for path in vlist_new:
@@ -354,7 +354,7 @@ class AlbumList(Browser, util.InstanceTracker, VisibleUpdate):
     @classmethod
     def init(klass, library):
         try:
-            klass._pattern_text = file(PATTERN_FN).read().rstrip()
+            klass._pattern_text = open(PATTERN_FN).read().rstrip()
         except EnvironmentError:
             klass._pattern_text = PATTERN
 
@@ -381,7 +381,7 @@ class AlbumList(Browser, util.InstanceTracker, VisibleUpdate):
         klass._pattern = XMLFromMarkupPattern(pattern_text)
         klass.__model.refresh_all()
         pattern_fn = PATTERN_FN
-        f = file(pattern_fn, "w")
+        f = open(pattern_fn, "w")
         f.write(pattern_text + "\n")
         f.close()
 

@@ -174,7 +174,7 @@ class JSONBasedEditor(qltk.UniqueWindow):
                 widget.set_active(val)
             elif isinstance(val, int):
                 widget.set_value(int(val))
-            elif isinstance(val, basestring):
+            elif isinstance(val, str):
                 widget.set_text(val or "")
 
     def __build_input_frame(self):
@@ -212,7 +212,7 @@ class JSONBasedEditor(qltk.UniqueWindow):
     def _fill_values(self, data):
         if not data:
             return
-        for (name, obj) in data.items():
+        for (name, obj) in list(data.items()):
             self.model.prepend(row=[obj])
 
     def _update_current(self, new_selection=None):

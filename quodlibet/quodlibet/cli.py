@@ -190,7 +190,7 @@ def process_arguments(argv):
 
     opts, args = options.parse(argv[1:])
 
-    for command, arg in opts.items():
+    for command, arg in list(opts.items()):
         if command in controls:
             queue(command)
         elif command in controls_opt:

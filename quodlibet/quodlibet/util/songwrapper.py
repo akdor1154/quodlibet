@@ -85,11 +85,11 @@ def ListWrapper(songs):
             return None
         else:
             return SongWrapper(song)
-    return map(wrap, songs)
+    return list(map(wrap, songs))
 
 
 def check_wrapper_changed(library, parent, songs):
-    needs_write = filter(lambda s: s._needs_write, songs)
+    needs_write = [s for s in songs if s._needs_write]
 
     if needs_write:
         win = WritingWindow(parent, len(needs_write))

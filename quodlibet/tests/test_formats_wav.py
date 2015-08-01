@@ -18,18 +18,18 @@ class TWAVEFile(TestCase):
 
     def test_title_tag(self):
         self.assertEqual(self.song["title"], "test")
-        self.assertTrue(isinstance(self.song["title"], unicode))
+        self.assertTrue(isinstance(self.song["title"], str))
 
     def test_length(self):
-        self.failUnlessEqual(self.song("~#length"), 0)
+        self.assertEqual(self.song("~#length"), 0)
 
     def test_write(self):
         self.song.write()
 
     def test_can_change(self):
-        self.failUnless(self.song.can_change("artist"))
+        self.assertTrue(self.song.can_change("artist"))
 
     def test_invalid(self):
         path = os.path.join(DATA_DIR, 'empty.xm')
-        self.failUnless(os.path.exists(path))
-        self.failUnlessRaises(Exception, WAVEFile, path)
+        self.assertTrue(os.path.exists(path))
+        self.assertRaises(Exception, WAVEFile, path)

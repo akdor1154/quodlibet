@@ -20,8 +20,7 @@ try:
     from musicbrainz2.utils import extractUuid
 except ImportError as e:
     from quodlibet import plugins
-    raise (plugins.MissingModulePluginException("musicbrainz2") if
-           hasattr(plugins, "MissingModulePluginException") else e)
+    raise plugins.MissingModulePluginException("musicbrainz2")
 
 from quodlibet import config, util
 from quodlibet.qltk.ccb import ConfigCheckButton
@@ -37,7 +36,7 @@ def get_artist(album):
     for tag in ["albumartist", "artist", "performer"]:
         names = set()
         for song in album:
-            for single in filter(None, song.get(tag, "").split("\n")):
+            for single in [_f for _f in song.get(tag, "").split("\n") if _f]:
                 names.add(single)
         if len(names) == 1:
             return names.pop()
@@ -140,7 +139,7 @@ class ResultTreeView(HintedTreeView, MultiDragTreeView):
             itr = self.model.get_iter_from_string(str(len(self.model) - 1))
             self.model.remove(itr)
         self.remote_album = remote_album
-        has_artists = bool(filter(lambda t: t.artist, remote_album))
+        has_artists = bool([t for t in remote_album if t.artist])
         col = self.get_column(3)
         # sometimes gets called after the treeview is already gone
         if not col:
@@ -348,7 +347,7 @@ class SearchWindow(Dialog):
                 "<b>%s</b>" % _("Please enter a query."))
             self.search_button.set_sensitive(True)
             return
-        self.result_label.set_markup("<i>%s</i>" % _(u"Searching…"))
+        self.result_label.set_markup("<i>%s</i>" % _("Searching…"))
         filt = ws.ReleaseFilter(query=query)
         self._qthread.add(self.__process_results,
                          self._query.getReleases, filt)
@@ -361,10 +360,10 @@ class SearchWindow(Dialog):
             self.result_label.set_text(_("Error encountered. Please retry."))
             self.search_button.set_sensitive(True)
             return
-        for release in map(lambda r: r.release, results):
+        for release in [r.release for r in results]:
             self._resultlist.append((release, ))
         if len(results) > 0 and self.result_combo.get_active() == -1:
-            self.result_label.set_markup("<i>%s</i>" % _(u"Loading result…"))
+            self.result_label.set_markup("<i>%s</i>" % _("Loading result…"))
             self.result_combo.set_active(0)
         else:
             self.result_label.set_markup(_("No results found."))
@@ -378,7 +377,7 @@ class SearchWindow(Dialog):
         if rel_id in self._releasecache:
             self.__update_results(self._releasecache[rel_id])
         else:
-            self.result_label.set_markup("<i>%s</i>" % _(u"Loading result…"))
+            self.result_label.set_markup("<i>%s</i>" % _("Loading result…"))
             inc = ws.ReleaseIncludes(
                     artist=True, releaseEvents=True, tracks=True)
             self._qthread.add(self.__update_result,

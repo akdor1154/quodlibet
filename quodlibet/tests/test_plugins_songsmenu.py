@@ -23,7 +23,7 @@ class TSongsMenuPlugins(TestCase):
         self.handler = SongsMenuPluginHandler(self._confirmer, self._confirmer)
         self.pm.register_handler(self.handler)
         self.pm.rescan()
-        self.assertEquals(self.pm.plugins, [])
+        self.assertEqual(self.pm.plugins, [])
         self.library = SongLibrary('foo')
 
     def tearDown(self):
@@ -67,39 +67,39 @@ class TSongsMenuPlugins(TestCase):
 
     def test_empty_has_no_plugins(self):
         self.pm.rescan()
-        self.assertEquals(self.pm.plugins, [])
+        self.assertEqual(self.pm.plugins, [])
 
     def test_name_and_desc_plus_func_is_one(self):
         self.create_plugin(name='Name', desc='Desc', funcs=['plugin_song'])
         self.pm.rescan()
-        self.assertEquals(len(self.pm.plugins), 1)
+        self.assertEqual(len(self.pm.plugins), 1)
 
     def test_additional_functions_still_only_one(self):
         self.create_plugin(name='Name', desc='Desc',
                 funcs=['plugin_song', 'plugin_songs'])
         self.pm.rescan()
-        self.assertEquals(len(self.pm.plugins), 1)
+        self.assertEqual(len(self.pm.plugins), 1)
 
     def test_two_plugins_are_two(self):
         self.create_plugin(name='Name', desc='Desc', funcs=['plugin_song'])
         self.create_plugin(name='Name2', desc='Desc2',
                 funcs=['plugin_albums'])
         self.pm.rescan()
-        self.assertEquals(len(self.pm.plugins), 2)
+        self.assertEqual(len(self.pm.plugins), 2)
 
     def test_disables_plugin(self):
         self.create_plugin(name='Name', desc='Desc', funcs=['plugin_song'])
         self.pm.rescan()
-        self.failIf(self.pm.enabled(self.pm.plugins[0]))
+        self.assertFalse(self.pm.enabled(self.pm.plugins[0]))
 
     def test_enabledisable_plugin(self):
         self.create_plugin(name='Name', desc='Desc', funcs=['plugin_song'])
         self.pm.rescan()
         plug = self.pm.plugins[0]
         self.pm.enable(plug, True)
-        self.failUnless(self.pm.enabled(plug))
+        self.assertTrue(self.pm.enabled(plug))
         self.pm.enable(plug, False)
-        self.failIf(self.pm.enabled(plug))
+        self.assertFalse(self.pm.enabled(plug))
 
     def test_ignores_broken_plugin(self):
         self.create_plugin(name="Broken", desc="Desc",
@@ -109,7 +109,7 @@ class TSongsMenuPlugins(TestCase):
         self.pm.enable(plug, True)
         with capture_output():
             menu = self.handler.Menu(None, [AudioFile()])
-        self.failIf(menu and menu.get_children())
+        self.assertFalse(menu and menu.get_children())
 
     def test_Menu(self):
         self.create_plugin(name='Name', desc='Desc', funcs=['plugin_song'])
@@ -122,7 +122,7 @@ class TSongsMenuPlugins(TestCase):
         songs = [AudioFile({'~filename': "/tmp/%s" % x, 'artist': 'foo'})
                  for x in range(MAX)]
         self.handler.handle(plugin.id, self.library, None, songs)
-        self.failIf(self.confirmed, ("Wasn't expecting a confirmation for %d"
+        self.assertFalse(self.confirmed, ("Wasn't expecting a confirmation for %d"
                                      " invocations" % len(songs)))
 
     def test_handling_lots_of_songs_with_confirmation(self):
@@ -132,7 +132,7 @@ class TSongsMenuPlugins(TestCase):
         songs = [AudioFile({'~filename': "/tmp/%s" % x, 'artist': 'foo'})
                  for x in range(MAX + 1)]
         self.handler.handle(plugin.id, self.library, None, songs)
-        self.failUnless(self.confirmed,
+        self.assertTrue(self.confirmed,
                         ("Should have confirmed %d invocations (Max=%d)."
                          % (len(songs), MAX)))
 

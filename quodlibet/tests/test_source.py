@@ -20,7 +20,7 @@ def iter_py_paths():
     import quodlibet
     root = os.path.dirname(quodlibet.__path__[0])
 
-    print os.path.realpath(__file__)
+    print(os.path.realpath(__file__))
     skip = [os.path.join(root, "docs")]
     for dirpath, dirnames, filenames in os.walk(root):
         if any((dirpath.startswith(s + os.sep) or s == dirpath)
@@ -68,10 +68,10 @@ class TStockIcons(TestCase):
         white.append("gtk-")
         white.append("gtk-update-icon-cache-")
 
-        res = map(re.compile, [
+        res = list(map(re.compile, [
             "(Gtk\\.STOCK_[_A-Z]*)",
             "[\"\'](gtk-[\\-a-z]*)",
-        ])
+        ]))
         errors = {}
         for path in iter_py_paths():
             with open(path, "rb") as h:

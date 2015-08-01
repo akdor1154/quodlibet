@@ -3,7 +3,7 @@ from tests import DATA_DIR, mkstemp, TestCase
 
 import os
 import shutil
-import StringIO
+import io
 
 import mutagen
 
@@ -18,24 +18,24 @@ from quodlibet.formats._image import APICType, EmbeddedImage
 class TAPEv2FileMixin(object):
 
     def test_can_change(self):
-        self.failUnlessEqual(self.s.can_change(), True)
-        self.failUnlessEqual(self.s.can_change("~"), False)
-        self.failUnlessEqual(self.s.can_change("a"), False)
-        self.failUnlessEqual(self.s.can_change("OggS"), True)
-        self.failUnlessEqual(self.s.can_change("\xc3\xa4\xc3\xb6"), False)
-        self.failUnlessEqual(self.s.can_change("sUbtitle"), False)
-        self.failUnlessEqual(self.s.can_change("indeX"), False)
-        self.failUnlessEqual(self.s.can_change("yEar"), False)
+        self.assertEqual(self.s.can_change(), True)
+        self.assertEqual(self.s.can_change("~"), False)
+        self.assertEqual(self.s.can_change("a"), False)
+        self.assertEqual(self.s.can_change("OggS"), True)
+        self.assertEqual(self.s.can_change("\xc3\xa4\xc3\xb6"), False)
+        self.assertEqual(self.s.can_change("sUbtitle"), False)
+        self.assertEqual(self.s.can_change("indeX"), False)
+        self.assertEqual(self.s.can_change("yEar"), False)
 
     def test_trans_keys(self):
         self.s["date"] = "2010"
         self.s.write()
         m = mutagen.apev2.APEv2(self.f)
-        self.failUnlessEqual(m["Year"], "2010")
+        self.assertEqual(m["Year"], "2010")
         m["yEar"] = "2011"
         m.save()
         self.s.reload()
-        self.failUnlessEqual(self.s["date"], "2011")
+        self.assertEqual(self.s["date"], "2011")
 
     def test_ignore(self):
         for tag in ["inDex", "index"]:
@@ -43,9 +43,9 @@ class TAPEv2FileMixin(object):
             m[tag] = "foobar"
             m.save()
             self.s.reload()
-            self.failUnlessEqual(self.s.get(tag), None)
+            self.assertEqual(self.s.get(tag), None)
             m = mutagen.apev2.APEv2(self.f)
-            self.failUnlessEqual(m[tag], "foobar")
+            self.assertEqual(m[tag], "foobar")
 
     def test_multi_case(self):
         self.s["AA"] = "B"
@@ -54,54 +54,54 @@ class TAPEv2FileMixin(object):
         self.s["Aa"] = "E"
         self.s.write()
         self.s.reload()
-        self.failUnlessEqual(set(self.s["aa"].split()), {"C", "B", "E"})
+        self.assertEqual(set(self.s["aa"].split()), {"C", "B", "E"})
 
     def test_binary_ignore(self):
         m = mutagen.apev2.APEv2(self.f)
         m["foo"] = APEValue("bar", BINARY)
         m.save()
         self.s.reload()
-        self.failUnlessEqual(self.s.get("foo"), None)
+        self.assertEqual(self.s.get("foo"), None)
         self.s.write()
         m = mutagen.apev2.APEv2(self.f)
-        self.failUnlessEqual("foo" in m, True)
+        self.assertEqual("foo" in m, True)
 
     def test_titlecase(self):
         self.s["isRc"] = "1234"
         self.s["fOoBaR"] = "5678"
         self.s.write()
         self.s.reload()
-        self.failUnlessEqual("isrc" in self.s, True)
-        self.failUnlessEqual("foobar" in self.s, True)
+        self.assertEqual("isrc" in self.s, True)
+        self.assertEqual("foobar" in self.s, True)
         m = mutagen.apev2.APEv2(self.f)
-        self.failUnlessEqual("ISRC" in m, True)
-        self.failUnlessEqual("Foobar" in m, True)
+        self.assertEqual("ISRC" in m, True)
+        self.assertEqual("Foobar" in m, True)
 
     def test_disc_mapping(self):
         m = mutagen.apev2.APEv2(self.f)
         m["disc"] = "99/102"
         m.save()
         self.s.reload()
-        self.failUnlessEqual(self.s("~#disc"), 99)
-        self.failUnlessEqual(self.s("discnumber"), "99/102")
+        self.assertEqual(self.s("~#disc"), 99)
+        self.assertEqual(self.s("discnumber"), "99/102")
 
         self.s["discnumber"] = "77/88"
         self.s.write()
         m = mutagen.apev2.APEv2(self.f)
-        self.failUnlessEqual(m["disc"], "77/88")
+        self.assertEqual(m["disc"], "77/88")
 
     def test_track_mapping(self):
         m = mutagen.apev2.APEv2(self.f)
         m["track"] = "99/102"
         m.save()
         self.s.reload()
-        self.failUnlessEqual(self.s("~#track"), 99)
-        self.failUnlessEqual(self.s("tracknumber"), "99/102")
+        self.assertEqual(self.s("~#track"), 99)
+        self.assertEqual(self.s("tracknumber"), "99/102")
 
         self.s["tracknumber"] = "77/88"
         self.s.write()
         m = mutagen.apev2.APEv2(self.f)
-        self.failUnlessEqual(m["track"], "77/88")
+        self.assertEqual(m["track"], "77/88")
 
 
 class TMPCFileAPEv2(TestCase, TAPEv2FileMixin):
@@ -177,7 +177,7 @@ class TWvCoverArt(TestCase):
         self.s.clear_images()
 
     def test_set_image(self):
-        fileobj = StringIO.StringIO("foo")
+        fileobj = io.StringIO("foo")
         image = EmbeddedImage(fileobj, "image/jpeg", 10, 10, 8)
         self.s.set_image(image)
         self.assertTrue(self.s.has_images)
@@ -190,7 +190,7 @@ class TWvCoverArt(TestCase):
     def test_set_image_no_tag(self):
         m = mutagen.apev2.APEv2(self.f)
         m.delete()
-        fileobj = StringIO.StringIO("foo")
+        fileobj = io.StringIO("foo")
         image = EmbeddedImage(fileobj, "image/jpeg", 10, 10, 8)
         self.s.set_image(image)
         images = self.s.get_images()

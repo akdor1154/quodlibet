@@ -46,7 +46,7 @@ def text_config(section, option, label, tooltip):
 def boolean_config(section, option, label, tooltip):
 
     def getter(section, option):
-        return unicode(config.getboolean(section, option))
+        return str(config.getboolean(section, option))
 
     return _config(section, option, label, tooltip, getter)
 

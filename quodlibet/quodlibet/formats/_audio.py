@@ -26,6 +26,7 @@ from quodlibet.util import human_sort_key as human, capitalize
 from quodlibet.util.tags import TAG_ROLES, TAG_TO_SORT
 
 from ._image import ImageContainer
+import collections
 
 
 MIGRATE = {"~#playcount", "~#laststarted", "~#lastplayed", "~#added",
@@ -43,7 +44,7 @@ INTERN_NUM_DEFAULT = {"~#lastplayed", "~#laststarted", "~#playcount",
 FILESYSTEM_TAGS = {"~filename", "~basename", "~dirname"}
 """Values are bytes in Linux instead of unicode"""
 
-SORT_TO_TAG = dict([(v, k) for (k, v) in TAG_TO_SORT.iteritems()])
+SORT_TO_TAG = dict([(v, k) for (k, v) in TAG_TO_SORT.items()])
 """Reverse map, so sort tags can fall back to the normal ones"""
 
 PEOPLE_SORT = [TAG_TO_SORT.get(k, k) for k in PEOPLE]
@@ -60,13 +61,13 @@ def decode_value(tag, value):
     Not reversible.
     """
 
-    if isinstance(value, unicode):
+    if isinstance(value, str):
         return value
     elif isinstance(value, float):
-        return u"%.2f" % value
+        return "%.2f" % value
     elif tag in FILESYSTEM_TAGS:
         return fsdecode(value)
-    return unicode(value)
+    return str(value)
 
 
 class AudioFile(dict, ImageContainer):
@@ -126,7 +127,7 @@ class AudioFile(dict, ImageContainer):
         def artist_sort(song):
             return song.sort_key[1][2]
 
-        if callable(tag):
+        if isinstance(tag, collections.Callable):
             return lambda song: human(tag(song))
         elif tag == "artistsort":
             return artist_sort
@@ -208,7 +209,7 @@ class AudioFile(dict, ImageContainer):
         """Returns a list of keys that are not internal, i.e. they don't
         have '~' in them."""
 
-        return filter(lambda s: s[:1] != "~", self.keys())
+        return [s for s in list(self.keys()) if s[:1] != "~"]
 
     def prefixkeys(self, prefix):
         """Returns a list of dict keys that either match prefix or start
@@ -226,9 +227,9 @@ class AudioFile(dict, ImageContainer):
         return "\n".join(self.list_unique(sorted(self.prefixkeys(tag))))
 
     def iterrealitems(self):
-        return ((k, v) for (k, v) in self.iteritems() if k[:1] != "~")
+        return ((k, v) for (k, v) in self.items() if k[:1] != "~")
 
-    def __call__(self, key, default=u"", connector=" - "):
+    def __call__(self, key, default="", connector=" - "):
         """Return a key, synthesizing it if necessary. A default value
         may be given (like dict.get); the default default is an empty
         unicode string (even if the tag is numeric).
@@ -435,9 +436,9 @@ class AudioFile(dict, ImageContainer):
     def lyric_filename(self):
         """Returns the (potential) lyrics filename for this file"""
 
-        filename = self.comma("title").replace(u'/', u'')[:128] + u'.lyric'
+        filename = self.comma("title").replace('/', '')[:128] + '.lyric'
         sub_dir = ((self.comma("lyricist") or self.comma("artist"))
-                  .replace(u'/', u'')[:128])
+                  .replace('/', '')[:128])
 
         if os.name == "nt":
             # this was added at a later point. only use escape_filename here
@@ -449,7 +450,7 @@ class AudioFile(dict, ImageContainer):
             sub_dir = fsnative(sub_dir)
 
         path = os.path.join(
-            expanduser(fsnative(u"~/.lyrics")), sub_dir, filename)
+            expanduser(fsnative("~/.lyrics")), sub_dir, filename)
         return path
 
     def comma(self, key):
@@ -461,13 +462,13 @@ class AudioFile(dict, ImageContainer):
         """
 
         if "~" in key or key == "title":
-            v = self(key, u"")
+            v = self(key, "")
             if key in FILESYSTEM_TAGS:
                 v = fsdecode(v)
         else:
-            v = self.get(key, u"")
+            v = self.get(key, "")
 
-        if isinstance(v, (int, long, float)):
+        if isinstance(v, (int, float)):
             return v
         else:
             return v.replace("\n", ", ")
@@ -510,7 +511,7 @@ class AudioFile(dict, ImageContainer):
             r = [[]]
             for x in vals:
                 r = [i + [y] for y in x for i in r]
-            return map(connector.join, r)
+            return list(map(connector.join, r))
         else:
             return self.list(key)
 
@@ -539,13 +540,13 @@ class AudioFile(dict, ImageContainer):
 
         merged = AudioFile()
         text = {}
-        for key, value in self.iteritems():
+        for key, value in self.items():
             lower = key.lower()
             if key.startswith("~#"):
                 merged[lower] = value
             else:
                 text.setdefault(lower, []).extend(value.split("\n"))
-        for key, values in text.items():
+        for key, values in list(text.items()):
             merged[key] = "\n".join(values)
         return merged
 
@@ -647,9 +648,9 @@ class AudioFile(dict, ImageContainer):
         and ~#added. Check for null bytes in tags."""
 
         # Replace nulls with newlines, trimming zero-length segments
-        for key, val in self.items():
-            if isinstance(val, basestring) and '\0' in val:
-                self[key] = '\n'.join(filter(lambda s: s, val.split('\0')))
+        for key, val in list(self.items()):
+            if isinstance(val, str) and '\0' in val:
+                self[key] = '\n'.join([s for s in val.split('\0') if s])
             # Remove unnecessary defaults
             if key in INTERN_NUM_DEFAULT and val == 0:
                 del self[key]
@@ -674,7 +675,7 @@ class AudioFile(dict, ImageContainer):
                 if os.path.ismount(head):
                     self["~mountpoint"] = head
         else:
-            self["~mountpoint"] = fsnative(u"/")
+            self["~mountpoint"] = fsnative("/")
 
         # Fill in necessary values.
         self.setdefault("~#added", int(time.time()))
@@ -701,13 +702,13 @@ class AudioFile(dict, ImageContainer):
         """A string of 'key=value' lines, similar to vorbiscomment output."""
 
         def encode_key(k):
-            return encode(k) if isinstance(k, unicode) else k
+            return encode(k) if isinstance(k, str) else k
 
         s = []
-        for k in self.keys():
+        for k in list(self.keys()):
             enc_key = encode_key(k)
 
-            if isinstance(self[k], int) or isinstance(self[k], long):
+            if isinstance(self[k], int) or isinstance(self[k], int):
                 s.append("%s=%d" % (enc_key, self[k]))
             elif isinstance(self[k], float):
                 s.append("%s=%f" % (enc_key, self[k]))
@@ -792,7 +793,7 @@ class AudioFile(dict, ImageContainer):
             try:
                 parts = self.list(key)
                 parts.remove(value)
-                self[key] = u"\n".join(parts)
+                self[key] = "\n".join(parts)
             except ValueError:
                 pass
 
@@ -867,8 +868,8 @@ class AudioFile(dict, ImageContainer):
         for time_, mark in marks:
             if time_ < 0:
                 raise ValueError("mark times must be positive")
-            result.append(u"%s %s" % (util.format_time(time_), mark))
-        result = u"\n".join(result)
+            result.append("%s %s" % (util.format_time(time_), mark))
+        result = "\n".join(result)
         if result:
             self["~bookmark"] = result
         elif "~bookmark" in self:

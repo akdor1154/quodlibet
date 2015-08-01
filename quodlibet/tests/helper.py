@@ -8,7 +8,7 @@
 
 import os
 import contextlib
-import StringIO
+import io
 import sys
 
 from gi.repository import Gtk, Gdk
@@ -25,7 +25,7 @@ def _send_key_click_event(widget, **kwargs):
     ev = Gdk.Event()
     ev.any.window = widget.get_window()
 
-    for key, value in kwargs.items():
+    for key, value in list(kwargs.items()):
         assert hasattr(ev.key, key)
         setattr(ev.key, key, value)
 
@@ -76,7 +76,7 @@ def _send_button_click_event(widget, **kwargs):
     ev.button.x = window.get_width() / 2.0
     ev.button.y = window.get_height() / 2.0
 
-    for key, value in kwargs.items():
+    for key, value in list(kwargs.items()):
         assert hasattr(ev.button, key)
         setattr(ev.button, key, value)
 
@@ -190,10 +190,10 @@ def preserve_environ():
     yield
     # don't touch existing values as os.environ is broken for empty
     # keys on Windows: http://bugs.python.org/issue20658
-    for key, value in os.environ.items():
+    for key, value in list(os.environ.items()):
         if key not in old:
             del os.environ[key]
-    for key, value in old.items():
+    for key, value in list(old.items()):
         if key not in os.environ or os.environ[key] != value:
             os.environ[key] = value
 
@@ -206,8 +206,8 @@ def capture_output():
     print stdout.getvalue(), stderr.getvalue()
     """
 
-    err = StringIO.StringIO()
-    out = StringIO.StringIO()
+    err = io.StringIO()
+    out = io.StringIO()
     old_err = sys.stderr
     old_out = sys.stdout
     sys.stderr = err

@@ -13,8 +13,8 @@ class TFileSystem(TestCase):
 
     def test_can_filter(self):
         for key in ["foo", "title", "fake~key", "~woobar", "~#huh"]:
-            self.failIf(self.bar.can_filter(key))
-        self.failUnless(self.bar.can_filter("~dirname"))
+            self.assertFalse(self.bar.can_filter(key))
+        self.assertTrue(self.bar.can_filter("~dirname"))
 
     def tearDown(self):
         self.bar.destroy()

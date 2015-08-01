@@ -5,11 +5,11 @@
 # it under the terms of the GNU General Public License version 2 as
 # published by the Free Software Foundation
 
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 import threading
 import socket
-import Queue
+import queue
 from xml.dom import minidom
 
 from quodlibet.plugins import PluginImportException
@@ -35,7 +35,7 @@ class SearchThread(threading.Thread):
     def __init__(self):
         super(SearchThread, self).__init__()
         self.daemon = True
-        self._queue = Queue.Queue()
+        self._queue = queue.Queue()
         self._stopped = False
         self._current = None
 
@@ -73,8 +73,8 @@ class SearchThread(threading.Thread):
         """Returns a URL or None"""
 
         artist, title = song("artist"), song("title")
-        artist = urllib.quote(artist.encode('utf-8'))
-        title = urllib.quote(title.encode('utf-8'))
+        artist = urllib.parse.quote(artist.encode('utf-8'))
+        title = urllib.parse.quote(title.encode('utf-8'))
 
         url = ("http://lyrics.wikia.com/api.php?client=QuodLibet&func=getSong"
                "&artist=%s&song=%s&fmt=xml")
@@ -82,8 +82,8 @@ class SearchThread(threading.Thread):
         fetch_url = url % (artist, title)
 
         try:
-            response = urllib2.urlopen(fetch_url, timeout=self.TIMEOUT)
-        except (urllib2.URLError, socket.timeout):
+            response = urllib.request.urlopen(fetch_url, timeout=self.TIMEOUT)
+        except (urllib.error.URLError, socket.timeout):
             return
 
         try:

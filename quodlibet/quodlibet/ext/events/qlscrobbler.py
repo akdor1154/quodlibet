@@ -9,13 +9,13 @@
 #                  Nick Boultbee <nick.boultbee@gmail.com>
 # Licensed under GPLv2. See Quod Libet's COPYING for more information.
 
-from httplib import HTTPException
-import cPickle as pickle
+from http.client import HTTPException
+import pickle as pickle
 import os
 import threading
 import time
-import urllib
-import urllib2
+import urllib.request, urllib.parse, urllib.error
+import urllib.request, urllib.error, urllib.parse
 
 from gi.repository import Gtk, GLib
 
@@ -239,7 +239,7 @@ class QLSubmitQueue(PluginConfigMixin):
         print_d("Sending handshake to service.")
 
         try:
-            resp = urllib2.urlopen(url)
+            resp = urllib.request.urlopen(url)
         except (IOError, HTTPException):
             if show_dialog:
                 self.quick_dialog(
@@ -283,9 +283,9 @@ class QLSubmitQueue(PluginConfigMixin):
         return False
 
     def _check_submit(self, url, data):
-        data_str = urllib.urlencode(data)
+        data_str = urllib.parse.urlencode(data)
         try:
-            resp = urllib2.urlopen(url, data_str)
+            resp = urllib.request.urlopen(url, data_str)
         except (IOError, HTTPException):
             print_d("Audioscrobbler server not responding, will try later.")
             return False
@@ -306,7 +306,7 @@ class QLSubmitQueue(PluginConfigMixin):
         data = {'s': self.session_id}
         to_submit = self.queue[:min(len(self.queue), 50)]
         for idx, song in enumerate(to_submit):
-            for key, val in song.items():
+            for key, val in list(song.items()):
                 data['%s[%d]' % (key, idx)] = val.encode('utf-8')
             data['o[%d]' % idx] = 'P'
             data['r[%d]' % idx] = ''
@@ -322,7 +322,7 @@ class QLSubmitQueue(PluginConfigMixin):
 
     def send_nowplaying(self):
         data = {'s': self.session_id}
-        for key, val in self.nowplaying_song.items():
+        for key, val in list(self.nowplaying_song.items()):
             data[key] = val.encode('utf-8')
         print_d('Now playing song: %s - %s' %
                 (self.nowplaying_song['a'], self.nowplaying_song['t']))
@@ -478,7 +478,7 @@ class QLScrobbler(EventPlugin, PluginConfigMixin):
         cur_service = self.config_get('service')
 
         # Translators: Other service
-        other_label = _(u"Other…")
+        other_label = _("Other…")
         for idx, serv in enumerate(sorted(SERVICES.keys()) + [other_label]):
             service_combo.append_text(serv)
             if cur_service == serv:

@@ -96,7 +96,7 @@ class EventPluginHandler(PluginHandler):
                 args[0] = SongWrapper(args[0])
             elif isinstance(args[0], (set, list)):
                 args[0] = ListWrapper(args[0])
-        for plugin in self.__plugins.itervalues():
+        for plugin in self.__plugins.values():
             method_name = 'plugin_on_' + event.replace('-', '_')
             handler = getattr(plugin, method_name, None)
             if handler is not None:
@@ -110,7 +110,7 @@ class EventPluginHandler(PluginHandler):
             songs = args[0]
             if not isinstance(songs, (set, list)):
                 songs = [songs]
-            songs = filter(None, songs)
+            songs = [_f for _f in songs if _f]
             check_wrapper_changed(librarian, app.window, songs)
 
     def plugin_handle(self, plugin):

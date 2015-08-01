@@ -130,7 +130,7 @@ class Notebook(Gtk.Notebook):
 
     def __key_pressed(self, widget, event):
         # alt+X switches to page X
-        for i in xrange(self.get_n_pages()):
+        for i in range(self.get_n_pages()):
             if is_accel(event, "<alt>%d" % (i + 1)):
                 self.set_current_page(i)
                 return True

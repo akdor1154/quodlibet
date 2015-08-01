@@ -9,8 +9,7 @@
 import os
 import contextlib
 
-from gi.repository import Gtk, Gdk, GObject, Pango, GLib
-import cairo
+from gi.repository import Gtk, Gdk, GObject, Pango, GLib, cairo
 
 from quodlibet import config
 from quodlibet.qltk import get_top_parent, is_accel, is_wayland, gtk_version, \
@@ -96,7 +95,7 @@ class TreeViewHints(Gtk.Window):
             .ql-tooltip {
                 padding: 0px;
             }
-        """)
+        """.encode())
 
         # somehow this doesn't apply if we set it on the window, only
         # if set for the screen. gets reverted again in disconnect_view()
@@ -144,7 +143,7 @@ class TreeViewHints(Gtk.Window):
             self.__undisplay()
             return False
 
-        x, y = map(int, [event.x, event.y])
+        x, y = list(map(int, [event.x, event.y]))
 
         # For gtk3.16 overlay scrollbars: if our event x coordinate
         # is contained in the scrollbar, hide the tooltip. Unlike other
@@ -190,8 +189,8 @@ class TreeViewHints(Gtk.Window):
 
         # get the renderer at the mouse position and get the xpos/width
         renderers = col.get_cells()
-        pos = sorted(zip(map(col.cell_get_position, renderers), renderers))
-        pos = filter(lambda ((x, w), r): x < cellx, pos)
+        pos = sorted(zip(list(map(col.cell_get_position, renderers)), renderers))
+        pos = [x_w_r for x_w_r in pos if x_w_r[0][0] < cellx]
         if not pos:
             self.__undisplay()
             return False
@@ -632,7 +631,7 @@ class BaseView(Gtk.TreeView):
     def remove_paths(self, paths):
         """Remove rows and restore the selection if it got removed"""
 
-        self.remove_iters(map(self.get_model().get_iter, paths))
+        self.remove_iters(list(map(self.get_model().get_iter, paths)))
 
     def remove_iters(self, iters):
         """Remove rows and restore the selection if it got removed"""
@@ -651,7 +650,7 @@ class BaseView(Gtk.TreeView):
                 self.__remove_iters([iter_], force_restore=True)
         elif mode == Gtk.SelectionMode.MULTIPLE:
             model, paths = selection.get_selected_rows()
-            iters = map(model.get_iter, paths or [])
+            iters = list(map(model.get_iter, paths or []))
             self.__remove_iters(iters, force_restore=True)
 
     def select_by_func(self, func, scroll=True, one=False):
@@ -800,7 +799,7 @@ class DragIconTreeView(BaseView):
 
         layout = None
         if len(paths) > max_rows:
-            more = _(u"and %d more…") % (len(paths) - max_rows)
+            more = _("and %d more…") % (len(paths) - max_rows)
             more = "<i>%s</i>" % more
             layout = self.create_pango_layout("")
             layout.set_markup(more)
@@ -862,7 +861,7 @@ class MultiDragTreeView(BaseView):
             return self.__block_selection(event)
 
     def __block_selection(self, event):
-        x, y = map(int, [event.x, event.y])
+        x, y = list(map(int, [event.x, event.y]))
         try:
             path, col, cellx, celly = self.get_path_at_pos(x, y)
         except TypeError:
@@ -887,7 +886,7 @@ class MultiDragTreeView(BaseView):
             oldevent = self.__pending_event
             self.__pending_event = None
 
-            x, y = map(int, [event.x, event.y])
+            x, y = list(map(int, [event.x, event.y]))
             if oldevent != [x, y]:
                 return True
 
@@ -910,7 +909,7 @@ class RCMTreeView(BaseView):
             return self.__check_popup(event)
 
     def __check_popup(self, event):
-        x, y = map(int, [event.x, event.y])
+        x, y = list(map(int, [event.x, event.y]))
         try:
             path, col, cellx, celly = self.get_path_at_pos(x, y)
         except TypeError:

@@ -11,7 +11,7 @@ from quodlibet.qltk import pygobject_version
 
 
 def _gets_marshaled_to_pyobject(obj,
-        _types=(long, float, int, basestring, bool, GObject.Object)):
+        _types=(int, float, int, str, bool, GObject.Object)):
     """Python objects get automarshalled to GValues which is faster than
     doing it in python but also has its own mapping, because it doesn't
     know the column type of the model.

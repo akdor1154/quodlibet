@@ -330,9 +330,9 @@ class PythonConsole(Gtk.ScrolledWindow):
             try:
                 r = eval(command, self.namespace, self.namespace)
                 if r is not None:
-                    print repr(r)
+                    print(repr(r))
             except SyntaxError:
-                exec command in self.namespace
+                exec(command, self.namespace)
         except:
             if hasattr(sys, 'last_type') and sys.last_type == SystemExit:
                 self.destroy()

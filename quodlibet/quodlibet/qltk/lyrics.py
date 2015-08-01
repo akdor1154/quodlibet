@@ -12,7 +12,7 @@
 
 import os
 import threading
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from gi.repository import Gtk, GLib
 
@@ -72,10 +72,10 @@ class LyricsPane(Gtk.VBox):
     def __add(self, add, song):
         artist = song.comma('artist').encode('utf-8')
 
-        util.website("http://lyricwiki.org/%s" % (urllib.quote(artist)))
+        util.website("http://lyricwiki.org/%s" % (urllib.parse.quote(artist)))
 
     def __refresh(self, refresh, add, buffer, song):
-        buffer.set_text(_(u"Searching for lyrics…"))
+        buffer.set_text(_("Searching for lyrics…"))
         refresh.set_sensitive(False)
         thread = threading.Thread(
             target=self.__search, args=(song, buffer, refresh, add))
@@ -87,13 +87,13 @@ class LyricsPane(Gtk.VBox):
         title = song.comma("title")
 
         try:
-            sock = urllib.urlopen(
+            sock = urllib.request.urlopen(
                 "http://lyricwiki.org/api.php?"
                 "client=QuodLibet&func=getSong&artist=%s&song=%s&fmt=text" % (
-                urllib.quote(artist.encode('utf-8')),
-                urllib.quote(title.encode('utf-8'))))
+                urllib.parse.quote(artist.encode('utf-8')),
+                urllib.parse.quote(title.encode('utf-8'))))
             text = sock.read()
-        except Exception, err:
+        except Exception as err:
             encoding = util.get_locale_encoding()
             try:
                 err = err.strerror.decode(encoding, 'replace')
@@ -115,7 +115,7 @@ class LyricsPane(Gtk.VBox):
     def __save(self, save, lyricname, buffer, delete):
         try:
             os.makedirs(os.path.dirname(lyricname))
-        except EnvironmentError, err:
+        except EnvironmentError as err:
             pass
 
         try:

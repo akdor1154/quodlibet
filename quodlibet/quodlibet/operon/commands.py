@@ -55,7 +55,7 @@ class ListCommand(Command):
         if not options.columns:
             order = nicks
         else:
-            order = map(str.strip, options.columns.split(","))
+            order = list(map(str.strip, options.columns.split(",")))
 
         song = self.load_song(path)
         tags = list_tags(song, machine=options.all, terse=options.terse)
@@ -89,7 +89,7 @@ class TagsCommand(Command):
         if not options.columns:
             order = nicks
         else:
-            order = map(str.strip, options.columns.split(","))
+            order = list(map(str.strip, options.columns.split(",")))
 
         tags = []
         for key in USER_TAGS:
@@ -158,27 +158,27 @@ class EditCommand(Command):
         lines = []
         for key in sorted(song.realkeys(), key=sortkey):
             for value in song.list(key):
-                lines.append(u"%s=%s" % (key, value))
+                lines.append("%s=%s" % (key, value))
 
         lines += [
-            u"",
-            u"#" * 80,
-            u"# Lines that are empty or start with '#' will be ignored",
-            u"# File: %r" % fsdecode(song("~filename")),
+            "",
+            "#" * 80,
+            "# Lines that are empty or start with '#' will be ignored",
+            "# File: %r" % fsdecode(song("~filename")),
         ]
 
-        return u"\n".join(lines)
+        return "\n".join(lines)
 
     def _text_to_song(self, text, song):
-        assert isinstance(text, unicode)
+        assert isinstance(text, str)
 
         # parse
         tags = {}
         for line in text.splitlines():
-            if not line.strip() or line.startswith(u"#"):
+            if not line.strip() or line.startswith("#"):
                 continue
             try:
-                key, value = line.split(u"=", 1)
+                key, value = line.split("=", 1)
             except ValueError:
                 continue
 
@@ -197,7 +197,7 @@ class EditCommand(Command):
                     self.log("Add %s=%s" % (key, value))
                     song.add(key, value)
 
-        for key, values in tags.iteritems():
+        for key, values in tags.items():
             if not song.can_change(key):
                 raise CommandError(
                     "Can't change key '%(key-name)s'." % {"key-name": key})
@@ -237,10 +237,10 @@ class EditCommand(Command):
             try:
                 subprocess.check_call(editor_args + [path])
             except subprocess.CalledProcessError as e:
-                self.log(unicode(e))
+                self.log(str(e))
                 raise CommandError(_("Editing aborted"))
             except OSError as e:
-                self.log(unicode(e))
+                self.log(str(e))
                 raise CommandError(
                     _("Starting text editor '%(editor-name)s' failed.") % {
                         "editor-name": editor_args[0]})
@@ -343,7 +343,7 @@ class ClearCommand(Command):
                 tags.extend(realkeys)
             elif options.regexp is not None:
                 e = re.compile(options.regexp)
-                tags.extend(filter(e.match, realkeys))
+                tags.extend(list(filter(e.match, realkeys)))
             else:
                 tag = args[0]
                 if tag in realkeys:
@@ -468,18 +468,18 @@ class InfoCommand(Command):
         if not options.columns:
             order = nicks
         else:
-            order = map(str.strip, options.columns.split(","))
+            order = list(map(str.strip, options.columns.split(",")))
 
         if not options.terse:
             tags = []
             for key in ["~format", "~length", "~#bitrate", "~filesize"]:
-                tags.append((util.tag(key), unicode(song(key))))
+                tags.append((util.tag(key), str(song(key))))
 
             print_table(tags, headers, nicks, order)
         else:
             tags = []
             for key in ["~format", "~#length", "~#bitrate", "~#filesize"]:
-                tags.append((key.lstrip("#~"), unicode(song(key))))
+                tags.append((key.lstrip("#~"), str(song(key))))
 
             print_terse_table(tags, nicks, order)
 
@@ -680,7 +680,7 @@ class FillCommand(Command):
             match = pattern.match(song)
             row = [fsdecode(song("~basename"))]
             for header in pattern.headers:
-                row.append(match.get(header, u""))
+                row.append(match.get(header, ""))
             rows.append(row)
 
         headers = [_("File")] + pattern.headers

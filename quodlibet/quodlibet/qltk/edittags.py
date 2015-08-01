@@ -146,10 +146,10 @@ class AudioFileGroup(dict):
         self._can_change = can_change
 
         # collect comment representations
-        for tag, count in keys.iteritems():
+        for tag, count in keys.items():
             first_value = first[tag]
-            if not isinstance(first_value, basestring):
-                first_value = unicode(first_value)
+            if not isinstance(first_value, str):
+                first_value = str(first_value)
             shared = all[tag]
             complete = count == total
             if shared and complete:
@@ -560,7 +560,8 @@ class EditTags(Gtk.VBox):
         for b in buttons:
             b.set_sensitive(True)
 
-    def __paste(self, clip, text, (rend, path)):
+    def __paste(self, clip, text, xxx_todo_changeme):
+        (rend, path) = xxx_todo_changeme
         if text:
             rend.emit('edited', path, text.strip())
 
@@ -620,7 +621,7 @@ class EditTags(Gtk.VBox):
                 else:
                     b.connect('activate', self.__menu_activate, view)
 
-                    if (not min(map(self.__songinfo.can_change, b.needs) + [1])
+                    if (not min(list(map(self.__songinfo.can_change, b.needs)) + [1])
                             or comment.is_special()):
                         b.set_sensitive(False)
 
@@ -651,7 +652,7 @@ class EditTags(Gtk.VBox):
         remove.set_sensitive(bool(rows))
 
     def __add_new_tag(self, model, tag, value):
-        assert isinstance(value, unicode)
+        assert isinstance(value, str)
         iters = [i for (i, v) in model.iterrows() if v.tag == tag]
         if iters and not self.__songinfo.can_multiple_values(tag):
             title = _("Unable to add tag")
@@ -680,7 +681,7 @@ class EditTags(Gtk.VBox):
                 break
             tag = add.get_tag()
             value = add.get_value()
-            assert isinstance(value, unicode)
+            assert isinstance(value, str)
             if tag in massagers.tags:
                 value = massagers.tags[tag].validate(value)
             if not self.__songinfo.can_change(tag):
@@ -714,7 +715,7 @@ class EditTags(Gtk.VBox):
         added = {}
         renamed = {}
 
-        for entry in model.itervalues():
+        for entry in model.values():
             if entry.edited and not (entry.deleted or entry.renamed):
                 if entry.origvalue is not None:
                     l = updated.setdefault(entry.tag, [])
@@ -747,7 +748,7 @@ class EditTags(Gtk.VBox):
                     break
 
             changed = False
-            for key, values in updated.iteritems():
+            for key, values in updated.items():
                 for (new_value, old_value) in values:
                     if song.can_change(key):
                         if old_value is None:
@@ -756,20 +757,20 @@ class EditTags(Gtk.VBox):
                             song.change(key, old_value.text, new_value.text)
                         changed = True
 
-            for key, values in added.iteritems():
+            for key, values in added.items():
                 for value in values:
                     if song.can_change(key):
                         song.add(key, value.text)
                         changed = True
 
-            for key, values in deleted.iteritems():
+            for key, values in deleted.items():
                 for value in values:
                     if key in song:
                         song.remove(key, value.text)
                         changed = True
 
             save_rename = []
-            for new_tag, values in renamed.iteritems():
+            for new_tag, values in renamed.items():
                 for old_tag, new_value, old_value in values:
                     if (song.can_change(new_tag) and old_tag in song):
                         if not new_value.is_special():
@@ -888,7 +889,7 @@ class EditTags(Gtk.VBox):
         if event.button not in [Gdk.BUTTON_PRIMARY, Gdk.BUTTON_MIDDLE]:
             return Gdk.EVENT_PROPAGATE
 
-        x, y = map(int, [event.x, event.y])
+        x, y = list(map(int, [event.x, event.y]))
         try:
             path, col, cellx, celly = view.get_path_at_pos(x, y)
         except TypeError:
@@ -931,7 +932,7 @@ class EditTags(Gtk.VBox):
             self.__songinfo = AudioFileGroup(songs)
         songinfo = self.__songinfo
 
-        keys = songinfo.keys()
+        keys = list(songinfo.keys())
         default_tags = get_default_tags()
         keys = set(keys + default_tags)
 
@@ -943,7 +944,7 @@ class EditTags(Gtk.VBox):
             return (prio, tagsortkey(key))
 
         if not config.getboolean("editing", "alltags"):
-            keys = filter(lambda k: k not in MACHINE_TAGS, keys)
+            keys = [k for k in keys if k not in MACHINE_TAGS]
 
         if not songs:
             keys = []
@@ -956,7 +957,7 @@ class EditTags(Gtk.VBox):
 
                 # default tags
                 if tag not in songinfo:
-                    entry = ListEntry(tag, Comment(u""))
+                    entry = ListEntry(tag, Comment(""))
                     entry.canedit = canedit
                     model.append(row=[entry])
                     continue
@@ -992,7 +993,7 @@ class EditTags(Gtk.VBox):
             if comment.shared:
                 editable.set_text(comment.text)
             else:
-                editable.set_text(u"")
+                editable.set_text("")
 
     def __tag_editing_started(self, render, editable, path, model, library):
         if not editable.get_completion():

@@ -16,11 +16,11 @@ from . import TestCase, DATA_DIR
 
 quux = AudioFile({
     "~filename": os.path.join(DATA_DIR, "asong.ogg"),
-    "album": u"Quuxly",
+    "album": "Quuxly",
 })
 
 bar_2_1 = AudioFile({
-    "~filename": fsnative(u"does not/exist"),
+    "~filename": fsnative("does not/exist"),
     "title": "more songs",
     "discnumber": "2/2", "tracknumber": "1",
     "artist": "Foo\nI have two artists", "album": "Bar",
@@ -53,14 +53,14 @@ class TCoverManager(TestCase):
         return os.path.join(self.dir, path)
 
     def test_dir_not_exist(self):
-        self.failIf(self._find_cover(bar_2_1))
+        self.assertFalse(self._find_cover(bar_2_1))
 
     def test_nothing(self):
-        self.failIf(self._find_cover(quux))
+        self.assertFalse(self._find_cover(quux))
 
     def test_labelid(self):
         quux["labelid"] = "12345"
-        self.failUnlessEqual(os.path.abspath(self._find_cover(quux).name),
+        self.assertEqual(os.path.abspath(self._find_cover(quux).name),
                              self.full_path("12345.jpg"))
         del(quux["labelid"])
 
@@ -71,7 +71,7 @@ class TCoverManager(TestCase):
         for f in files:
             file(f, "w").close()
             self.files.append(f)
-            self.failUnlessEqual(
+            self.assertEqual(
                 os.path.abspath(self._find_cover(quux).name), f)
         self.test_labelid() # labelid must work with other files present
 
@@ -82,7 +82,7 @@ class TCoverManager(TestCase):
         f = self.full_path("\xff\xff\xff\xff - cover.jpg")
         file(f, "w").close()
         self.files.append(f)
-        self.assertTrue(isinstance(quux("album"), unicode))
+        self.assertTrue(isinstance(quux("album"), str))
         h = self._find_cover(quux)
         self.assertEqual(h.name, normalize_path(f))
 
@@ -99,10 +99,10 @@ class TCoverManager(TestCase):
             cover = self._find_cover(song)
             if cover:
                 actual = os.path.abspath(cover.name)
-                self.failUnlessEqual(actual, f)
+                self.assertEqual(actual, f)
             else:
                 # Here, no cover is better than the back...
-                self.failUnlessEqual(f, self.full_path("Quuxly - back.jpg"))
+                self.assertEqual(f, self.full_path("Quuxly - back.jpg"))
 
     def test_embedded_special_cover_words(self):
         """Tests that words incidentally containing embedded "special" words
@@ -110,7 +110,7 @@ class TCoverManager(TestCase):
         See Issue 818"""
 
         song = AudioFile({
-            "~filename": fsnative(u"tests/data/asong.ogg"),
+            "~filename": fsnative("tests/data/asong.ogg"),
             "album": "foobar",
             "title": "Ode to Baz",
             "artist": "Q-Man",
@@ -127,10 +127,10 @@ class TCoverManager(TestCase):
             cover = self._find_cover(song)
             if cover:
                 actual = os.path.abspath(cover.name)
-                self.failUnlessEqual(
+                self.assertEqual(
                     actual, f, "\"%s\" should trump \"%s\"" % (f, actual))
             else:
-                self.failUnless(f, self.full_path('back.jpg'))
+                self.assertTrue(f, self.full_path('back.jpg'))
 
     def test_get_thumbnail(self):
         self.assertTrue(self.manager.get_pixbuf(quux, 10, 10) is None)

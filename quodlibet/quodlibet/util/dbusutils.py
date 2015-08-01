@@ -31,7 +31,7 @@ def dbus_unicode_validate(text):
             cps.append(c)
         else:
             cps.append(0xFFFD)
-    return u"".join(map(unichr, cps))
+    return "".join(map(chr, cps))
 
 
 def list_spec_properties(spec):
@@ -122,7 +122,7 @@ def apply_signature(value, sig, utf8_strings=False):
         return dbus.Array(value, signature=sig[1:])
     elif sig == "s":
         if utf8_strings:
-            if isinstance(value, unicode):
+            if isinstance(value, str):
                 value = value.encode("utf-8")
             return dbus.UTF8String(value)
         else:
@@ -168,7 +168,7 @@ class DBusIntrospectable(object):
     def Introspect(self):
         parts = []
         parts.append("<node>")
-        for iface, intros in self.__ispec.iteritems():
+        for iface, intros in self.__ispec.items():
             parts.append("<interface name=\"%s\">" % iface)
             parts.extend(intros)
             parts.append("</interface>")
@@ -234,7 +234,7 @@ class DBusProperty(object):
         """Returns a list of (interface, property) for all properties of
         the specified interface and subinterfaces"""
 
-        result = [(interface, p) for p in self.__props[interface].keys()]
+        result = [(interface, p) for p in list(self.__props[interface].keys())]
         for sub in self.__impl[interface]:
             result.extend(self.get_properties(sub))
         return result
@@ -279,7 +279,7 @@ class DBusProperty(object):
                 raise ValueError("Property %s not registered" % prop)
             combos.setdefault(iface, []).append(prop)
 
-        for iface, props in combos.iteritems():
+        for iface, props in combos.items():
             values = {}
             inval = []
             for prop in props:

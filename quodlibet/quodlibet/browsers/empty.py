@@ -37,7 +37,7 @@ class EmptyBar(Browser):
 
     def __init__(self, library):
         super(EmptyBar, self).__init__()
-        self._text = u""
+        self._text = ""
         self._query = None
         self._library = library
 

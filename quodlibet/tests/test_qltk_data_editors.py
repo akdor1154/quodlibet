@@ -11,14 +11,14 @@ class TMultiStringEditor(TestCase):
 
     def test_no_strings(self):
         mse = MultiStringEditor("title")
-        self.failUnlessEqual(mse.get_strings(), [])
-        self.failUnlessEqual(mse.get_title(), "title")
+        self.assertEqual(mse.get_strings(), [])
+        self.assertEqual(mse.get_title(), "title")
         mse.destroy()
 
     def test_defaulting(self):
         defaults = ["one", "two three"]
         mse = MultiStringEditor("title", defaults)
-        self.failUnlessEqual(mse.get_strings(), defaults)
+        self.assertEqual(mse.get_strings(), defaults)
         mse.destroy()
 
     def tearDown(self):

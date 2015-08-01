@@ -148,7 +148,7 @@ class Plugin(object):
     @property
     def tags(self):
         tags = getattr(self.cls, "PLUGIN_TAGS", [])
-        if isinstance(tags, basestring):
+        if isinstance(tags, str):
             tags = [tags]
         return tags
 
@@ -275,14 +275,14 @@ class PluginManager(object):
 
     @property
     def _modules(self):
-        return self.__scanner.modules.itervalues()
+        return iter(self.__scanner.modules.values())
 
     @property
     def _plugins(self):
         """All registered plugins"""
 
         plugins = []
-        for module in self.__modules.itervalues():
+        for module in self.__modules.values():
             for plugin in module.plugins:
                 plugins.append(plugin)
         return plugins
@@ -366,7 +366,7 @@ class PluginManager(object):
         """module name: list of error message text lines"""
 
         errors = {}
-        for name, error in self.__scanner.failures.iteritems():
+        for name, error in self.__scanner.failures.items():
             exception = error.exception
             if isinstance(exception, PluginImportException):
                 if not exception.should_show():
@@ -380,7 +380,7 @@ class PluginManager(object):
     def quit(self):
         """Disable plugins and tell all handlers to clean up"""
 
-        for name in self.__modules.keys():
+        for name in list(self.__modules.keys()):
             self.__remove_module(name)
 
     def __remove_module(self, name):

@@ -32,7 +32,7 @@ class TParsePlaylistMixin(object):
         file(name, "w").close()
         pl = self.Parse(name)
         os.unlink(name)
-        self.failUnlessEqual(0, len(pl))
+        self.assertEqual(0, len(pl))
         pl.delete()
 
     def test_parse_onesong(self):
@@ -44,8 +44,8 @@ class TParsePlaylistMixin(object):
             f.write(target)
         list = self.Parse(name)
         os.unlink(name)
-        self.failUnlessEqual(len(list), 1)
-        self.failUnlessEqual(list[0]("title"), "Silence")
+        self.assertEqual(len(list), 1)
+        self.assertEqual(list[0]("title"), "Silence")
         list.delete()
 
     def test_parse_onesong_uri(self):
@@ -60,8 +60,8 @@ class TParsePlaylistMixin(object):
         f.close()
         list = self.Parse(name)
         os.unlink(name)
-        self.failUnlessEqual(len(list), 1)
-        self.failUnlessEqual(list[0]("title"), "Silence")
+        self.assertEqual(len(list), 1)
+        self.assertEqual(list[0]("title"), "Silence")
         list.delete()
 
 
@@ -80,23 +80,23 @@ class TPlaylistIntegration(TestCase):
     SONG = AudioFile({
                 "title": "two",
                 "artist": "mu",
-                "~filename": fsnative(u"/dev/zero")})
+                "~filename": fsnative("/dev/zero")})
     SONGS = [
         AudioFile({
                 "title": "one",
                 "artist": "piman",
-                "~filename": fsnative(u"/dev/null")}),
+                "~filename": fsnative("/dev/null")}),
         SONG,
         AudioFile({
                 "title": "three",
                 "artist": "boris",
-                "~filename": fsnative(u"/bin/ls")}),
+                "~filename": fsnative("/bin/ls")}),
         AudioFile({
                 "title": "four",
                 "artist": "random",
                 "album": "don't stop",
                 "labelid": "65432-1",
-                "~filename": fsnative(u"/dev/random")}),
+                "~filename": fsnative("/dev/random")}),
         SONG,
         ]
 
@@ -120,28 +120,28 @@ class TPlaylistIntegration(TestCase):
 
     def test_remove_song(self):
         # Check: library should have one song fewer (the duplicate)
-        self.failUnlessEqual(len(self.lib),
+        self.assertEqual(len(self.lib),
                              len(self.SONGS) - self.DUPLICATES)
-        self.failUnlessEqual(len(self.pl), len(self.SONGS))
+        self.assertEqual(len(self.pl), len(self.SONGS))
 
         # Remove an unduplicated song
         self.pl.remove_songs([self.SONGS[0]])
-        self.failUnlessEqual(len(self.pl), len(self.SONGS) - 1)
+        self.assertEqual(len(self.pl), len(self.SONGS) - 1)
 
     def test_remove_duplicated_song(self):
-        self.failUnlessEqual(self.SONGS[1], self.SONGS[4])
+        self.assertEqual(self.SONGS[1], self.SONGS[4])
         self.pl.remove_songs([self.SONGS[1]])
-        self.failUnlessEqual(len(self.pl), len(self.SONGS) - 2)
+        self.assertEqual(len(self.pl), len(self.SONGS) - 2)
 
     def test_remove_multi_duplicated_song(self):
         self.pl.extend([self.SONG, self.SONG])
-        self.failUnlessEqual(len(self.pl), 7)
+        self.assertEqual(len(self.pl), 7)
         self.pl.remove_songs([self.SONG], False)
-        self.failUnlessEqual(len(self.pl), 7 - 2 - 2)
+        self.assertEqual(len(self.pl), 7 - 2 - 2)
 
     def test_remove_duplicated_song_leave_dupes(self):
         self.pl.remove_songs([self.SONGS[1]], True)
-        self.failUnlessEqual(len(self.pl), len(self.SONGS) - 1)
+        self.assertEqual(len(self.pl), len(self.SONGS) - 1)
 
     def test_remove_no_lib(self):
         pl = Playlist.new(self._dir, "Foobar")
@@ -156,7 +156,7 @@ class TPlaylists(TSearchBar):
     ANOTHER_SONG = AudioFile({
         "title": "lonely",
         "artist": "new artist",
-        "~filename": fsnative(u"/dev/urandom")})
+        "~filename": fsnative("/dev/urandom")})
 
     @classmethod
     def setUpClass(cls):

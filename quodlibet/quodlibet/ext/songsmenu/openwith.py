@@ -9,7 +9,7 @@ from quodlibet.util import connect_obj
 
 
 class Command(object):
-    FILES, URIS, FOLDERS = range(3)
+    FILES, URIS, FOLDERS = list(range(3))
 
     def __init__(self, title, command, type):
         self.title = title
@@ -26,13 +26,13 @@ class Command(object):
             files = [song("~filename") for song in songs]
         elif self.type == self.URIS:
             files = [song("~uri") for song in songs]
-        files = dict.fromkeys(files).keys()
+        files = list(dict.fromkeys(files).keys())
         util.spawn(self.command.split() + files)
 
 
 class SendTo(SongsMenuPlugin):
     PLUGIN_ID = 'SendTo'
-    PLUGIN_NAME = _(u'Send To…')
+    PLUGIN_NAME = _('Send To…')
     PLUGIN_DESC = _("Generic file-opening plugin.")
     PLUGIN_ICON = Icons.SYSTEM_RUN
 
