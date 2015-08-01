@@ -365,7 +365,7 @@ class GStreamerPlayer(BasePlayer, GStreamerPluginHandler):
                         "mpg123audiodec": -2
                     }.get(f.get_name(), i)
                     return (i, f)
-                return zip(*sorted(map(set_prio, enumerate(factories))))[1]
+                return list(zip(*sorted(map(set_prio, enumerate(factories)))))[1]
 
             for e in iter_to_list(self.bin.iterate_recurse):
                 try:

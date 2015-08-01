@@ -32,7 +32,7 @@ class JEP118(EventPlugin):
     def plugin_on_song_started(self, song):
         if song is None:
             try:
-                f = file(outfile, "w")
+                f = open(outfile, "w")
                 f.write("<tune xmlns='http://jabber.org/protocol/tune'/>")
             except EnvironmentError:
                 pass
@@ -40,7 +40,7 @@ class JEP118(EventPlugin):
                 f.close()
         else:
             try:
-                f = file(outfile, "wb")
+                f = open(outfile, "wb")
                 f.write(format % (
                     util.escape(song.comma("artist")),
                     util.escape(song.comma("title")),

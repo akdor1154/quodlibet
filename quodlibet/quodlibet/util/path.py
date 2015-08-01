@@ -121,15 +121,15 @@ else:
 
     def fsnative(path=""):
         assert isinstance(path, str)
-        return path.encode(_FSCODING, 'replace')
+        return path
 
     def glib2fsnative(path):
         assert isinstance(path, bytes)
-        return path
+        return path.decode('utf-8')
 
     def fsnative2glib(path):
-        assert isinstance(path, bytes)
-        return path
+        assert isinstance(path, str)
+        return path.encode('utf-8')
 
     fsnative2bytes = fsnative2glib
 

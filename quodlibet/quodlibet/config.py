@@ -311,7 +311,7 @@ class RatingsPrefs(object):
 
     @staticmethod
     def __get_symbol(variant="full"):
-        return get("settings", "rating_symbol_%s" % variant).decode("utf-8")
+        return get("settings", "rating_symbol_%s" % variant)
 
 
 class HardCodedRatingsPrefs(RatingsPrefs):

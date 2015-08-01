@@ -61,8 +61,6 @@ class Logs(object):
         content = []
         for cat, string in self._save_iter():
             if category is None or category == cat:
-                if isinstance(string, str):
-                    string = string.decode("utf-8", "replace")
                 content.append(string)
 
         if limit is not None:

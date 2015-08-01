@@ -41,7 +41,7 @@ class TimeLabel(Gtk.Label):
 
         # If for same number of characters, the needed width was larger,
         # use that instead of the current one
-        num_chars = len(self.get_text().decode("utf-8"))
+        num_chars = len(self.get_text())
         max_widths = self.__widths.get(num_chars, widths)
         widths = max(widths[0], max_widths[0]), max(widths[1], max_widths[1])
         self.__widths[num_chars] = widths

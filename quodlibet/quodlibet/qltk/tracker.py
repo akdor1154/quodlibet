@@ -162,7 +162,7 @@ class FSInterface(object):
     def __started(self, player, song):
         if song:
             try:
-                f = file(self.path, "w")
+                f = open(self.path, "w")
             except EnvironmentError:
                 pass
             else:

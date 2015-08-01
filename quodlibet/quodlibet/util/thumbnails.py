@@ -64,7 +64,7 @@ def get_cache_info(path, boundary):
     cache_dir = os.path.join(thumb_folder, size_name)
 
     uri = "file://" + pathname2url(path)
-    thumb_name = hashlib.md5(uri).hexdigest() + ".png"
+    thumb_name = hashlib.md5(uri.encode()).hexdigest() + ".png"
     thumb_path = os.path.join(cache_dir, thumb_name)
 
     return (thumb_path, thumb_size)

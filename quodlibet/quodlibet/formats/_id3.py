@@ -218,10 +218,8 @@ class ID3File(AudioFile):
 
     def __validate_name(self, k):
         """Returns a ascii string or None if the key isn't supported"""
-        if isinstance(k, str):
-            k = k.encode("utf-8")
         if not (k and "=" not in k and "~" not in k
-                and k.encode("ascii", "replace") == k):
+                and k.encode('utf-8', 'replace').decode("ascii", "replace") == k):
             return
         return k
 

@@ -65,6 +65,10 @@ def _wrap_class(lib, version, base, ptr, prefix, methods):
                 # the first arg is the pointer to the struct, check for
                 # null pointers before passing it...
                 args[0].contents
+                args = map(lambda arg, ctype:
+                            arg.encode() if ctype == c_char_p and isinstance(arg, str)
+                                         else arg,
+                            args, f.argtypes)
                 return f(*args)
             return check
 

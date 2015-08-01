@@ -191,7 +191,7 @@ class StandaloneEditor(_KeyValueEditor):
         """Returns a list of tuples representing k,v pairs of the given file"""
         ret = []
         if os.path.exists(filename):
-            fileobj = file(filename, "rU")
+            fileobj = open(filename, "rU")
             lines = list(fileobj.readlines())
             for i in range(len(lines) / 2):
                 ret.append((lines[i * 2 + 1].strip(), lines[i * 2].strip()))
@@ -206,7 +206,7 @@ class StandaloneEditor(_KeyValueEditor):
     def fill_values(self):
         filename = self.filename + ".saved"
         if os.path.exists(filename):
-            fileobj = file(filename, "rU")
+            fileobj = open(filename, "rU")
             lines = list(fileobj.readlines())
             lines.reverse()
             while len(lines) > 1:
@@ -225,7 +225,7 @@ class StandaloneEditor(_KeyValueEditor):
                 if not os.path.isdir(os.path.dirname(self.filename)):
                     os.makedirs(os.path.dirname(self.filename))
 
-            saved = file(self.filename + ".saved", "w")
+            saved = open(self.filename + ".saved", "w")
             for row in self.model:
                 saved.write(row[0] + "\n")
                 saved.write(row[1] + "\n")
@@ -315,7 +315,7 @@ class ComboBoxEntrySave(Gtk.ComboBox):
             return
 
         if os.path.exists(filename + ".saved"):
-            fileobj = file(filename + ".saved", "rU")
+            fileobj = open(filename + ".saved", "rU")
             lines = list(fileobj.readlines())
             lines.reverse()
             while len(lines) > 1:
@@ -323,7 +323,7 @@ class ComboBoxEntrySave(Gtk.ComboBox):
                     row=[lines.pop(1).strip(), lines.pop(0).strip(), None])
 
         if os.path.exists(filename):
-            for line in file(filename, "rU").readlines():
+            for line in open(filename, "rU").readlines():
                 line = line.strip()
                 model.append(row=[line, line, None])
 
@@ -356,8 +356,8 @@ class ComboBoxEntrySave(Gtk.ComboBox):
                 if not os.path.isdir(os.path.dirname(filename)):
                     os.makedirs(os.path.dirname(filename))
 
-            saved = file(filename + ".saved", "w")
-            memory = file(filename, "w")
+            saved = open(filename + ".saved", "w")
+            memory = open(filename, "w")
             target = saved
             for row in self.get_model():
                 if row[0] is None:

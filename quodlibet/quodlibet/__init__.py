@@ -295,7 +295,7 @@ def _init_gtk():
 
     # Make sure PyGObject includes support for foreign cairo structs
     try:
-        from gi.repository import cairo
+        import cairo
     except AttributeError:
         # older pygobject
         pass

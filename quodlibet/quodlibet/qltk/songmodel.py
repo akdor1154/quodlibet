@@ -145,7 +145,7 @@ class TrackCurrentModel(ObjectStore):
     def get(self):
         """A list of all contained songs"""
 
-        return list(self.values())
+        return list(self.itervalues())
 
     @property
     def current(self):

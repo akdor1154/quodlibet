@@ -119,7 +119,7 @@ class LyricsPane(Gtk.VBox):
             pass
 
         try:
-            f = file(lyricname, "w")
+            f = open(lyricname, "w")
         except EnvironmentError as err:
             encoding = util.get_locale_encoding()
             print_w(err.strerror.decode(encoding, "replace"))

@@ -9,7 +9,8 @@
 import os
 import contextlib
 
-from gi.repository import Gtk, Gdk, GObject, Pango, GLib, cairo
+from gi.repository import Gtk, Gdk, GObject, Pango, GLib
+import cairo
 
 from quodlibet import config
 from quodlibet.qltk import get_top_parent, is_accel, is_wayland, gtk_version, \

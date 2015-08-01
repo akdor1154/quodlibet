@@ -15,11 +15,11 @@ class TComboBoxEntrySave(TestCase):
         quodlibet.config.init()
         h, self.fname = mkstemp()
         os.close(h)
-        f = file(self.fname, "w")
+        f = open(self.fname, "w")
         f.write(self.memory)
         f.close()
 
-        f = file(self.fname + ".saved", "w")
+        f = open(self.fname + ".saved", "w")
         f.write(self.saved)
         f.close()
         self.cbes = ComboBoxEntrySave(self.fname, count=2)
@@ -74,8 +74,8 @@ class TComboBoxEntrySave(TestCase):
 
     def test_save(self):
         self.cbes.write()
-        self.assertEqual(self.memory, file(self.fname).read())
-        self.assertEqual(self.saved, file(self.fname + ".saved").read())
+        self.assertEqual(self.memory, open(self.fname).read())
+        self.assertEqual(self.saved, open(self.fname + ".saved").read())
 
     def test_set_text_then_prepend(self):
         self.cbes.get_child().set_text("foobar")
@@ -99,7 +99,7 @@ class TStandaloneEditor(TestCase):
         quodlibet.config.init()
         h, self.fname = mkstemp()
         os.close(h)
-        f = file(self.fname + ".saved", "w")
+        f = open(self.fname + ".saved", "w")
         f.write(
             "%s\n%s\n" % (self.TEST_KV_DATA[0][1], self.TEST_KV_DATA[0][0]))
         f.close()

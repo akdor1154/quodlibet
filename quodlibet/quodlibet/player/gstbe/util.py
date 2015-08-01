@@ -39,7 +39,7 @@ def iter_to_list(func):
 
     iter_ = func()
     while 1:
-        status, value = next(iter_)
+        status, value = iter_.next()
         if status == Gst.IteratorResult.OK:
             objects.append(value)
         else:

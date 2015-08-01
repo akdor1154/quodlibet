@@ -53,7 +53,7 @@ def query(category, discid, xcode='utf8:utf8'):
     tracktitles = {}
     dump = path.join(expanduser("~"), '.cddb', category, discid)
     try:
-        for line in file(dump):
+        for line in open(dump):
             if line.startswith("TTITLE"):
                 track, title = line.split("=", 1)
                 try:
@@ -87,7 +87,7 @@ def query(category, discid, xcode='utf8:utf8'):
     except EnvironmentError:
         pass
     try:
-        save = file(dump, 'w')
+        save = open(dump, 'w')
         keys = list(info.keys())
         keys.sort()
         for key in keys:

@@ -89,8 +89,8 @@ class ExceptionDialog(Gtk.Window):
     def __dump(self, Kind, value, trace, dump, minidump):
         import mutagen
 
-        dumpobj = open(dump, "wb")
-        minidumpobj = open(minidump, "wb")
+        dumpobj = open(dump, "wt")
+        minidumpobj = open(minidump, "wt")
 
         header = "Quod Libet %s\nMutagen %s\nPython %s %s\nPlatform %s" % (
             const.VERSION, mutagen.version_string, sys.version,
@@ -106,7 +106,7 @@ class ExceptionDialog(Gtk.Window):
 
         dumpobj.write("=== LOG:\n")
         for item in logging.get_content(limit=75):
-            dumpobj.write(item.decode("utf-8") + "\n")
+            dumpobj.write(item + "\n")
 
         dumpobj.close()
 
@@ -173,7 +173,7 @@ class ExceptionDialog(Gtk.Window):
 
         def first_draw(*args):
             filename = unexpand(dump)
-            offset = label.get_text().decode("utf-8").find(filename)
+            offset = label.get_text().find(filename)
             label.select_region(offset, offset + len(filename))
             self.disconnect(self.__draw_id)
 

@@ -15,7 +15,7 @@ def dbus_unicode_validate(text):
     """Takes a unicode string and replaces all invalid codepoints that would
     lead to errors if passed to dbus"""
 
-    if isinstance(text, str):
+    if isinstance(text, bytes):
         text = text.decode("utf-8")
 
     # https://bugs.freedesktop.org/show_bug.cgi?id=40817

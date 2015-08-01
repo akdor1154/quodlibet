@@ -47,7 +47,7 @@ class PictureSaver(EventPlugin):
                 except EnvironmentError:
                     pass
             else:
-                f = file(outfile, "wb")
+                f = open(outfile, "wb")
                 f.write(cover.read())
                 f.close()
 

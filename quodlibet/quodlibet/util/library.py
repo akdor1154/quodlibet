@@ -22,7 +22,7 @@ from quodlibet.util.path import bytes2fsnative, fsnative2bytes, fsnative
 
 
 def background_filter():
-    bg = config.get("browsers", "background").decode('utf-8')
+    bg = config.get("browsers", "background")
     if not bg:
         return
     try:
@@ -43,7 +43,7 @@ def split_scan_dirs(s):
 
 def get_scan_dirs():
     dirs = split_scan_dirs(config.get("settings", "scan"))
-    return [bytes2fsnative(d) for d in dirs if d]
+    return [fsnative(d) for d in dirs if d]
 
 
 def set_scan_dirs(dirs):
@@ -51,7 +51,7 @@ def set_scan_dirs(dirs):
         joined = fsnative(":").join(dirs)
     else:
         joined = join_escape(dirs, fsnative(":"))
-    config.set("settings", "scan", fsnative2bytes(joined))
+    config.set("settings", "scan", fsnative(joined))
 
 
 def scan_library(library, force):
@@ -62,7 +62,7 @@ def scan_library(library, force):
 
     paths = get_scan_dirs()
     exclude = split_scan_dirs(config.get("library", "exclude"))
-    exclude = [bytes2fsnative(e) for e in exclude]
+    exclude = [fsnative(e) for e in exclude]
     copool.add(library.rebuild, paths, force, exclude,
                cofuncid="library", funcid="library")
 

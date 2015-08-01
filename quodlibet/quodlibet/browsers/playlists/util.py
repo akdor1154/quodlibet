@@ -71,7 +71,7 @@ def parse_pls(filename, name="", library=None):
         os.path.splitext(filename)[0]))
 
     filenames = []
-    h = file(filename)
+    h = open(filename)
     for line in h:
         line = line.strip()
         if not line.lower().startswith("file"):

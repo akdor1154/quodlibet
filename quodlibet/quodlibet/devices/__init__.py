@@ -54,7 +54,7 @@ config.read(DEVICES)
 
 
 def write():
-    f = file(DEVICES, 'w')
+    f = open(DEVICES, 'w')
     config.write(f)
     f.close()
 
@@ -152,7 +152,7 @@ def get_devices_from_path(udev_ctx, path):
 
     Either returns a non empty list or raises EnvironmentError.
     """
-
+    print_d('checking %s' % path)
     path = path.encode("ascii")
     enum = udev.UdevEnumerate.new(udev_ctx)
 
@@ -196,7 +196,7 @@ def get_devices_from_path(udev_ctx, path):
         for e in entry:
             name = e.get_name()
             value = e.get_value()
-            attrs[name] = value.decode("string-escape")
+            attrs[name] = value.decode("unicode_escape")
         device_attrs.append(attrs)
 
     # the first device owns its parents
@@ -206,7 +206,7 @@ def get_devices_from_path(udev_ctx, path):
 
 
 def dbus_barray_to_str(array):
-    return b"".join(map(bytes, array)).rstrip(b"\x00")
+    return ''.join(map(chr, array)).rstrip('\x00')
 
 
 class UDisks2Manager(DeviceManager):
