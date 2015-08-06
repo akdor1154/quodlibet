@@ -103,22 +103,28 @@ class AudioFile(dict, ImageContainer):
     mimes = []
 
     def __song_key(self):
-        return (self("~#disc"), self("~#track"),
-            human(self("artistsort")),
+        return tuple(map(human, (
+            self("~#disc"),
+            self("~#track"),
+            self("artistsort"),
             self.get("musicbrainz_artistid", ""),
-            human(self.get("title", "")),
-            self.get("~filename"))
+            self.get("title", ""),
+            self.get("~filename"))))
 
     @util.cached_property
     def album_key(self):
-        return (human(self("albumsort", "")),
-                human(self("albumartistsort", "")),
-                self.get("album_grouping_key") or self.get("labelid") or
-                self.get("musicbrainz_albumid") or "")
+        return tuple(map(human, (
+            self("albumsort", ""),
+            self("albumartistsort", ""),
+            self.get("album_grouping_key")
+                or self.get("labelid")
+                or self.get("musicbrainz_albumid")
+                or ""
+        )))
 
     @util.cached_property
     def sort_key(self):
-        return [self.album_key, self.__song_key()]
+        return (self.album_key, self.__song_key())
 
     @staticmethod
     def sort_by_func(tag):

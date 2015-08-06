@@ -37,6 +37,8 @@ from .misc import environ, argv, cached_func, get_locale_encoding, \
     get_fs_encoding
 from .environment import *
 
+import natsort
+
 # pyflakes
 environ, argv, cached_func, get_locale_encoding, get_fs_encoding
 
@@ -402,27 +404,17 @@ def capitalize(str):
     return str[:1].upper() + str[1:]
 
 
-def _split_numeric_sortkey(s, limit=10,
-                           reg=re.compile(r"[0-9][0-9]*\.?[0-9]*").search,
-                           join=" ".join):
-    """Separate numeric values from the string and convert to float, so
-    it can be used for human sorting. Also removes all extra whitespace."""
-    result = reg(s)
-    if not result or not limit:
-        return (join(s.split()),)
-    else:
-        start, end = result.span()
-        return (
-            join(s[:start].split()),
-            float(result.group()),
-            _split_numeric_sortkey(s[end:], limit - 1))
+sortkeyfunc = natsort.natsort_keygen(
+                alg=(natsort.ns.INT | natsort.ns.TYPESAFE)
+              )
 
 
 def human_sort_key(s, normalize=unicodedata.normalize):
-    if not isinstance(s, str):
+    if isinstance(s, bytes):
         s = s.decode("utf-8")
-    s = normalize("NFD", s.lower())
-    return s and _split_numeric_sortkey(s)
+    if isinstance(s, str):
+        s = normalize("NFD", s.lower())
+    return sortkeyfunc(s)
 
 
 def website(site):

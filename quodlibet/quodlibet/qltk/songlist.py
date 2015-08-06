@@ -32,7 +32,6 @@ from quodlibet.util import connect_destroy
 import collections
 from functools import reduce
 
-
 DND_QL, DND_URI_LIST = list(range(2))
 
 
