@@ -91,10 +91,10 @@ INITIAL = {
         "bayesian_rating_factor": "0.0",
 
         # rating symbol (black star)
-        "rating_symbol_full": "\xe2\x98\x85",
+        "rating_symbol_full": "\u2605",
 
         # rating symbol (hollow star)
-        "rating_symbol_blank": "\xe2\x98\x86",
+        "rating_symbol_blank": "\u2606",
 
         # probably belongs in memory
         "repeat": "false",
