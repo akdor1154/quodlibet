@@ -14,9 +14,9 @@ def isascii(string):
 
     try:
         if isinstance(string, str):
-            string.decode("ascii")
-        else:
             string.encode("ascii")
+        else:
+            string.decode("ascii")
     except UnicodeError:
         return False
     return True
