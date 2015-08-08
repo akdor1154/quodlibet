@@ -67,7 +67,7 @@ class SplitTag(FilterCheckButton):
     _order = 1.2
 
     def filter(self, tag, value):
-        spls = config.get("editing", "split_on").decode('utf-8', 'replace')
+        spls = config.get("editing", "split_on")
         spls = spls.split()
         return "\n".join(split_value(value, spls))
 
@@ -181,7 +181,7 @@ class TagsFromPath(Gtk.VBox):
             songs = [row[0].song for row in (self.view.get_model() or [])]
 
         if songs:
-            pattern_text = self.combo.get_child().get_text().decode("utf-8")
+            pattern_text = self.combo.get_child().get_text()
         else:
             pattern_text = ""
         try:
@@ -267,7 +267,7 @@ class TagsFromPath(Gtk.VBox):
         self.save.set_sensitive(len(pattern.headers) > 0)
 
     def __save(self, addreplace, library):
-        pattern_text = self.combo.get_child().get_text().decode('utf-8')
+        pattern_text = self.combo.get_child().get_text()
         pattern = TagsFromPattern(pattern_text)
         model = self.view.get_model()
         add = bool(addreplace.get_active())
@@ -322,7 +322,6 @@ class TagsFromPath(Gtk.VBox):
 
     def __row_edited(self, renderer, path, new, model, header):
         entry = model[path][0]
-        new = new.decode("utf-8")
         if entry.get_match(header) != new:
             entry.replace_match(header, new)
             self.preview.set_sensitive(True)

@@ -38,12 +38,11 @@ def selection_set_songs(selection_data, songs):
     filenames = []
     for filename in (song["~filename"] for song in songs):
         if isinstance(filename, str):
-            # win32
             filename = filename.encode("utf-8")
         filenames.append(filename)
 
     type_ = Gdk.atom_intern("text/x-quodlibet-songs", True)
-    selection_data.set(type_, 8, "\x00".join(filenames))
+    selection_data.set(type_, 8, b"\x00".join(filenames))
 
 
 def selection_get_filenames(selection_data):
@@ -54,11 +53,8 @@ def selection_get_filenames(selection_data):
     data_type = selection_data.get_data_type()
     assert data_type.name() == "text/x-quodlibet-songs"
 
-    items = selection_data.get_data().split("\x00")
-    if sys.platform == "win32":
-        return [item.decode("utf-8") for item in items]
-    else:
-        return items
+    items = selection_data.get_data().split(b"\x00")
+    return [item.decode("utf-8") for item in items]
 
 
 def get_top_parent(widget):
@@ -227,7 +223,7 @@ def add_css(widget, css):
     """
 
     if isinstance(css, str):
-        css = css.encode()
+        css = bytes(css.encode('utf-8'))
     provider = Gtk.CssProvider()
     provider.load_from_data(css)
     context = widget.get_style_context()

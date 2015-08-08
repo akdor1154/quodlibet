@@ -70,7 +70,7 @@ class LyricsPane(Gtk.VBox):
         connect_obj(buffer, 'changed', save.set_sensitive, True)
 
     def __add(self, add, song):
-        artist = song.comma('artist').encode('utf-8')
+        artist = song.comma('artist')
 
         util.website("http://lyricwiki.org/%s" % (urllib.parse.quote(artist)))
 
@@ -90,13 +90,13 @@ class LyricsPane(Gtk.VBox):
             sock = urllib.request.urlopen(
                 "http://lyricwiki.org/api.php?"
                 "client=QuodLibet&func=getSong&artist=%s&song=%s&fmt=text" % (
-                urllib.parse.quote(artist.encode('utf-8')),
-                urllib.parse.quote(title.encode('utf-8'))))
+                    urllib.parse.quote(artist),
+                    urllib.parse.quote(title)
+                ))
             text = sock.read()
         except Exception as err:
-            encoding = util.get_locale_encoding()
             try:
-                err = err.strerror.decode(encoding, 'replace')
+                err = err.strerror
             except:
                 err = _("Unable to download lyrics.")
             GLib.idle_add(buffer.set_text, err)
@@ -121,8 +121,7 @@ class LyricsPane(Gtk.VBox):
         try:
             f = open(lyricname, "w")
         except EnvironmentError as err:
-            encoding = util.get_locale_encoding()
-            print_w(err.strerror.decode(encoding, "replace"))
+            print_w(err.strerror)
         else:
             start, end = buffer.get_bounds()
             f.write(buffer.get_text(start, end, True))

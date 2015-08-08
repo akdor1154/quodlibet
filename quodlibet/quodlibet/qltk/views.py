@@ -88,7 +88,7 @@ class TreeViewHints(Gtk.Window):
         # don't depend on padding set by theme, we need the text coordinates
         # to match in all cases
         self._style_provider = style_provider = Gtk.CssProvider()
-        style_provider.load_from_data("""
+        style_provider.load_from_data(b"""
             .ql-tooltip * {
                 border-width: 0px;
                 padding: 0px;
@@ -96,7 +96,7 @@ class TreeViewHints(Gtk.Window):
             .ql-tooltip {
                 padding: 0px;
             }
-        """.encode())
+        """)
 
         # somehow this doesn't apply if we set it on the window, only
         # if set for the screen. gets reverted again in disconnect_view()

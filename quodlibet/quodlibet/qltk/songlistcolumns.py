@@ -176,8 +176,7 @@ class DateColumn(WideTextColumn):
             else:
                 format_ = "%x"
             stamp = time.localtime(stamp)
-            encoding = util.get_locale_encoding()
-            text = time.strftime(format_, stamp).decode(encoding)
+            text = time.strftime(format_, stamp)
             cell.set_property('text', text)
 
 

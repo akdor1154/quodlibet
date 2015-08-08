@@ -188,13 +188,11 @@ class SplitValues(Gtk.ImageMenuItem):
             label=_("Split into _Multiple Values"), use_underline=True)
         self.set_image(Gtk.Image.new_from_icon_name(
             Icons.EDIT_FIND_REPLACE, Gtk.IconSize.MENU))
-        spls = config.get("editing", "split_on").decode(
-            'utf-8', 'replace').split()
+        spls = config.get("editing", "split_on").split()
         self.set_sensitive(len(split_value(value, spls)) > 1)
 
     def activated(self, tag, value):
-        spls = config.get("editing", "split_on").decode(
-            'utf-8', 'replace').split()
+        spls = config.get("editing", "split_on").split()
         return [(tag, v) for v in split_value(value, spls)]
 
 
@@ -225,13 +223,11 @@ class SplitTitle(Gtk.ImageMenuItem):
             label=_("Split _Version out of Title"), use_underline=True)
         self.set_image(Gtk.Image.new_from_icon_name(
             Icons.EDIT_FIND_REPLACE, Gtk.IconSize.MENU))
-        spls = config.get("editing", "split_on").decode(
-            'utf-8', 'replace').split()
+        spls = config.get("editing", "split_on").split()
         self.set_sensitive(bool(split_title(value, spls)[1]))
 
     def activated(self, tag, value):
-        spls = config.get("editing", "split_on").decode(
-            'utf-8', 'replace').split()
+        spls = config.get("editing", "split_on").split()
         title, versions = split_title(value, spls)
         return [(tag, title)] + [("version", v) for v in versions]
 
@@ -244,13 +240,11 @@ class SplitPerson(Gtk.ImageMenuItem):
         super(SplitPerson, self).__init__(label=self.title, use_underline=True)
         self.set_image(Gtk.Image.new_from_icon_name(
             Icons.EDIT_FIND_REPLACE, Gtk.IconSize.MENU))
-        spls = config.get("editing", "split_on").decode(
-            'utf-8', 'replace').split()
+        spls = config.get("editing", "split_on").split()
         self.set_sensitive(bool(split_people(value, spls)[1]))
 
     def activated(self, tag, value):
-        spls = config.get("editing", "split_on").decode(
-            'utf-8', 'replace').split()
+        spls = config.get("editing", "split_on").split()
         artist, others = split_people(value, spls)
         return [(tag, artist)] + [(self.needs[0], o) for o in others]
 
@@ -350,7 +344,7 @@ class AddTagDialog(Dialog):
             return self.__tag.tag
 
     def get_value(self):
-        return self.__val.get_text().decode("utf-8")
+        return self.__val.get_text()
 
     def __validate(self, editable, add, invalid, box):
         tag = self.get_tag()
@@ -809,7 +803,6 @@ class EditTags(Gtk.VBox):
             b.set_sensitive(not all_done)
 
     def __edit_tag(self, renderer, path, new_value, model):
-        new_value = new_value.decode("utf-8")
         new_value = ', '.join(new_value.splitlines())
         path = Gtk.TreePath.new_from_string(path)
         entry = model[path][0]

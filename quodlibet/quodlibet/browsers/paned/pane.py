@@ -150,7 +150,7 @@ class Pane(AllTreeView):
 
     def __search_func(self, model, column, key, iter_, data):
         entry = model.get_value(iter_)
-        return not entry.contains_text(key.decode('utf-8'))
+        return not entry.contains_text(key)
 
     def __drag_data_get(self, view, ctx, sel, tid, etime):
         songs = self.__get_selected_songs(sort=True)

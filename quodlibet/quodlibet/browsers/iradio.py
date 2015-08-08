@@ -131,6 +131,7 @@ def ParsePLS(file):
         return []
 
     for line in lines:
+        line = line.decode('utf-8')
         try:
             head, val = line.strip().split("=", 1)
         except (TypeError, ValueError):
@@ -140,14 +141,14 @@ def ParsePLS(file):
             if head.startswith("length") and val == "-1":
                 continue
             else:
-                data[head] = val.decode('utf-8', 'replace')
+                data[head] = val
 
     count = 1
     files = []
     warnings = []
     while True:
         if "file%d" % count in data:
-            filename = data["file%d" % count].encode('utf-8', 'replace')
+            filename = data["file%d" % count]
             if filename.lower()[-4:] in [".pls", ".m3u"]:
                 warnings.append(filename)
             else:
@@ -182,6 +183,7 @@ def ParseM3U(fileobj):
     files = []
     pending_title = None
     for line in fileobj:
+        line = line.decode('utf-8')
         line = line.strip()
         if line.startswith("#EXTINF:"):
             try:
@@ -191,7 +193,7 @@ def ParseM3U(fileobj):
         elif line.startswith("http"):
             irf = IRFile(line)
             if pending_title:
-                irf["title"] = pending_title.decode('utf-8', 'replace')
+                irf["title"] = pending_title
                 pending_title = None
             files.append(irf)
     return files
@@ -201,18 +203,17 @@ def add_station(uri):
     """Fetches the URI content and extracts IRFiles"""
 
     irfs = []
-    if isinstance(uri, str):
-        uri = uri.encode('utf-8')
+    if isinstance(uri, bytes):
+        uri = uri.decode('utf-8')
 
     if uri.lower().endswith(".pls") or uri.lower().endswith(".m3u"):
         try:
             sock = urllib.request.urlopen(uri)
         except EnvironmentError as e:
-            encoding = util.get_locale_encoding()
             try:
-                err = e.strerror.decode(encoding, 'replace')
+                err = e.strerror
             except (TypeError, AttributeError):
-                err = e.strerror[1].decode(encoding, 'replace')
+                err = e.strerror[1]
             qltk.ErrorMessage(None, _("Unable to add station"), err).run()
             return []
 
@@ -318,7 +319,6 @@ def parse_taglist(data):
             value = int(value)
 
         if isinstance(value, str):
-            value = value.decode("utf-8")
             if value not in station.list(key):
                 station.add(key, value)
         else:
@@ -850,7 +850,7 @@ class InternetRadio(Browser, util.InstanceTracker):
         return menu
 
     def restore(self):
-        text = config.get("browsers", "query_text").decode("utf-8")
+        text = config.get("browsers", "query_text")
         self.__searchbar.set_text(text)
         if Query.is_parsable(text):
             self.__filter_changed(self.__searchbar, text, restore=True)
@@ -912,7 +912,7 @@ class InternetRadio(Browser, util.InstanceTracker):
         return True
 
     def save(self):
-        text = self.__searchbar.get_text().encode("utf-8")
+        text = self.__searchbar.get_text()
         config.set("browsers", "query_text", text)
 
         selection = self.view.get_selection()

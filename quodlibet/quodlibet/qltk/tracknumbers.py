@@ -136,7 +136,7 @@ class TrackNumbers(Gtk.VBox):
         path = Gtk.TreePath.new_from_string(path)
         row = model[path]
         entry = row[0]
-        new = new.decode("utf-8")
+        new = new
         if entry.tracknumber != new:
             entry.tracknumber = new
             preview.set_sensitive(True)

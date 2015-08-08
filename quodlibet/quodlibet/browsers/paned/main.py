@@ -284,7 +284,7 @@ class PanedBrowser(Browser, util.InstanceTracker):
         for pane in self._panes:
             selected.append(pane.get_restore_string())
 
-        to_save = "\n".join(selected).encode("utf-8")
+        to_save = "\n".join(selected)
         config.set("browsers", "pane_selection", to_save)
 
     def restore(self):
@@ -297,11 +297,6 @@ class PanedBrowser(Browser, util.InstanceTracker):
 
         selected = config.get("browsers", "pane_selection")
         if not selected:
-            return
-
-        try:
-            selected = selected.decode("utf-8")
-        except UnicodeDecodeError:
             return
 
         for pane, string in zip(self._panes, selected.split("\n")):

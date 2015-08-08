@@ -181,7 +181,7 @@ class EditBookmarksPane(Gtk.VBox):
 
     def __set_bookmarks(self, model, a, b, library, song):
         try:
-            song.bookmarks = [(r[0], r[1].decode('utf-8')) for r in model]
+            song.bookmarks = [(r[0], r[1]) for r in model]
         except (AttributeError, ValueError):
             pass
         else:

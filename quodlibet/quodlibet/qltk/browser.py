@@ -145,7 +145,7 @@ class FilterMenu(object):
 
     def _make_query(self, query):
         if self._browser.can_filter_text():
-            self._browser.filter_text(query.encode('utf-8'))
+            self._browser.filter_text(query)
             self._browser.activate()
 
     def _hide_menus(self):

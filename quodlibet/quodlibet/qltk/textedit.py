@@ -69,7 +69,7 @@ class TextEditBox(Gtk.HBox):
     @property
     def text(self):
         start, end = self.buffer.get_bounds()
-        return self.buffer.get_text(start, end, True).decode('utf-8')
+        return self.buffer.get_text(start, end, True)
 
     @text.setter
     def text(self, value):

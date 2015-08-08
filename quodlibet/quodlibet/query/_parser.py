@@ -45,8 +45,7 @@ class QueryLexer(Scanner):
     def str_to_re(self, scanner, string):
         if isinstance(string, str):
             string = string.encode('utf-8')
-        string = string[1:-1].decode('string_escape')
-        string = string.decode('utf-8')
+        string = string[1:-1].decode('unicode_escape')
         return QueryLexeme(RE, "^%s$" % re_escape(string))
 
     def tag(self, scanner, string):

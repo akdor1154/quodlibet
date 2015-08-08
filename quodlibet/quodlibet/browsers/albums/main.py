@@ -618,7 +618,7 @@ class AlbumList(Browser, util.InstanceTracker, VisibleUpdate):
         album = model.get_album(iter_)
         if album is None:
             return True
-        key = key.decode('utf-8').lower()
+        key = key.lower()
         title = album.title.lower()
         if key in title:
             return False
@@ -740,7 +740,7 @@ class AlbumList(Browser, util.InstanceTracker, VisibleUpdate):
         self.view.get_selection().handler_unblock(self.__sig)
 
     def restore(self):
-        text = config.get("browsers", "query_text").decode("utf-8")
+        text = config.get("browsers", "query_text")
         entry = self.__search
         entry.set_text(text)
 
@@ -791,7 +791,7 @@ class AlbumList(Browser, util.InstanceTracker, VisibleUpdate):
     def save(self):
         conf = self.__get_config_string()
         config.set("browsers", "albums", conf)
-        text = self.__search.get_text().encode("utf-8")
+        text = self.__search.get_text()
         config.set("browsers", "query_text", text)
 
     def __update_songs(self, selection):

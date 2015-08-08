@@ -1326,7 +1326,7 @@ class QuodLibetWindow(Window, PersistentWindowMixin):
 
     def __make_query(self, query):
         if self.browser.can_filter_text():
-            self.browser.filter_text(query.encode('utf-8'))
+            self.browser.filter_text(query)
             self.browser.activate()
 
     def __set_time(self, info, songs):

@@ -218,7 +218,7 @@ class RenameFiles(Gtk.VBox):
         path = Gtk.TreePath.new_from_string(path)
         model = self.view.get_model()
         entry = model[path][0]
-        new = new.decode("utf-8")
+        new = new
         if entry.new_name != new:
             entry.new_name = new
             self.preview.set_sensitive(True)
@@ -283,7 +283,7 @@ class RenameFiles(Gtk.VBox):
         if songs is None:
             songs = [e.song for e in model.values()]
 
-        pattern_text = self.combo.get_child().get_text().decode("utf-8")
+        pattern_text = self.combo.get_child().get_text()
 
         try:
             pattern = FileFromPattern(pattern_text)
